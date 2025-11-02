@@ -1,524 +1,5 @@
-// import React, { useState, useEffect, useCallback } from "react";
-// import axios from "axios";
-// import StatCard from "../../components/StatCard";
-// import RevenueChart from "../../components/RevenueChart";
-// import AbstractStatusPie from "../../components/AbstractStatusPie";
-// import AbstractTrendChart from "../../components/AbstractTrendChart";
-// import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps";
-
-// // ✅ World map source
-// const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
-
-// // --- Icons for StatCards ---
-// const icons = {
-//   total: (
-//     <svg className="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7h18M3 12h18M3 17h18"></path>
-//     </svg>
-//   ),
-//   abstractApproved: (
-//     <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-//     </svg>
-//   ),
-//   abstractRejected: (
-//     <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-//     </svg>
-//   ),
-//   paperApproved: (
-//     <svg className="w-6 h-6 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2l4-4m1 10H7a2 2 0 01-2-2V6a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"></path>
-//     </svg>
-//   ),
-//   revenue: (
-//     <svg className="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 1.343-3 3h2a1 1 0 0 1 2 0c0 1.105-.895 2-2 2-1.657 0-3 1.343-3 3h8"></path>
-//     </svg>
-//   ),
-// };
-
-// const MainDashboard = () => {
-//   const [stats, setStats] = useState({
-//     total: 0,
-//     abstractApproved: 0,
-//     abstractRejected: 0,
-//     paperApproved: 0,
-//     revenue: 0,
-//   });
-//   const [trend, setTrend] = useState([]);
-//   const [countryCounts, setCountryCounts] = useState({});
-//   const [countryCoordinates, setCountryCoordinates] = useState({});
-
-//   const safeNumber = (v) => {
-//     const n = Number(v);
-//     return Number.isFinite(n) ? n : 0;
-//   };
-
-//   // --- Fetch registrations ---
-//   const fetchRegistrations = useCallback(async () => {
-//     try {
-//       const token = localStorage.getItem("token");
-//       if (!token) throw new Error("No token found. Access denied.");
-
-//       const res = await axios.get("https://s3conference.ksrce.ac.in/api/admin/users", {
-//         headers: { Authorization: `Bearer ${token}` },
-//       });
-
-//       const allUsers = Array.isArray(res.data) ? res.data : [];
-
-//       // ✅ Use only valid registrations
-//       const validRegistrations = allUsers.filter((user) => user?.registration);
-
-//       updateStats(validRegistrations);
-//       updateTrend(validRegistrations);
-//       updateCountryCounts(validRegistrations);
-//     } catch (err) {
-//       console.error("Error fetching registrations:", err);
-//       alert(err.response?.data?.message || err.message || "Failed to fetch registrations.");
-//       setStats({ total: 0, abstractApproved: 0, abstractRejected: 0, paperApproved: 0, revenue: 0 });
-//       setTrend([]);
-//       setCountryCounts({});
-//       setCountryCoordinates({});
-//     }
-//   }, []);
-
-//   useEffect(() => {
-//     fetchRegistrations();
-//   }, [fetchRegistrations]);
-
-//   // ✅ Calculate all stats together
-//   const updateStats = (data) => {
-//     const total = data.length;
-//     let abstractApproved = 0;
-//     let abstractRejected = 0;
-//     let paperApproved = 0;
-//     let revenue = 0;
-
-//     data.forEach((user) => {
-//       const workflow = user?.workflow || user?.registration?.workflow || {};
-//       const payment = user?.payment || user?.registration?.payment || {};
-
-//       const abstractStatus = workflow.abstractStatus?.toLowerCase() || "-";
-//       const paperStatus =
-//         workflow.finalPaperStatus?.toLowerCase() ||
-//         workflow.paperStatus?.toLowerCase() ||
-//         user?.registration?.paperStatus?.toLowerCase() ||
-//         "-";
-
-//       const paymentStatus = payment.paymentStatus?.toLowerCase() || "unpaid";
-//       const amountPaid = safeNumber(payment.amountPaid);
-
-//       if (abstractStatus === "approved") abstractApproved++;
-//       if (abstractStatus === "rejected") abstractRejected++;
-//       if (paperStatus === "approved") paperApproved++;
-
-//       if (paperStatus === "approved" && paymentStatus === "paid") {
-//         revenue += amountPaid;
-//       }
-//     });
-
-//     setStats({
-//       total,
-//       abstractApproved,
-//       abstractRejected,
-//       paperApproved,
-//       revenue,
-//     });
-//   };
-
-//   // --- Trend over time ---
-//   const updateTrend = (data) => {
-//     const grouped = {};
-//     data.forEach((user) => {
-//       const date = new Date(user?.createdAt || new Date()).toISOString().split("T")[0];
-//       grouped[date] = (grouped[date] || 0) + 1;
-//     });
-//     const sorted = Object.entries(grouped)
-//       .sort((a, b) => new Date(a[0]) - new Date(b[0]))
-//       .map(([date, count]) => ({ name: date, value: count }));
-//     setTrend(sorted);
-//   };
-
-//   // --- Fetch coordinates for countries ---
-//   const fetchCountryCoordinates = async (code) => {
-//     if (!code || code === "-") return null;
-//     try {
-//       const res = await axios.get(`https://restcountries.com/v3.1/alpha/${encodeURIComponent(code)}`);
-//       if (res.data && res.data[0]?.latlng) {
-//         return res.data[0].latlng;
-//       }
-//     } catch (e) {
-//       console.debug(`Coordinates lookup failed for ${code}`, e?.message || e);
-//     }
-//     return null;
-//   };
-
-//   // --- Country distribution ---
-//   const updateCountryCounts = async (data) => {
-//     const counts = {};
-//     data.forEach((r) => {
-//       const c = r.registration?.country || r.country || "-";
-//       counts[c] = (counts[c] || 0) + 1;
-//     });
-//     setCountryCounts(counts);
-
-//     const uniqueCountries = Object.keys(counts).filter((c) => c && c !== "-");
-//     const coordsMap = { ...countryCoordinates };
-//     for (const country of uniqueCountries) {
-//       if (!coordsMap[country]) {
-//         const latlng = await fetchCountryCoordinates(country);
-//         if (latlng) coordsMap[country] = latlng;
-//       }
-//     }
-//     setCountryCoordinates(coordsMap);
-//   };
-
-//   // ✅ Chart-friendly data
-//   const revenueData = [
-//     { name: "Abstract Approved", value: stats.abstractApproved },
-//     { name: "Abstract Rejected", value: stats.abstractRejected },
-//     { name: "Paper Approved", value: stats.paperApproved },
-//   ];
-
-//   const statusData = [
-//     { name: "Approved", value: stats.abstractApproved },
-//     { name: "Rejected", value: stats.abstractRejected },
-//     { name: "Pending", value: stats.total - stats.abstractApproved - stats.abstractRejected },
-//   ];
-
-//   return (
-//     <div className="space-y-6 p-4">
-//       {/* StatCards */}
-//       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-//         <StatCard icon={icons.total} title="Total Registrations" value={stats.total} change="+5%" isPositive />
-//         <StatCard icon={icons.abstractApproved} title="Abstract Approved" value={stats.abstractApproved} change="+3%" isPositive />
-//         <StatCard icon={icons.abstractRejected} title="Abstract Rejected" value={stats.abstractRejected} change="-2%" isPositive={false} />
-//         <StatCard icon={icons.paperApproved} title="Paper Approved" value={stats.paperApproved} change="+8%" isPositive />
-//         <StatCard icon={icons.revenue} title="Total Revenue" value={`₹${stats.revenue.toLocaleString()}`} change="+12%" isPositive />
-//       </div>
-
-//       {/* Charts */}
-//       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-//         <RevenueChart data={revenueData} />
-//         <AbstractStatusPie data={statusData} />
-//       </div>
-
-//       {/* Trend */}
-//       <AbstractTrendChart data={trend} />
-
-//       {/* Map */}
-//       <div className="p-4 shadow rounded-lg bg-white">
-//         <h2 className="text-xl font-bold mb-4">Participants by Country</h2>
-//         <ComposableMap projectionConfig={{ scale: 200 }} style={{ width: "100%", height: "700px" }}>
-//           <Geographies geography={geoUrl}>
-//             {({ geographies }) =>
-//               geographies.map((geo) => (
-//                 <Geography key={geo.rsmKey} geography={geo} fill="#E5E7EB" stroke="#D1D5DB" />
-//               ))
-//             }
-//           </Geographies>
-//           {Object.entries(countryCounts).map(([country, count], idx) => {
-//             const coords = countryCoordinates[country];
-//             if (!coords) return null;
-//             return (
-//               <Marker key={idx} coordinates={[coords[1], coords[0]]}>
-//                 <circle r={Math.sqrt(count) * 2} fill="#F59E0B" stroke="#fff" strokeWidth={1} />
-//                 <text textAnchor="middle" y={-10} fontSize={10} fill="#111">{`${country} (${count})`}</text>
-//               </Marker>
-//             );
-//           })}
-//         </ComposableMap>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default MainDashboard;
-
-
-// import React, { useState, useEffect, useCallback } from "react";
-// import axios from "axios";
-// import {
-//   ComposableMap,
-//   Geographies,
-//   Geography,
-//   Marker,
-// } from "react-simple-maps";
-// import {
-//   PieChart,
-//   Pie,
-//   Cell,
-//   Tooltip as RechartTooltip,
-//   LineChart,
-//   Line,
-//   XAxis,
-//   YAxis,
-//   CartesianGrid,
-//   ResponsiveContainer,
-// } from "recharts";
-
-// // ✅ World map source
-// const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
-
-// // --- Colors for charts ---
-// const COLORS = ["#10B981", "#EF4444", "#F59E0B", "#6366F1", "#8B5CF6"];
-
-// // --- Icons ---
-// const icons = {
-//   total: (
-//     <svg className="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7h18M3 12h18M3 17h18"></path>
-//     </svg>
-//   ),
-//   abstractApproved: (
-//     <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-//     </svg>
-//   ),
-//   abstractRejected: (
-//     <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-//     </svg>
-//   ),
-//   paperApproved: (
-//     <svg className="w-6 h-6 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2l4-4m1 10H7a2 2 0 01-2-2V6a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"></path>
-//     </svg>
-//   ),
-//   revenue: (
-//     <svg className="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 1.343-3 3h2a1 1 0 0 1 2 0c0 1.105-.895 2-2 2-1.657 0-3 1.343-3 3h8"></path>
-//     </svg>
-//   ),
-// };
-
-// const MainDashboard = () => {
-//   const [stats, setStats] = useState({
-//     total: 0,
-//     abstractApproved: 0,
-//     abstractRejected: 0,
-//     paperApproved: 0,
-//     revenue: 0,
-//   });
-//   const [trend, setTrend] = useState([]);
-//   const [countryCounts, setCountryCounts] = useState({});
-//   const [countryCoordinates, setCountryCoordinates] = useState({});
-
-//   const safeNumber = (v) => {
-//     const n = Number(v);
-//     return Number.isFinite(n) ? n : 0;
-//   };
-
-//   // --- Fetch registrations ---
-//   const fetchRegistrations = useCallback(async () => {
-//     try {
-//       const token = localStorage.getItem("token");
-//       if (!token) throw new Error("No token found. Access denied.");
-
-//       const res = await axios.get("https://s3conference.ksrce.ac.in/api/admin/users", {
-//         headers: { Authorization: `Bearer ${token}` },
-//       });
-
-//       const allUsers = Array.isArray(res.data) ? res.data : [];
-//       const validRegistrations = allUsers.filter((user) => user?.registration);
-
-//       updateStats(validRegistrations);
-//       updateTrend(validRegistrations);
-//       updateCountryCounts(validRegistrations);
-//     } catch (err) {
-//       console.error("Error fetching registrations:", err);
-//       alert(err.response?.data?.message || err.message || "Failed to fetch registrations.");
-//       setStats({ total: 0, abstractApproved: 0, abstractRejected: 0, paperApproved: 0, revenue: 0 });
-//       setTrend([]);
-//       setCountryCounts({});
-//       setCountryCoordinates({});
-//     }
-//   }, []);
-
-//   useEffect(() => {
-//     fetchRegistrations();
-//   }, [fetchRegistrations]);
-
-//   // ✅ Update stats
-//   const updateStats = (data) => {
-//     const total = data.length;
-//     let abstractApproved = 0;
-//     let abstractRejected = 0;
-//     let paperApproved = 0;
-//     let revenue = 0;
-
-//     data.forEach((user) => {
-//       const workflow = user?.workflow || user?.registration?.workflow || {};
-//       const payment = user?.payment || user?.registration?.payment || {};
-
-//       const abstractStatus = workflow.abstractStatus?.toLowerCase() || "-";
-//       const paperStatus =
-//         workflow.finalPaperStatus?.toLowerCase() ||
-//         workflow.paperStatus?.toLowerCase() ||
-//         user?.registration?.paperStatus?.toLowerCase() ||
-//         "-";
-//       const paymentStatus = payment.paymentStatus?.toLowerCase() || "unpaid";
-//       const amountPaid = safeNumber(payment.amountPaid);
-
-//       if (abstractStatus === "approved") abstractApproved++;
-//       if (abstractStatus === "rejected") abstractRejected++;
-//       if (paperStatus === "approved") paperApproved++;
-//       if (paperStatus === "approved" && paymentStatus === "paid") revenue += amountPaid;
-//     });
-
-//     setStats({ total, abstractApproved, abstractRejected, paperApproved, revenue });
-//   };
-
-//   // --- Trend ---
-//   const updateTrend = (data) => {
-//     const grouped = {};
-//     data.forEach((user) => {
-//       const date = new Date(user?.createdAt || new Date()).toISOString().split("T")[0];
-//       grouped[date] = (grouped[date] || 0) + 1;
-//     });
-//     const sorted = Object.entries(grouped)
-//       .sort((a, b) => new Date(a[0]) - new Date(b[0]))
-//       .map(([date, count]) => ({ name: date, value: count }));
-//     setTrend(sorted);
-//   };
-
-//   // --- Fetch coordinates ---
-//   const fetchCountryCoordinates = async (code) => {
-//     if (!code || code === "-") return null;
-//     try {
-//       const res = await axios.get(`https://restcountries.com/v3.1/alpha/${encodeURIComponent(code)}`);
-//       if (res.data && res.data[0]?.latlng) return res.data[0].latlng;
-//     } catch (e) {
-//       console.debug(`Coordinates lookup failed for ${code}:`, e?.message);
-//     }
-//     return null;
-//   };
-
-//   // --- Country distribution ---
-//   const updateCountryCounts = async (data) => {
-//     const counts = {};
-//     data.forEach((r) => {
-//       const c = r.registration?.country || r.country || "-";
-//       counts[c] = (counts[c] || 0) + 1;
-//     });
-//     setCountryCounts(counts);
-
-//     const uniqueCountries = Object.keys(counts).filter((c) => c && c !== "-");
-//     const coordsMap = { ...countryCoordinates };
-//     for (const country of uniqueCountries) {
-//       if (!coordsMap[country]) {
-//         const latlng = await fetchCountryCoordinates(country);
-//         if (latlng) coordsMap[country] = latlng;
-//       }
-//     }
-//     setCountryCoordinates(coordsMap);
-//   };
-
-//   const revenueData = [
-//     { name: "Abstract Approved", value: stats.abstractApproved },
-//     { name: "Abstract Rejected", value: stats.abstractRejected },
-//     { name: "Paper Approved", value: stats.paperApproved },
-//   ];
-
-//   const statusData = [
-//     { name: "Approved", value: stats.abstractApproved },
-//     { name: "Rejected", value: stats.abstractRejected },
-//     { name: "Pending", value: stats.total - stats.abstractApproved - stats.abstractRejected },
-//   ];
-
-//   return (
-//     <div className="space-y-8 p-6 bg-gray-50 min-h-screen">
-//       {/* --- Stat Cards --- */}
-//       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-//         {[
-//           { icon: icons.total, title: "Total Registrations", value: stats.total },
-//           { icon: icons.abstractApproved, title: "Abstract Approved", value: stats.abstractApproved },
-//           { icon: icons.abstractRejected, title: "Abstract Rejected", value: stats.abstractRejected },
-//           { icon: icons.paperApproved, title: "Paper Approved", value: stats.paperApproved },
-//           { icon: icons.revenue, title: "Total Revenue", value: `₹${stats.revenue.toLocaleString()}` },
-//         ].map((card, idx) => (
-//           <div key={idx} className="p-4 bg-white shadow rounded-xl flex items-center gap-3 hover:shadow-lg transition">
-//             <div className="p-3 bg-gray-100 rounded-full">{card.icon}</div>
-//             <div>
-//               <h4 className="text-gray-600 text-sm font-semibold">{card.title}</h4>
-//               <p className="text-xl font-bold text-gray-800">{card.value}</p>
-//             </div>
-//           </div>
-//         ))}
-//       </div>
-
-//       {/* --- Charts --- */}
-//       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-//         {/* Pie Chart */}
-//         <div className="bg-white p-4 rounded-xl shadow">
-//           <h2 className="text-lg font-bold mb-3">Abstract Status Overview</h2>
-//           <ResponsiveContainer width="100%" height={300}>
-//             <PieChart>
-//               <Pie data={statusData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label>
-//                 {statusData.map((entry, index) => (
-//                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-//                 ))}
-//               </Pie>
-//               <RechartTooltip />
-//             </PieChart>
-//           </ResponsiveContainer>
-//         </div>
-
-//         {/* Line Chart */}
-//         <div className="bg-white p-4 rounded-xl shadow">
-//           <h2 className="text-lg font-bold mb-3">Registration Trend</h2>
-//           <ResponsiveContainer width="100%" height={300}>
-//             <LineChart data={trend}>
-//               <CartesianGrid strokeDasharray="3 3" />
-//               <XAxis dataKey="name" />
-//               <YAxis />
-//               <RechartTooltip />
-//               <Line type="monotone" dataKey="value" stroke="#6366F1" strokeWidth={2} />
-//             </LineChart>
-//           </ResponsiveContainer>
-//         </div>
-//       </div>
-
-//       {/* --- Map Section --- */}
-//       <div className="p-4 shadow rounded-xl bg-white">
-//         <h2 className="text-xl font-bold mb-4">Participants by Country</h2>
-//         <ComposableMap projectionConfig={{ scale: 200 }} style={{ width: "100%", height: "700px" }}>
-//           <Geographies geography={geoUrl}>
-//             {({ geographies }) =>
-//               geographies.map((geo) => (
-//                 <Geography key={geo.rsmKey} geography={geo} fill="#E5E7EB" stroke="#D1D5DB" />
-//               ))
-//             }
-//           </Geographies>
-//           {Object.entries(countryCounts).map(([country, count], idx) => {
-//             const coords = countryCoordinates[country];
-//             if (!coords) return null;
-//             return (
-//               <Marker key={idx} coordinates={[coords[1], coords[0]]}>
-//                 <circle r={Math.sqrt(count) * 2} fill="#F59E0B" stroke="#fff" strokeWidth={1} />
-//                 <text textAnchor="middle" y={-10} fontSize={10} fill="#111">
-//                   {`${country} (${count})`}
-//                 </text>
-//               </Marker>
-//             );
-//           })}
-//         </ComposableMap>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default MainDashboard;
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import axios from "axios";
 import * as XLSX from "xlsx";
-import {
-  ComposableMap,
-  Geographies,
-  Geography,
-  Marker,
-} from "react-simple-maps";
 import {
   PieChart,
   Pie,
@@ -533,9 +14,11 @@ import {
   ResponsiveContainer,
   Tooltip,
   Legend,
+  Area,
+  AreaChart,
 } from "recharts";
 import {
-  Loader2,
+  Loader,
   Download,
   Users,
   CheckCircle,
@@ -543,33 +26,404 @@ import {
   FileText,
   DollarSign,
   Globe,
+  TrendingUp,
+  RefreshCw,
+  ChevronRight,
+  Calendar,
+  BarChart3,
+  Filter,
 } from "lucide-react";
 
-/* ----------------------------- Small Components & Utils ----------------------------- */
+/* ----------------------------- Styles ----------------------------- */
+const styles = `
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-// World map source
-const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
+  * {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
 
-// Colors for charts
-const COLORS = ["#10B981", "#EF4444", "#F59E0B", "#6366F1", "#8B5CF6"];
+  :root {
+    --brand-orange: #F57C00;
+    --brand-orange-dark: #E65100;
+    --brand-blue-dark: #0D47A1;
+    --brand-blue-primary: #1976D2;
+    --brand-blue-light: #E3F2FD;
+    --brand-red: #D32F2F;
+    --text-primary: #111318;
+    --text-secondary: #6c757d;
+    --surface-light: #f8f9fa;
+    --surface-dark: #e9ecef;
+    --white: #FFFFFF;
+  }
 
-// Icon map
-const icons = {
-  total: <Users className="w-6 h-6 text-blue-500" />,
-  abstractApproved: <CheckCircle className="w-6 h-6 text-green-500" />,
-  abstractRejected: <XCircle className="w-6 h-6 text-red-500" />,
-  paperApproved: <FileText className="w-6 h-6 text-indigo-500" />,
-  revenue: <DollarSign className="w-6 h-6 text-purple-500" />,
-  countries: <Globe className="w-6 h-6 text-emerald-500" />,
-};
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 
-// Reusable Modal Component
+  .glass-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glass-card:hover {
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+  }
+
+  .stat-card {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent-color) 0%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .stat-card:hover::before {
+    opacity: 1;
+  }
+
+  .stat-icon-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--accent-color), var(--accent-color-dark));
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  .stat-icon-wrapper::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--accent-color), var(--accent-color-dark));
+    opacity: 0.2;
+    filter: blur(8px);
+  }
+
+  .metric-value {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--text-primary) 0%, #4a5568 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .metric-trend {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+  }
+
+  .chart-container {
+    background: white;
+    border-radius: 24px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+    transition: all 0.4s ease;
+    position: relative; /* Add this */
+  }
+
+  .chart-container:hover {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+  }
+
+  .chart-header {
+    padding: 24px 28px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    background: linear-gradient(180deg, #fafbfc 0%, #ffffff 100%);
+    position: relative; /* Add this */
+    z-index: 5; /* Add this */
+  }
+
+  .chart-body {
+    padding: 28px;
+  }
+
+  .btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+  }
+
+  .btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .btn:hover::before {
+    opacity: 1;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--brand-orange) 0%, var(--brand-orange-dark) 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(245, 124, 0, 0.3);
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    box-shadow: 0 8px 20px rgba(245, 124, 0, 0.4);
+    transform: translateY(-2px);
+  }
+
+  .btn-secondary {
+    background: linear-gradient(135deg, var(--brand-blue-primary) 0%, var(--brand-blue-dark) 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    box-shadow: 0 8px 20px rgba(25, 118, 210, 0.4);
+    transform: translateY(-2px);
+  }
+
+  .btn-outline {
+    background: transparent;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: var(--text-primary);
+    box-shadow: none;
+  }
+
+  .btn-outline:hover:not(:disabled) {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: rgba(0, 0, 0, 0.2);
+    transform: translateY(-1px);
+  }
+
+  .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .btn-sm {
+    padding: 8px 16px;
+    font-size: 0.875rem;
+  }
+
+  .table-modern {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .table-modern thead {
+    background: linear-gradient(180deg, #fafbfc 0%, #f5f7fa 100%);
+  }
+
+  .table-modern th {
+    padding: 16px 20px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    border-bottom: 2px solid rgba(0, 0, 0, 0.06);
+  }
+
+  .table-modern tbody tr {
+    transition: all 0.2s ease;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  }
+
+  .table-modern tbody tr:hover {
+    background: linear-gradient(90deg, var(--brand-blue-light) 0%, transparent 100%);
+    transform: translateX(4px);
+  }
+
+  .table-modern td {
+    padding: 18px 20px;
+    color: var(--text-primary);
+  }
+
+  .badge-modern {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 52px;
+    padding: 6px 14px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    background: linear-gradient(135deg, var(--brand-blue-light) 0%, #E3F2FD 100%);
+    color: var(--brand-blue-dark);
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.15);
+  }
+
+  .progress-bar {
+    height: 6px;
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--brand-orange) 0%, var(--brand-orange-dark) 100%);
+    border-radius: 3px;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease;
+  }
+
+  .modal-content {
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2);
+    animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .header-gradient {
+    background: linear-gradient(135deg, var(--brand-blue-dark) 0%, var(--brand-blue-primary) 50%, var(--brand-orange) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .filter-dropdown {
+    position: relative;
+    display: inline-block;
+  }
+
+  .filter-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 8px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    min-width: 280px; /* Increased width */
+    max-height: 400px; /* Added max height */
+    overflow-y: auto; /* Added scroll */
+    z-index: 1000; /* Increased z-index */
+  }
+
+  /* Custom scrollbar for filter menu */
+  .filter-menu::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .filter-menu::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+  }
+
+  .filter-menu::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+  }
+
+  .filter-menu::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+  }
+
+  .date-input {
+    padding: 8px 12px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 6px;
+    font-size: 0.875rem;
+    width: 100%;
+    margin-bottom: 12px;
+  }
+
+  .date-input:focus {
+    outline: none;
+    border-color: var(--brand-blue-primary);
+    box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.1);
+  }
+
+  .filter-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  /* Ensure the dropdown stays above other content */
+  .chart-header > * {
+    position: relative;
+    z-index: 10;
+  }
+`;
+
+/* ----------------------------- Components ----------------------------- */
+
 const Modal = ({ children, onClose, size = "md" }) => {
-  const sizeClasses = { sm: "max-w-sm", md: "max-w-2xl", lg: "max-w-4xl" };
+  const sizeClasses = { sm: "max-w-md", md: "max-w-2xl", lg: "max-w-4xl" };
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className={`bg-white w-full ${sizeClasses[size]} rounded-2xl shadow-xl p-6 relative`}>
-        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-3xl">
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className={`modal-content w-full ${sizeClasses[size]} p-8 m-4`} onClick={e => e.stopPropagation()}>
+        <button 
+          onClick={onClose} 
+          className="absolute top-6 right-6 text-gray-400 hover:text-gray-700 transition-colors"
+        >
           <XCircle className="w-6 h-6" />
         </button>
         {children}
@@ -578,96 +432,205 @@ const Modal = ({ children, onClose, size = "md" }) => {
   );
 };
 
-// Stat Card
-const StatCard = ({ icon, title, value, hint }) => (
-  <div className="bg-white border border-gray-100 rounded-2xl shadow p-4 hover:shadow-md transition">
-    <div className="flex items-start justify-between">
-      <div>
-        <div className="text-sm text-gray-500 font-medium">{title}</div>
-        <div className="mt-2 text-2xl font-bold text-gray-800">{value}</div>
-        {hint && <div className="text-xs text-gray-400 mt-1">{hint}</div>}
+const StatCard = ({ icon, title, value, hint, color, colorDark, trend }) => (
+  <div 
+    className="stat-card glass-card rounded-2xl p-6"
+    style={{ '--accent-color': color, '--accent-color-dark': colorDark }}
+  >
+    <div className="flex items-start justify-between mb-4">
+      <div className="flex-1">
+        <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-secondary)' }}>
+          {title}
+        </p>
+        <div className="metric-value">{value}</div>
+        {trend && (
+          <div className="metric-trend mt-2">
+            <TrendingUp className="w-3 h-3" />
+            <span>{trend}</span>
+          </div>
+        )}
       </div>
-      <div className="p-2 bg-gray-50 rounded-full">{icon}</div>
+      <div className="stat-icon-wrapper">
+        <div style={{ color: 'white', position: 'relative', zIndex: 1 }}>
+          {icon}
+        </div>
+      </div>
+    </div>
+    <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{hint}</p>
+  </div>
+);
+
+const ChartCard = ({ title, subtitle, children, action }) => (
+  <div className="chart-container">
+    <div className="chart-header">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-lg font-bold mb-1" style={{ color: 'var(--text-primary)' }}>{title}</h3>
+          {subtitle && <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{subtitle}</p>}
+        </div>
+        {action}
+      </div>
+    </div>
+    <div className="chart-body">
+      {children}
     </div>
   </div>
 );
 
-// Abstract Status Pie Chart Component
-const AbstractStatusPie = ({ data }) => (
-  <div className="bg-white p-4 rounded-2xl shadow">
-    <h3 className="text-lg font-semibold mb-3">Abstract Status Distribution</h3>
-    <ResponsiveContainer width="100%" height={260}>
-      <PieChart>
-        <Pie
-          data={data}
-          cx="50%"
-          cy="50%"
-          outerRadius={80}
-          fill="#8884d8"
-          dataKey="value"
-          label={({ name, value }) => `${name}: ${value}`}
-        >
-          {data.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-          ))}
-        </Pie>
-        <Tooltip />
-        <Legend />
-      </PieChart>
-    </ResponsiveContainer>
-  </div>
-);
+const CustomTooltip = ({ active, payload, label }) => {
+  if (!active || !payload || !payload.length) return null;
+  
+  return (
+    <div style={{
+      background: 'white',
+      border: '1px solid rgba(0,0,0,0.1)',
+      borderRadius: '12px',
+      padding: '12px 16px',
+      boxShadow: '0 8px 24px rgba(0,0,0,0.12)'
+    }}>
+      <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>{label}</p>
+      {payload.map((entry, index) => (
+        <p key={index} style={{ fontSize: '0.875rem', fontWeight: 600, color: entry.color, margin: '4px 0' }}>
+          {entry.name}: {entry.value}
+        </p>
+      ))}
+    </div>
+  );
+};
 
-// Registration Trend Chart Component
-const RegistrationTrendChart = ({ data }) => (
-  <div className="bg-white p-4 rounded-2xl shadow">
-    <h3 className="text-lg font-semibold mb-3">Registration Trend</h3>
-    <ResponsiveContainer width="100%" height={260}>
-      <LineChart data={data}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="date" />
-        <YAxis allowDecimals={false} />
-        <Tooltip />
-        <Line
-          type="monotone"
-          dataKey="count"
-          name="Registrations"
-          stroke="#3B82F6"
-          strokeWidth={2}
-          dot={{ r: 4 }}
-        />
-      </LineChart>
-    </ResponsiveContainer>
-  </div>
-);
+const DateFilter = ({ onDateRangeChange, currentRange }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
-// Status Snapshot Chart Component
-const StatusSnapshotChart = ({ stats }) => (
-  <div className="bg-white p-4 rounded-2xl shadow">
-    <h3 className="text-lg font-semibold mb-3">Registration Overview</h3>
-    <ResponsiveContainer width="100%" height={260}>
-      <BarChart
-        data={[
-          {
-            name: "Overview",
-            total: stats.total,
-            abstractApproved: stats.abstractApproved,
-            paperApproved: stats.paperApproved,
-          },
-        ]}
+  const quickRanges = [
+    { label: "Last 7 days", days: 7 },
+    { label: "Last 30 days", days: 30 },
+    { label: "Last 90 days", days: 90 },
+    { label: "Last 6 months", days: 180 },
+    { label: "Last year", days: 365 },
+    { label: "All time", days: null }
+  ];
+
+  const handleQuickRange = (days) => {
+    if (days === null) {
+      // Show all data
+      setStartDate("");
+      setEndDate("");
+      onDateRangeChange(null, null);
+    } else {
+      const end = new Date();
+      const start = new Date();
+      start.setDate(start.getDate() - days);
+      
+      setStartDate(start.toISOString().split('T')[0]);
+      setEndDate(end.toISOString().split('T')[0]);
+      onDateRangeChange(start.toISOString().split('T')[0], end.toISOString().split('T')[0]);
+    }
+    setIsOpen(false);
+  };
+
+  const handleCustomRange = () => {
+    if (startDate && endDate) {
+      onDateRangeChange(startDate, endDate);
+      setIsOpen(false);
+    }
+  };
+
+  const handleClearFilter = () => {
+    setStartDate("");
+    setEndDate("");
+    onDateRangeChange(null, null);
+    setIsOpen(false);
+  };
+
+  const formatDateRange = () => {
+    if (!currentRange.startDate || !currentRange.endDate) return "All Time";
+    
+    const start = new Date(currentRange.startDate).toLocaleDateString();
+    const end = new Date(currentRange.endDate).toLocaleDateString();
+    return `${start} - ${end}`;
+  };
+
+  return (
+    <div className="filter-dropdown">
+      <button
+        className="btn btn-outline btn-sm"
+        onClick={() => setIsOpen(!isOpen)}
       >
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="name" hide />
-        <YAxis allowDecimals={false} />
-        <Tooltip />
-        <Legend />
-        <Bar dataKey="total" name="Total Registrations" fill="#3B82F6" />
-        <Bar dataKey="abstractApproved" name="Abstract Approved" fill="#10B981" />
-        <Bar dataKey="paperApproved" name="Paper Approved" fill="#8B5CF6" />
-      </BarChart>
-    </ResponsiveContainer>
-  </div>
-);
+        <Filter className="w-4 h-4" />
+        {formatDateRange()}
+        <ChevronRight className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-90' : ''}`} />
+      </button>
+
+      {isOpen && (
+        <div className="filter-menu">
+          <div className="mb-4">
+            <h4 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>
+              Quick Ranges
+            </h4>
+            <div className="space-y-2">
+              {quickRanges.map((range) => (
+                <button
+                  key={range.label}
+                  className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+                  onClick={() => handleQuickRange(range.days)}
+                >
+                  {range.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="border-t pt-4">
+            <h4 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>
+              Custom Range
+            </h4>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
+                  Start Date
+                </label>
+                <input
+                  type="date"
+                  className="date-input"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
+                  End Date
+                </label>
+                <input
+                  type="date"
+                  className="date-input"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="filter-actions">
+              <button
+                className="btn btn-primary btn-sm flex-1"
+                onClick={handleCustomRange}
+                disabled={!startDate || !endDate}
+              >
+                Apply
+              </button>
+              <button
+                className="btn btn-outline btn-sm flex-1"
+                onClick={handleClearFilter}
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 /* ----------------------------- Main Component ----------------------------- */
 
@@ -677,43 +640,51 @@ const MainDashboard = () => {
     abstractApproved: 0,
     abstractRejected: 0,
     paperApproved: 0,
+    paperRejected: 0,
+    paperPending: 0,
     revenue: 0,
     totalCountries: 0,
   });
   const [trend, setTrend] = useState([]);
+  const [filteredTrend, setFilteredTrend] = useState([]);
   const [countryCounts, setCountryCounts] = useState({});
-  const [countryCoordinates, setCountryCoordinates] = useState({});
   const [loading, setLoading] = useState(true);
   const [countryModalData, setCountryModalData] = useState(null);
+  const [dateRange, setDateRange] = useState({
+    startDate: null,
+    endDate: null
+  });
 
   const safeNumber = (v) => {
     const n = Number(v);
     return Number.isFinite(n) ? n : 0;
   };
 
-  // Fetch registrations
   const fetchRegistrations = useCallback(async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      if (!token) throw new Error("No token found. Access denied.");
+      if (!token) throw new Error("No token found");
 
-      const res = await axios.get("https://s3conference.ksrce.ac.in/api/admin/users", {
+      const res = await fetch("https://s3conference.ksrce.ac.in/api/admin/users", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      const allUsers = Array.isArray(res.data) ? res.data : [];
-      const validRegistrations = allUsers.filter((user) => user?.registration);
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      
+      const data = await res.json();
+      const allUsers = Array.isArray(data) ? data : [];
+      const validRegistrations = allUsers.filter((user) => user?.registration || user?.userId);
 
       updateStats(validRegistrations);
       updateTrend(validRegistrations);
-      await updateCountryCounts(validRegistrations);
+      updateCountryCounts(validRegistrations);
     } catch (err) {
-      console.error("Error fetching registrations:", err);
-      setStats({ total: 0, abstractApproved: 0, abstractRejected: 0, paperApproved: 0, revenue: 0, totalCountries: 0 });
+      console.error("Error:", err);
+      setStats({ total: 0, abstractApproved: 0, abstractRejected: 0, paperApproved: 0, paperRejected: 0, paperPending: 0, revenue: 0, totalCountries: 0 });
       setTrend([]);
+      setFilteredTrend([]);
       setCountryCounts({});
-      setCountryCoordinates({});
     } finally {
       setLoading(false);
     }
@@ -723,31 +694,35 @@ const MainDashboard = () => {
     fetchRegistrations();
   }, [fetchRegistrations]);
 
-  // Update stats
   const updateStats = (data) => {
     const total = data.length;
     let abstractApproved = 0;
     let abstractRejected = 0;
     let paperApproved = 0;
+    let paperRejected = 0;
+    let paperPending = 0;
     let revenue = 0;
 
     data.forEach((user) => {
-      const workflow = user?.workflow || user?.registration?.workflow || {};
-      const payment = user?.payment || user?.registration?.payment || {};
-
-      const abstractStatus = (workflow.abstractStatus || "").toLowerCase();
-      const paperStatus = (
-        workflow.finalPaperStatus ||
-        workflow.paperStatus ||
-        user?.registration?.paperStatus ||
-        ""
-      ).toLowerCase();
+      const workflow = user?.workflow || {};
+      
+      // Get status from workflow or root level
+      const abstractStatus = (workflow.abstractStatus || user.abstractStatus || "").toLowerCase();
+      const paperStatus = (workflow.paperStatus || user.paperStatus || "").toLowerCase();
+      
+      // Get payment data from registration.payment
+      const payment = user?.registration?.payment || {};
       const paymentStatus = (payment.paymentStatus || "unpaid").toLowerCase();
-      const amountPaid = safeNumber(payment.amountPaid);
+      const amountPaid = safeNumber(payment.amountPaid || 0);
 
       if (abstractStatus === "approved") abstractApproved++;
       if (abstractStatus === "rejected") abstractRejected++;
+      
+      // Paper status tracking
       if (paperStatus === "approved") paperApproved++;
+      if (paperStatus === "rejected") paperRejected++;
+      if (!paperStatus || paperStatus === "pending" || paperStatus === "submitted") paperPending++;
+      
       if (paymentStatus === "paid") revenue += amountPaid;
     });
 
@@ -756,12 +731,13 @@ const MainDashboard = () => {
       abstractApproved, 
       abstractRejected, 
       paperApproved, 
+      paperRejected,
+      paperPending,
       revenue,
-      totalCountries: Object.keys(countryCounts).length 
+      totalCountries: 0 // This will be updated in updateCountryCounts
     });
   };
 
-  // Update trend
   const updateTrend = (data) => {
     const groups = {};
     data.forEach((user) => {
@@ -772,45 +748,62 @@ const MainDashboard = () => {
       .map(([date, count]) => ({ date, count }))
       .sort((a, b) => new Date(a.date) - new Date(b.date));
     setTrend(arr);
+    setFilteredTrend(arr); // Initialize filtered trend with all data
   };
 
-  // Fetch country coordinates
-  const fetchCountryCoordinates = async (code) => {
-    if (!code || code === "-") return null;
-    try {
-      const res = await axios.get(`https://restcountries.com/v3.1/alpha/${encodeURIComponent(code)}`);
-      if (res.data && res.data[0]?.latlng) return res.data[0].latlng;
-    } catch (e) {
-      console.debug(`Coordinates lookup failed for ${code}:`, e?.message);
-    }
-    return null;
-  };
-
-  // Country distribution
-  const updateCountryCounts = async (data) => {
+  const updateCountryCounts = (data) => {
     const counts = {};
-    data.forEach((r) => {
-      const c = r.registration?.country || r.country || "-";
-      if (c && c !== "-") {
-        counts[c] = (counts[c] || 0) + 1;
+    
+    data.forEach((user) => {
+      // Extract country from payment object inside registration
+      const country = user?.registration?.payment?.country;
+      
+      if (country && country !== "-" && country !== "" && country !== null && country !== undefined) {
+        // Clean and normalize the country name
+        const cleanCountry = country.toString().trim();
+        if (cleanCountry) {
+          counts[cleanCountry] = (counts[cleanCountry] || 0) + 1;
+        }
       }
     });
-    setCountryCounts(counts);
 
-    const uniqueCountries = Object.keys(counts).filter((c) => c && c !== "-");
-    const coordsMap = { ...countryCoordinates };
-    
-    // Fetch coordinates for new countries
-    for (const country of uniqueCountries) {
-      if (!coordsMap[country]) {
-        const latlng = await fetchCountryCoordinates(country);
-        if (latlng) coordsMap[country] = latlng;
-      }
-    }
-    setCountryCoordinates(coordsMap);
+    setCountryCounts(counts);
+    setStats(prev => ({ ...prev, totalCountries: Object.keys(counts).length }));
   };
 
-  // Handle Export to Excel
+  // Improved date filtering function
+  const filterTrendData = useCallback((startDate, endDate, trendData) => {
+    if (!startDate || !endDate) {
+      return trendData; // Return all data if no filter
+    }
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    
+    // Set time to beginning and end of day for proper comparison
+    start.setHours(0, 0, 0, 0);
+    end.setHours(23, 59, 59, 999);
+
+    return trendData.filter(item => {
+      const itemDate = new Date(item.date);
+      itemDate.setHours(12, 0, 0, 0); // Set to noon for consistent comparison
+      return itemDate >= start && itemDate <= end;
+    });
+  }, []);
+
+  const handleDateRangeChange = useCallback((startDate, endDate) => {
+    setDateRange({ startDate, endDate });
+    
+    const filtered = filterTrendData(startDate, endDate, trend);
+    setFilteredTrend(filtered);
+  }, [trend, filterTrendData]);
+
+  // Update filtered trend when main trend data changes
+  useEffect(() => {
+    const filtered = filterTrendData(dateRange.startDate, dateRange.endDate, trend);
+    setFilteredTrend(filtered);
+  }, [trend, dateRange.startDate, dateRange.endDate, filterTrendData]);
+
   const handleExportExcel = () => {
     const exportData = Object.entries(countryCounts).map(([country, count]) => ({
       Country: country,
@@ -825,212 +818,461 @@ const MainDashboard = () => {
     XLSX.writeFile(wb, `country_distribution_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
-  // Chart data
-  const statusData = [
-    { name: "Approved", value: stats.abstractApproved },
-    { name: "Rejected", value: stats.abstractRejected },
-    { name: "Pending/Review", value: stats.total - stats.abstractApproved - stats.abstractRejected },
-  ];
+  // Paper submission data for donut chart
+  const paperSubmissionData = [
+    { name: "Approved", value: stats.paperApproved },
+    { name: "Rejected", value: stats.paperRejected },
+    { name: "Pending", value: stats.paperPending },
+  ].filter(d => d.value > 0);
 
-  // Country data for table
   const countryData = useMemo(() => {
     return Object.entries(countryCounts)
       .map(([country, count]) => ({ country, count }))
       .sort((a, b) => b.count - a.count);
   }, [countryCounts]);
 
+  const CHART_COLORS = {
+    approved: "#10B981",
+    rejected: "#D32F2F",
+    pending: "#F59E0B",
+    blue: "#1976D2",
+    purple: "#7C3AED",
+  };
+
   return (
-    <div className="space-y-6 p-4">
-      <div>
-        <h1 className="text-2xl font-bold">Main Dashboard</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          Overview of registrations, abstracts, papers, and global participation.
-        </p>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <StatCard 
-          icon={icons.total} 
-          title="Total Registrations" 
-          value={stats.total}
-          hint="All registered users"
-        />
-        <StatCard 
-          icon={icons.abstractApproved} 
-          title="Abstract Approved" 
-          value={stats.abstractApproved}
-          hint="Approved abstracts"
-        />
-        <StatCard 
-          icon={icons.abstractRejected} 
-          title="Abstract Rejected" 
-          value={stats.abstractRejected}
-          hint="Rejected abstracts"
-        />
-        <StatCard 
-          icon={icons.paperApproved} 
-          title="Paper Approved" 
-          value={stats.paperApproved}
-          hint="Approved final papers"
-        />
-        <StatCard 
-          icon={icons.revenue} 
-          title="Total Revenue" 
-          value={`₹${stats.revenue.toLocaleString()}`}
-          hint="Total payments received"
-        />
-        <StatCard 
-          icon={icons.countries} 
-          title="Countries" 
-          value={stats.totalCountries}
-          hint="Participating countries"
-        />
-      </div>
-
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <AbstractStatusPie data={statusData} />
-        <RegistrationTrendChart data={trend} />
-      </div>
-
-      {/* Status Snapshot Chart */}
-      <StatusSnapshotChart stats={stats} />
-
-      {/* Map Section */}
-      <div className="bg-white rounded-2xl shadow border overflow-hidden">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-3 p-4 border-b bg-gray-50">
-          <div>
-            <h3 className="text-lg font-semibold">Global Participation Map</h3>
-            <p className="text-sm text-gray-500">Participants distribution across countries</p>
-          </div>
-          <div className="flex items-center gap-2">
+    <>
+      <style>{styles}</style>
+      <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)', padding: '32px' }}>
+        <div className="max-w-7xl mx-auto space-y-8">
+          
+          {/* Header */}
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
+            <div>
+              <h1 className="text-4xl font-bold mb-3 header-gradient leading-tight">
+                Conference Analytics
+              </h1>
+              <p className="text-base flex items-center gap-2" style={{ color: 'var(--text-secondary)' }}>
+                <BarChart3 className="w-4 h-4" />
+                Real-time insights and global participation metrics
+              </p>
+            </div>
             <button
               onClick={fetchRegistrations}
-              className="px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+              className="btn btn-secondary"
               disabled={loading}
+              style={{ flexShrink: 0 }}
             >
-              {loading ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : 'Refresh'}
-            </button>
-            <button
-              onClick={handleExportExcel}
-              className="px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 flex items-center gap-2"
-            >
-              <Download className="w-4 h-4" /> Export Data
+              {loading ? <Loader className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+              Refresh Data
             </button>
           </div>
-        </div>
 
-        <div className="p-4">
-          <ComposableMap 
-            projectionConfig={{ scale: 120, center: [20, 0] }} 
-            style={{ width: "100%", height: "500px" }}
-          >
-            <Geographies geography={geoUrl}>
-              {({ geographies }) =>
-                geographies.map((geo) => (
-                  <Geography
-                    key={geo.rsmKey}
-                    geography={geo}
-                    fill="#E5E7EB"
-                    stroke="#D1D5DB"
-                    style={{
-                      default: { outline: 'none' },
-                      hover: { fill: '#D1D5DB', outline: 'none' },
-                      pressed: { outline: 'none' },
-                    }}
-                  />
-                ))
-              }
-            </Geographies>
-            {Object.entries(countryCounts).map(([country, count], idx) => {
-              const coords = countryCoordinates[country];
-              if (!coords || count === 0) return null;
-              
-              const radius = Math.min(Math.max(Math.sqrt(count) * 3, 5), 20);
-              
-              return (
-                <Marker key={idx} coordinates={[coords[1], coords[0]]}>
-                  <circle 
-                    r={radius} 
-                    fill="#F59E0B" 
-                    fillOpacity={0.7}
-                    stroke="#D97706" 
-                    strokeWidth={1}
-                    className="cursor-pointer hover:fill-#D97706"
-                    onClick={() => setCountryModalData({ country, count })}
-                  />
-                  {count > 5 && (
-                    <text 
-                      textAnchor="middle" 
-                      y={-radius - 5} 
-                      fontSize={10} 
-                      fill="#111827"
-                      fontWeight="bold"
-                    >
-                      {count}
-                    </text>
-                  )}
-                </Marker>
-              );
-            })}
-          </ComposableMap>
-        </div>
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <StatCard 
+              icon={<Users className="w-6 h-6" />}
+              title="Total Registrations" 
+              value={stats.total.toLocaleString()}
+              hint="All registered participants"
+              color="#1976D2"
+              colorDark="#0D47A1"
+            />
+              <StatCard 
+                icon={<FileText className="w-6 h-6" />}
+                title="Papers Approved" 
+                value={stats.paperApproved.toLocaleString()}
+                hint="Final papers accepted"
+                color="#7C3AED"
+                colorDark="#5B21B6"
+              />
+              <StatCard 
+                icon={<FileText className="w-6 h-6" />}
+                title="Papers Pending" 
+                value={stats.paperPending.toLocaleString()}
+                hint="Awaiting review"
+                color="#F59E0B"
+                colorDark="#D97706"
+              />
+            <StatCard 
+              icon={<XCircle className="w-6 h-6" />}
+              title="Paper Rejected" 
+              value={stats.paperRejected.toLocaleString()}
+              hint="Declined paper submissions"
+              color="#D32F2F"
+              colorDark="#B71C1C"
+            />
+            <StatCard 
+              icon={<DollarSign className="w-6 h-6" />}
+              title="Total Revenue" 
+              value={`₹${stats.revenue.toLocaleString()}`}
+              hint="Confirmed payments received"
+              color="#F57C00"
+              colorDark="#E65100"
+            />
+            <StatCard 
+              icon={<Globe className="w-6 h-6" />}
+              title="Global Reach" 
+              value={stats.totalCountries.toLocaleString()}
+              hint="Participating countries"
+              color="#0D47A1"
+              colorDark="#01579B"
+            />
+          </div>
 
-        {/* Country Table */}
-        <div className="border-t">
-          <div className="p-4">
-            <h4 className="text-lg font-semibold mb-3">Country-wise Participation</h4>
-            {countryData.length === 0 ? (
-              <p className="text-center text-gray-500 py-4">No country data available</p>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full text-sm divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="p-3 text-left">Country</th>
-                      <th className="p-3 text-center">Participants</th>
-                      <th className="p-3 text-right">Percentage</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {countryData.map((item, index) => (
-                      <tr key={index} className="hover:bg-gray-50">
-                        <td className="p-3 font-medium">{item.country}</td>
-                        <td className="p-3 text-center">
-                          <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
-                            {item.count}
-                          </span>
-                        </td>
-                        <td className="p-3 text-right text-gray-600">
-                          {((item.count / stats.total) * 100).toFixed(1)}%
-                        </td>
-                      </tr>
+          {/* Charts Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            {/* Paper Submission Status Distribution */}
+            <ChartCard 
+              title="Paper Submission Status"
+              subtitle="Breakdown of paper submission reviews"
+            >
+              <ResponsiveContainer width="100%" height={320}>
+                <PieChart>
+                  <defs>
+                    <linearGradient id="approvedGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#10B981" stopOpacity={1}/>
+                      <stop offset="100%" stopColor="#059669" stopOpacity={1}/>
+                    </linearGradient>
+                    <linearGradient id="rejectedGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#D32F2F" stopOpacity={1}/>
+                      <stop offset="100%" stopColor="#B71C1C" stopOpacity={1}/>
+                    </linearGradient>
+                    <linearGradient id="pendingGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#F59E0B" stopOpacity={1}/>
+                      <stop offset="100%" stopColor="#D97706" stopOpacity={1}/>
+                    </linearGradient>
+                  </defs>
+                  <Pie
+                    data={paperSubmissionData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={70}
+                    outerRadius={110}
+                    paddingAngle={4}
+                    dataKey="value"
+                  >
+                    {paperSubmissionData.map((entry, index) => (
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={entry.name === 'Approved' ? 'url(#approvedGrad)' : 
+                              entry.name === 'Rejected' ? 'url(#rejectedGrad)' : 
+                              'url(#pendingGrad)'} 
+                        stroke="white"
+                        strokeWidth={3}
+                      />
                     ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                  </Pie>
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend 
+                    verticalAlign="bottom" 
+                    height={50}
+                    iconType="circle"
+                    formatter={(value) => <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>{value}</span>}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </ChartCard>
+
+            {/* Registration Trend */}
+            <ChartCard 
+              title="Registration Trend"
+              subtitle={`Daily participant registrations (${filteredTrend.length} days shown)`}
+              action={
+                <DateFilter 
+                  onDateRangeChange={handleDateRangeChange}
+                  currentRange={dateRange}
+                />
+              }
+            >
+              {filteredTrend.length === 0 ? (
+                <div className="flex items-center justify-center h-80">
+                  <div className="text-center">
+                    <Calendar className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                    <p style={{ color: 'var(--text-secondary)' }}>No data available for selected date range</p>
+                  </div>
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height={320}>
+                  <AreaChart data={filteredTrend}>
+                    <defs>
+                      <linearGradient id="trendGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#1976D2" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="#1976D2" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.05)" vertical={false} />
+                    <XAxis 
+                      dataKey="date" 
+                      tick={{ fontSize: 11, fill: 'var(--text-secondary)' }}
+                      stroke="rgba(0,0,0,0.1)"
+                      tickLine={false}
+                    />
+                    <YAxis 
+                      allowDecimals={false}
+                      tick={{ fontSize: 11, fill: 'var(--text-secondary)' }}
+                      stroke="rgba(0,0,0,0.1)"
+                      tickLine={false}
+                    />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Area
+                      type="monotone"
+                      dataKey="count"
+                      name="Registrations"
+                      stroke="#1976D2"
+                      strokeWidth={3}
+                      fill="url(#trendGradient)"
+                      dot={{ r: 4, strokeWidth: 2, stroke: '#1976D2', fill: 'white' }}
+                      activeDot={{ r: 6, strokeWidth: 2, stroke: 'white' }}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              )}
+            </ChartCard>
           </div>
+
+          {/* Registration Overview Bar Chart */}
+          <ChartCard 
+            title="Registration Overview"
+            subtitle="Comparative analysis of registration stages"
+          >
+            <ResponsiveContainer width="100%" height={340}>
+              <BarChart
+                data={[
+                  {
+                    name: "Registration Metrics",
+                    total: stats.total,
+                    abstractApproved: stats.abstractApproved,
+                    paperApproved: stats.paperApproved,
+                  },
+                ]}
+                barGap={12}
+              >
+                <defs>
+                  <linearGradient id="blueGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#1976D2" stopOpacity={1}/>
+                    <stop offset="100%" stopColor="#0D47A1" stopOpacity={1}/>
+                  </linearGradient>
+                  <linearGradient id="greenGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#10B981" stopOpacity={1}/>
+                    <stop offset="100%" stopColor="#059669" stopOpacity={1}/>
+                  </linearGradient>
+                  <linearGradient id="purpleGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#7C3AED" stopOpacity={1}/>
+                    <stop offset="100%" stopColor="#5B21B6" stopOpacity={1}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.05)" vertical={false} />
+                <XAxis 
+                  dataKey="name" 
+                  tick={{ fontSize: 12, fill: 'var(--text-secondary)' }}
+                  stroke="rgba(0,0,0,0.1)"
+                  tickLine={false}
+                />
+                <YAxis 
+                  allowDecimals={false}
+                  tick={{ fontSize: 12, fill: 'var(--text-secondary)' }}
+                  stroke="rgba(0,0,0,0.1)"
+                  tickLine={false}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend 
+                  verticalAlign="top" 
+                  height={50}
+                  iconType="rect"
+                  formatter={(value) => <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>{value}</span>}
+                />
+                <Bar 
+                  dataKey="total" 
+                  name="Total Registrations" 
+                  fill="url(#blueGrad)" 
+                  radius={[12, 12, 0, 0]}
+                  maxBarSize={80}
+                />
+                <Bar 
+                  dataKey="abstractApproved" 
+                  name="Abstracts Approved" 
+                  fill="url(#greenGrad)"
+                  radius={[12, 12, 0, 0]}
+                  maxBarSize={80}
+                />
+                <Bar 
+                  dataKey="paperApproved" 
+                  name="Papers Approved" 
+                  fill="url(#purpleGrad)"
+                  radius={[12, 12, 0, 0]}
+                  maxBarSize={80}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartCard>
+
+          {/* Country Distribution Table */}
+          <div className="chart-container">
+            <div className="chart-header">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
+                    Country-wise Distribution
+                  </h3>
+                  <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                    Real participant breakdown by country
+                  </p>
+                </div>
+                <button
+                  onClick={handleExportExcel}
+                  className="btn btn-primary"
+                >
+                  <Download className="w-4 h-4" />
+                  Export Data
+                </button>
+              </div>
+            </div>
+
+            <div className="px-7 py-7">
+              <div className="flex items-center justify-between mb-6">
+                <h4 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
+                  Country-wise Breakdown
+                </h4>
+                <span className="text-xs font-semibold px-3 py-1.5 rounded-lg" style={{ 
+                  background: 'var(--brand-blue-light)', 
+                  color: 'var(--brand-blue-primary)' 
+                }}>
+                  {countryData.length} Countries
+                </span>
+              </div>
+              
+              {countryData.length === 0 ? (
+                <div className="text-center py-16">
+                  <Globe className="w-12 h-12 mx-auto mb-3 opacity-20" />
+                  <p style={{ color: 'var(--text-secondary)' }}>No country data available</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="table-modern">
+                    <thead>
+                      <tr>
+                        <th style={{ textAlign: 'left' }}>Country</th>
+                        <th style={{ textAlign: 'center' }}>Participants</th>
+                        <th style={{ textAlign: 'right' }}>Distribution</th>
+                        <th style={{ textAlign: 'right' }}>Percentage</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {countryData.map((item, index) => {
+                        const percentage = (item.count / stats.total) * 100;
+                        return (
+                          <tr key={index}>
+                            <td style={{ fontWeight: 600 }}>
+                              <div className="flex items-center gap-2">
+                                <span style={{
+                                  display: 'inline-block',
+                                  width: '6px',
+                                  height: '6px',
+                                  borderRadius: '50%',
+                                  background: 'linear-gradient(135deg, #F57C00, #E65100)'
+                                }} />
+                                {item.country}
+                              </div>
+                            </td>
+                            <td style={{ textAlign: 'center' }}>
+                              <span className="badge-modern">
+                                {item.count}
+                              </span>
+                            </td>
+                            <td style={{ textAlign: 'right' }}>
+                              <div className="progress-bar" style={{ width: '120px', marginLeft: 'auto' }}>
+                                <div 
+                                  className="progress-fill"
+                                  style={{ width: `${Math.min(percentage * 2, 100)}%` }}
+                                />
+                              </div>
+                            </td>
+                            <td style={{ textAlign: 'right', fontWeight: 600, color: 'var(--brand-orange)' }}>
+                              {percentage.toFixed(1)}%
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Country Details Modal */}
+          {countryModalData && (
+            <Modal onClose={() => setCountryModalData(null)} size="sm">
+              <div className="text-center py-6">
+                <div 
+                  style={{
+                    width: '80px',
+                    height: '80px',
+                    borderRadius: '50%',
+                    margin: '0 auto 24px',
+                    background: 'linear-gradient(135deg, #F57C00, #E65100)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 12px 32px rgba(245, 124, 0, 0.3)'
+                  }}
+                >
+                  <Globe className="w-10 h-10" style={{ color: 'white' }} />
+                </div>
+                
+                <h3 className="text-3xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
+                  {countryModalData.country}
+                </h3>
+                
+                <p className="text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>
+                  Participant Analytics
+                </p>
+                
+                <div 
+                  className="inline-block px-8 py-5 rounded-2xl mb-6"
+                  style={{ 
+                    background: 'linear-gradient(135deg, var(--brand-blue-light) 0%, #E3F2FD 100%)',
+                    border: '1px solid rgba(25, 118, 210, 0.1)'
+                  }}
+                >
+                  <div className="text-sm font-semibold mb-2" style={{ color: 'var(--text-secondary)' }}>
+                    Total Participants
+                  </div>
+                  <div 
+                    className="text-5xl font-bold"
+                    style={{ 
+                      background: 'linear-gradient(135deg, #F57C00, #E65100)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text'
+                    }}
+                  >
+                    {countryModalData.count}
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-center gap-6 text-sm">
+                  <div>
+                    <div style={{ color: 'var(--text-secondary)' }}>Share of Total</div>
+                    <div className="text-xl font-bold mt-1" style={{ color: 'var(--brand-blue-primary)' }}>
+                      {((countryModalData.count / stats.total) * 100).toFixed(1)}%
+                    </div>
+                  </div>
+                  <div style={{ width: '1px', height: '40px', background: 'rgba(0,0,0,0.1)' }} />
+                  <div>
+                    <div style={{ color: 'var(--text-secondary)' }}>Rank</div>
+                    <div className="text-xl font-bold mt-1" style={{ color: 'var(--brand-orange)' }}>
+                      #{countryData.findIndex(c => c.country === countryModalData.country) + 1}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Modal>
+          )}
         </div>
       </div>
-
-      {/* Country Details Modal */}
-      {countryModalData && (
-        <Modal onClose={() => setCountryModalData(null)} size="sm">
-          <div className="text-center">
-            <Globe className="w-12 h-12 text-emerald-500 mx-auto mb-4" />
-            <h3 className="text-xl font-bold mb-2">{countryModalData.country}</h3>
-            <p className="text-gray-600 mb-4">
-              Total Participants: <span className="font-bold text-2xl text-emerald-600">{countryModalData.count}</span>
-            </p>
-            <p className="text-sm text-gray-500">
-              {((countryModalData.count / stats.total) * 100).toFixed(1)}% of total registrations
-            </p>
-          </div>
-        </Modal>
-      )}
-    </div>
+    </>
   );
 };
 

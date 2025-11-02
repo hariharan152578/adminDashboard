@@ -1,4054 +1,6 @@
-
-// // // import React, { useState, useCallback, useEffect } from "react";
-// // // import axios from "axios";
-
-// // // // Components
-// // // import UnifiedAbstractDashboard from "../../components/AbstractsTable";
-// // // import StatCard from "../../components/StatCard";
-// // // import RevenueChart from "../../components/RevenueChart";
-// // // import AbstractStatusPie from "../../components/AbstractStatusPie";
-// // // import AbstractTrendChart from "../../components/AbstractTrendChart";
-
-// // // // --- Icons for StatCards ---
-// // // const icons = {
-// // //   total: (
-// // //     <svg className="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-// // //       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7h18M3 12h18M3 17h18"></path>
-// // //     </svg>
-// // //   ),
-// // //   approved: (
-// // //     <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-// // //       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-// // //     </svg>
-// // //   ),
-// // //   rejected: (
-// // //     <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-// // //       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-// // //     </svg>
-// // //   ),
-// // //   pending: (
-// // //     <svg className="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-// // //       <circle cx="12" cy="12" r="10" strokeWidth="2"></circle>
-// // //       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6l4 2"></path>
-// // //     </svg>
-// // //   ),
-// // // };
-
-// // // const AbstractSupport = () => {
-// // //   const [abstracts, setAbstracts] = useState([]);
-// // //   const [loading, setLoading] = useState(true);
-// // //   const [trend, setTrend] = useState([]);
-// // //   const [stats, setStats] = useState({ total: 0, approved: 0, rejected: 0, pending: 0 });
-
-// // //   // --- Fetch abstracts from API ---
-// // //   const fetchAbstracts = useCallback(async () => {
-// // //     setLoading(true);
-// // //     try {
-// // //       const token = localStorage.getItem("token");
-// // //       const { data } = await axios.get(
-// // //         "https://it-con-backend.onrender.com/api/admin/users",
-// // //         { headers: { Authorization: `Bearer ${token}` } }
-// // //       );
-
-// // //       const formattedData = data.map((item) => {
-// // //         const teamMembers = item.registration?.participants?.length
-// // //           ? item.registration.participants.map((p) => ({
-// // //               name: p.name || "Unknown",
-// // //               email: p.email || "-",
-// // //               phone: p.phone || "-",
-// // //               designation: p.designation || "-",
-// // //               organisation: p.organisation || "-",
-// // //               gender: p.gender || "-",
-// // //               proofUrl: p.proofUrl || null,
-// // //             }))
-// // //           : [];
-
-// // //         return {
-// // //           id: item._id || Math.random().toString(),
-// // //           userId: item.userId || "N/A",
-// // //           authorName: item.name || "Unknown",
-// // //           email: item.registration?.participants?.[0]?.email || "-",
-// // //           mobile: item.registration?.participants?.[0]?.phone || "-",
-
-// // //           registrationId: item.registration?._id || null,
-// // //           uniqueId: item.registration?.uniqueId || "-",
-// // //           track: item.registration?.track || "-",
-// // //           presentationMode: item.registration?.presentationMode || "-",
-// // //           title: item.registration?.abstractTitle || "No Title",
-// // //           content: item.registration?.abstractContent || null,
-// // //           team: teamMembers,
-// // //           country: item.registration?.country || "-",
-// // //           proofUrl: item.registration?.proofUrl || null,
-// // //           paperUrl: item.registration?.paperUrl || null,
-
-// // //           status: item.workflow?.abstractStatus || "Pending",
-// // //           abstractApprovedBy: item.workflow?.abstractApprovedBy || "-",
-// // //           rejectedReason: item.workflow?.rejectedReason || null,
-// // //           abstractreasonBy: item.workflow?.abstractreasonBy || "-",
-
-// // //           finalPaperStatus: item.workflow?.paperStatus || "-",
-// // //           paperApprovedBy: item.workflow?.paperApprovedBy || "-",
-
-// // //           paymentStatus: item.workflow?.paymentStatus || "unpaid",
-// // //           paymentApprovedBy: item.workflow?.paymentApprovedBy || "-",
-// // //           paymentMethod: item.workflow?.paymentMethod || "-",
-// // //           amountPaid: item.workflow?.amountPaid || 0,
-// // //           discount: item.workflow?.discount || 0,
-// // //           paymentDate: item.workflow?.paymentDate || null,
-// // //           transactionId: item.workflow?.transactionId || "-",
-
-// // //           createdAt: item.workflow?.createdAt || new Date().toISOString(),
-// // //           updatedAt: item.workflow?.updatedAt || new Date().toISOString(),
-// // //         };
-// // //       });
-
-// // //       // ✅ Only keep abstracts with actual content
-// // //       const filteredData = formattedData.filter(
-// // //         (item) =>
-// // //           item.content &&
-// // //           item.content.trim() !== "" &&
-// // //           item.content !== "No Content"
-// // //       );
-
-// // //       console.log("Filtered abstracts with content:", filteredData);
-// // //       setAbstracts(filteredData);
-
-// // //       updateTrend(filteredData);
-// // //       updateStats(filteredData);
-// // //     } catch (err) {
-// // //       console.error("Error fetching abstracts:", err);
-// // //       setAbstracts([]);
-// // //       setTrend([]);
-// // //       setStats({ total: 0, approved: 0, rejected: 0, pending: 0 });
-// // //     } finally {
-// // //       setLoading(false);
-// // //     }
-// // //   }, []);
-
-// // //   useEffect(() => {
-// // //     fetchAbstracts();
-// // //   }, [fetchAbstracts]);
-
-// // //   // --- Update stats from data ---
-// // //   const updateStats = (data) => {
-// // //     const total = data.length;
-// // //     const approved = data.filter((a) => a.status.toLowerCase() === "approved").length;
-// // //     const rejected = data.filter((a) => a.status.toLowerCase() === "rejected").length;
-// // //     const pending = data.filter(
-// // //       (a) =>
-// // //         a.status.toLowerCase() === "submitted" ||
-// // //         a.status.toLowerCase() === "under review"
-// // //     ).length;
-
-// // //     setStats({ total, approved, rejected, pending });
-// // //   };
-
-// // //   // --- Update trend data ---
-// // //   const updateTrend = (data) => {
-// // //     const trendMap = {};
-// // //     data.forEach((item) => {
-// // //       const date = new Date(item.createdAt).toISOString().split("T")[0];
-// // //       trendMap[date] = (trendMap[date] || 0) + 1;
-// // //     });
-// // //     const trendData = Object.keys(trendMap).map((date) => ({
-// // //       date,
-// // //       count: trendMap[date],
-// // //     }));
-// // //     setTrend(trendData);
-// // //   };
-
-// // //   // --- Callback to update abstract status ---
-// // //   const updateAbstractLocal = async (userId, newStatus) => {
-// // //     try {
-// // //       await axios.put(
-// // //         `https://it-con-backend.onrender.com/api/admin/users/abstract/${userId}`,
-// // //         { status: newStatus },
-// // //         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-// // //       );
-
-// // //       fetchAbstracts();
-// // //     } catch (err) {
-// // //       console.error("Error updating abstract status:", err);
-// // //     }
-// // //   };
-
-// // //   const chartData = [
-// // //     { name: "Abstracts", approved: stats.approved, rejected: stats.rejected },
-// // //   ];
-
-// // //   return (
-// // //     <div className="space-y-6 p-4">
-// // //       {/* StatCards */}
-// // //       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-// // //         <StatCard icon={icons.total} title="Total Abstracts" value={stats.total} change="+5%" isPositive />
-// // //         <StatCard icon={icons.approved} title="Approved" value={stats.approved} change="+3%" isPositive />
-// // //         <StatCard icon={icons.rejected} title="Rejected" value={stats.rejected} change="-1%" isPositive={false} />
-// // //         <StatCard icon={icons.pending} title="Pending" value={stats.pending} change="+2%" isPositive />
-// // //       </div>
-
-// // //       {/* Charts Row */}
-// // //       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-// // //         <RevenueChart data={chartData} />
-// // //          <AbstractStatusPie 
-// // //   data={[
-// // //     { name: "Approved", value: stats.approved },
-// // //     { name: "Rejected", value: stats.rejected },
-// // //     { name: "Pending", value: stats.total - stats.approved - stats.rejected }
-// // //   ]} 
-// // // />
-
-// // //       </div>
-
-// // //       {/* Trend Chart */}
-// // //       <AbstractTrendChart data={trend} />
-
-// // //       {/* Dashboard Table */}
-// // //       <h1 className="text-2xl font-bold mb-6">Abstract Support Dashboard</h1>
-// // //       <UnifiedAbstractDashboard
-// // //         abstractsData={abstracts}
-// // //         loading={loading}
-// // //         updateAbstractLocal={updateAbstractLocal}
-// // //       />
-// // //     </div>
-// // //   );
-// // // };
-
-// // // export default AbstractSupport;
-
-// // // import React, { useState, useCallback, useEffect } from "react";
-// // // import axios from "axios";
-
-// // // // Components
-// // // import UnifiedAbstractDashboard from "../../components/AbstractsTable";
-// // // import StatCard from "../../components/StatCard";
-// // // import RevenueChart from "../../components/RevenueChart";
-// // // import AbstractStatusPie from "../../components/AbstractStatusPie";
-// // // import AbstractTrendChart from "../../components/AbstractTrendChart";
-
-// // // // --- Icons for StatCards ---
-// // // const icons = {
-// // //   total: (
-// // //     <svg className="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-// // //       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7h18M3 12h18M3 17h18"></path>
-// // //     </svg>
-// // //   ),
-// // //   approved: (
-// // //     <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-// // //       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-// // //     </svg>
-// // //   ),
-// // //   rejected: (
-// // //     <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-// // //       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-// // //     </svg>
-// // //   ),
-// // //   pending: (
-// // //     <svg className="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-// // //       <circle cx="12" cy="12" r="10" strokeWidth="2"></circle>
-// // //       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6l4 2"></path>
-// // //     </svg>
-// // //   ),
-// // // };
-
-// // // const AbstractSupport = () => {
-// // //   const [abstracts, setAbstracts] = useState([]);
-// // //   const [loading, setLoading] = useState(true);
-// // //   const [trend, setTrend] = useState([]);
-// // //   const [stats, setStats] = useState({ total: 0, approved: 0, rejected: 0, pending: 0 });
-// // //   const [refreshTrigger, setRefreshTrigger] = useState(false); // ✅ Added for smooth refresh
-
-// // //   // --- Fetch abstracts from API ---
-// // //   const fetchAbstracts = useCallback(async () => {
-// // //     setLoading(true);
-// // //     try {
-// // //       const token = localStorage.getItem("token");
-// // //       const { data } = await axios.get(
-// // //         "https://s3conference.ksrce.ac.in/api/admin/users",
-// // //         { headers: { Authorization: `Bearer ${token}` } }
-// // //       );
-
-// // //       const formattedData = data.map((item) => {
-// // //         const teamMembers = item.registration?.participants?.length
-// // //           ? item.registration.participants.map((p) => ({
-// // //               name: p.name || "Unknown",
-// // //               email: p.email || "-",
-// // //               phone: p.phone || "-",
-// // //               designation: p.designation || "-",
-// // //               organisation: p.organisation || "-",
-// // //               gender: p.gender || "-",
-// // //               proofUrl: p.proofUrl || null,
-// // //             }))
-// // //           : [];
-
-// // //         return {
-// // //           id: item._id || Math.random().toString(),
-// // //           userId: item.userId || "N/A",
-// // //           authorName: item.name || "Unknown",
-// // //           email: item.registration?.participants?.[0]?.email || "-",
-// // //           mobile: item.registration?.participants?.[0]?.phone || "-",
-
-// // //           registrationId: item.registration?._id || null,
-// // //           uniqueId: item.registration?.uniqueId || "-",
-// // //           track: item.registration?.track || "-",
-// // //           presentationMode: item.registration?.presentationMode || "-",
-// // //           title: item.registration?.abstractTitle || "No Title",
-// // //           content: item.registration?.abstractContent || null,
-// // //           team: teamMembers,
-// // //           country: item.registration?.country || "-",
-// // //           proofUrl: item.registration?.proofUrl || null,
-// // //           paperUrl: item.registration?.paperUrl || null,
-
-// // //           status: item.workflow?.abstractStatus || "Pending",
-// // //           abstractApprovedBy: item.workflow?.abstractApprovedBy || "-",
-// // //           rejectedReason: item.workflow?.rejectedReason || null,
-// // //           abstractreasonBy: item.workflow?.abstractreasonBy || "-",
-
-// // //           finalPaperStatus: item.workflow?.paperStatus || "-",
-// // //           paperApprovedBy: item.workflow?.paperApprovedBy || "-",
-
-// // //           paymentStatus: item.workflow?.paymentStatus || "unpaid",
-// // //           paymentApprovedBy: item.workflow?.paymentApprovedBy || "-",
-// // //           paymentMethod: item.workflow?.paymentMethod || "-",
-// // //           amountPaid: item.workflow?.amountPaid || 0,
-// // //           discount: item.workflow?.discount || 0,
-// // //           paymentDate: item.workflow?.paymentDate || null,
-// // //           transactionId: item.workflow?.transactionId || "-",
-
-// // //           createdAt: item.workflow?.createdAt || new Date().toISOString(),
-// // //           updatedAt: item.workflow?.updatedAt || new Date().toISOString(),
-// // //         };
-// // //       });
-
-// // //       // ✅ Only keep abstracts with actual content
-// // //       const filteredData = formattedData.filter(
-// // //         (item) =>
-// // //           item.content &&
-// // //           item.content.trim() !== "" &&
-// // //           item.content !== "No Content"
-// // //       );
-
-// // //       setAbstracts(filteredData);
-// // //       updateTrend(filteredData);
-// // //       updateStats(filteredData);
-// // //     } catch (err) {
-// // //       console.error("Error fetching abstracts:", err);
-// // //       setAbstracts([]);
-// // //       setTrend([]);
-// // //       setStats({ total: 0, approved: 0, rejected: 0, pending: 0 });
-// // //     } finally {
-// // //       setLoading(false);
-// // //     }
-// // //   }, []);
-
-// // //   // ✅ Re-fetch data whenever refreshTrigger changes
-// // //   useEffect(() => {
-// // //     fetchAbstracts();
-// // //   }, [fetchAbstracts, refreshTrigger]);
-
-// // //   // --- Update stats from data ---
-// // //   const updateStats = (data) => {
-// // //     const total = data.length;
-// // //     const approved = data.filter((a) => a.status.toLowerCase() === "approved").length;
-// // //     const rejected = data.filter((a) => a.status.toLowerCase() === "rejected").length;
-// // //     const pending = data.filter(
-// // //       (a) =>
-// // //         a.status.toLowerCase() === "submitted" ||
-// // //         a.status.toLowerCase() === "under review"
-// // //     ).length;
-
-// // //     setStats({ total, approved, rejected, pending });
-// // //   };
-
-// // //   // --- Update trend data ---
-// // //   const updateTrend = (data) => {
-// // //     const trendMap = {};
-// // //     data.forEach((item) => {
-// // //       const date = new Date(item.createdAt).toISOString().split("T")[0];
-// // //       trendMap[date] = (trendMap[date] || 0) + 1;
-// // //     });
-// // //     const trendData = Object.keys(trendMap).map((date) => ({
-// // //       date,
-// // //       count: trendMap[date],
-// // //     }));
-// // //     setTrend(trendData);
-// // //   };
-
-// // //   // --- Callback to update abstract status locally ---
-// // //   const updateAbstractLocal = async (userId, newStatus) => {
-// // //     try {
-// // //       await axios.put(
-// // //         `https://it-con-backend.onrender.com/api/admin/users/abstract/${userId}`,
-// // //         { status: newStatus },
-// // //         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-// // //       );
-// // //       fetchAbstracts();
-// // //     } catch (err) {
-// // //       console.error("Error updating abstract status:", err);
-// // //     }
-// // //   };
-
-// // //   const chartData = [
-// // //     { name: "Abstracts", approved: stats.approved, rejected: stats.rejected },
-// // //   ];
-
-// // //   return (
-// // //     <div className="space-y-6 p-4">
-// // //       {/* StatCards */}
-// // //       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-// // //         <StatCard icon={icons.total} title="Total Abstracts" value={stats.total} change="+5%" isPositive />
-// // //         <StatCard icon={icons.approved} title="Approved" value={stats.approved} change="+3%" isPositive />
-// // //         <StatCard icon={icons.rejected} title="Rejected" value={stats.rejected} change="-1%" isPositive={false} />
-// // //         <StatCard icon={icons.pending} title="Pending" value={stats.pending} change="+2%" isPositive />
-// // //       </div>
-
-// // //       {/* Charts Row */}
-// // //       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-// // //         <RevenueChart data={chartData} />
-// // //         <AbstractStatusPie
-// // //           data={[
-// // //             { name: "Approved", value: stats.approved },
-// // //             { name: "Rejected", value: stats.rejected },
-// // //             { name: "Pending", value: stats.total - stats.approved - stats.rejected },
-// // //           ]}
-// // //         />
-// // //       </div>
-
-// // //       {/* Trend Chart */}
-// // //       <AbstractTrendChart data={trend} />
-
-// // //       {/* Dashboard Table */}
-// // //       <h1 className="text-2xl font-bold mb-6">Abstract Support Dashboard</h1>
-// // //       <UnifiedAbstractDashboard
-// // //         abstractsData={abstracts}
-// // //         loading={loading}
-// // //         updateAbstractLocal={updateAbstractLocal}
-// // //         refreshTrigger={refreshTrigger}          // ✅ Added
-// // //         setRefreshTrigger={setRefreshTrigger}    // ✅ Added
-// // //       />
-// // //     </div>
-// // //   );
-// // // };
-
-// // // export default AbstractSupport;
-// // import React, { useState, useCallback, useEffect } from "react";
-// // import axios from "axios";
-// // import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
-// // import UnifiedAbstractDashboard from "../../components/AbstractsTable"; // ✅ Keep this imported
-
-// // // =============================================================
-// // // 📊 Small Sub-Components (All included in this file)
-// // // =============================================================
-
-// // // ✅ StatCard Component
-// // const StatCard = ({ icon, title, value, change, isPositive }) => (
-// //   <div className="p-5 bg-white rounded-2xl shadow hover:shadow-md transition-all duration-300">
-// //     <div className="flex items-center justify-between">
-// //       <div>{icon}</div>
-// //       <div
-// //         className={`text-sm font-semibold ${
-// //           isPositive ? "text-green-500" : "text-red-500"
-// //         }`}
-// //       >
-// //         {change}
-// //       </div>
-// //     </div>
-// //     <h3 className="mt-4 text-gray-500 text-sm font-medium">{title}</h3>
-// //     <p className="text-2xl font-bold text-gray-800">{value}</p>
-// //   </div>
-// // );
-
-// // // ✅ Revenue Chart Component (Bar Chart)
-// // const RevenueChart = ({ data }) => (
-// //   <div className="bg-white p-6 rounded-2xl shadow">
-// //     <h2 className="text-lg font-semibold mb-4 text-gray-700">Abstract Approval Stats</h2>
-// //     <ResponsiveContainer width="100%" height={300}>
-// //       <BarChart data={data}>
-// //         <CartesianGrid strokeDasharray="3 3" />
-// //         <XAxis dataKey="name" />
-// //         <YAxis allowDecimals={false} />
-// //         <Tooltip />
-// //         <Bar dataKey="approved" fill="#22c55e" />
-// //         <Bar dataKey="rejected" fill="#ef4444" />
-// //       </BarChart>
-// //     </ResponsiveContainer>
-// //   </div>
-// // );
-
-// // // ✅ Abstract Status Pie Chart
-// // const AbstractStatusPie = ({ data }) => {
-// //   const COLORS = ["#22c55e", "#ef4444", "#eab308"];
-// //   return (
-// //     <div className="bg-white p-6 rounded-2xl shadow">
-// //       <h2 className="text-lg font-semibold mb-4 text-gray-700">Abstract Status Distribution</h2>
-// //       <ResponsiveContainer width="100%" height={300}>
-// //         <PieChart>
-// //           <Pie
-// //             data={data}
-// //             cx="50%"
-// //             cy="50%"
-// //             outerRadius={100}
-// //             fill="#8884d8"
-// //             dataKey="value"
-// //             label={({ name, value }) => `${name}: ${value}`}
-// //           >
-// //             {data.map((entry, index) => (
-// //               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-// //             ))}
-// //           </Pie>
-// //           <Tooltip />
-// //         </PieChart>
-// //       </ResponsiveContainer>
-// //     </div>
-// //   );
-// // };
-
-// // // ✅ Abstract Trend Chart (Line)
-// // const AbstractTrendChart = ({ data }) => (
-// //   <div className="bg-white p-6 rounded-2xl shadow">
-// //     <h2 className="text-lg font-semibold mb-4 text-gray-700">Abstract Submission Trend</h2>
-// //     <ResponsiveContainer width="100%" height={300}>
-// //       <BarChart data={data}>
-// //         <CartesianGrid strokeDasharray="3 3" />
-// //         <XAxis dataKey="date" />
-// //         <YAxis allowDecimals={false} />
-// //         <Tooltip />
-// //         <Bar dataKey="count" fill="#3b82f6" />
-// //       </BarChart>
-// //     </ResponsiveContainer>
-// //   </div>
-// // );
-
-// // // =============================================================
-// // // 🌐 Main Component: AbstractSupport
-// // // =============================================================
-// // const icons = {
-// //   total: (
-// //     <svg className="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-// //       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7h18M3 12h18M3 17h18"></path>
-// //     </svg>
-// //   ),
-// //   approved: (
-// //     <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-// //       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-// //     </svg>
-// //   ),
-// //   rejected: (
-// //     <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-// //       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-// //     </svg>
-// //   ),
-// //   pending: (
-// //     <svg className="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-// //       <circle cx="12" cy="12" r="10" strokeWidth="2"></circle>
-// //       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6l4 2"></path>
-// //     </svg>
-// //   ),
-// // };
-
-// // const AbstractSupport = () => {
-// //   const [abstracts, setAbstracts] = useState([]);
-// //   const [loading, setLoading] = useState(true);
-// //   const [trend, setTrend] = useState([]);
-// //   const [stats, setStats] = useState({ total: 0, approved: 0, rejected: 0, pending: 0 });
-// //   const [refreshTrigger, setRefreshTrigger] = useState(false);
-
-// //   // --- Fetch abstracts from API ---
-// //   const fetchAbstracts = useCallback(async () => {
-// //     setLoading(true);
-// //     try {
-// //       const token = localStorage.getItem("token");
-// //       const { data } = await axios.get(
-// //         "https://s3conference.ksrce.ac.in/api/admin/users",
-// //         { headers: { Authorization: `Bearer ${token}` } }
-// //       );
-
-// //       const formattedData = data.map((item) => {
-// //         const teamMembers = item.registration?.participants?.length
-// //           ? item.registration.participants.map((p) => ({
-// //               name: p.name || "Unknown",
-// //               email: p.email || "-",
-// //               phone: p.phone || "-",
-// //               designation: p.designation || "-",
-// //               organisation: p.organisation || "-",
-// //               gender: p.gender || "-",
-// //               proofUrl: p.proofUrl || null,
-// //             }))
-// //           : [];
-
-// //         return {
-// //           id: item._id || Math.random().toString(),
-// //           authorName: item.name || "Unknown",
-// //           email: item.registration?.participants?.[0]?.email || "-",
-// //           mobile: item.registration?.participants?.[0]?.phone || "-",
-// //           uniqueId: item.registration?.uniqueId || "-",
-// //           track: item.registration?.track || "-",
-// //           presentationMode: item.registration?.presentationMode || "-",
-// //           title: item.registration?.abstractTitle || "No Title",
-// //           content: item.registration?.abstractContent || null,
-// //           team: teamMembers,
-// //           country: item.registration?.country || "-",
-// //           proofUrl: item.registration?.proofUrl || null,
-// //           status: item.workflow?.abstractStatus || "Pending",
-// //           paymentStatus: item.workflow?.paymentStatus || "unpaid",
-// //           createdAt: item.workflow?.createdAt || new Date().toISOString(),
-// //         };
-// //       });
-
-// //       const filteredData = formattedData.filter(
-// //         (item) => item.content && item.content.trim() !== "" && item.content !== "No Content"
-// //       );
-
-// //       setAbstracts(filteredData);
-// //       updateTrend(filteredData);
-// //       updateStats(filteredData);
-// //     } catch (err) {
-// //       console.error("Error fetching abstracts:", err);
-// //       setAbstracts([]);
-// //       setTrend([]);
-// //       setStats({ total: 0, approved: 0, rejected: 0, pending: 0 });
-// //     } finally {
-// //       setLoading(false);
-// //     }
-// //   }, []);
-
-// //   useEffect(() => {
-// //     fetchAbstracts();
-// //   }, [fetchAbstracts, refreshTrigger]);
-
-// //   const updateStats = (data) => {
-// //     const total = data.length;
-// //     const approved = data.filter((a) => a.status.toLowerCase() === "approved").length;
-// //     const rejected = data.filter((a) => a.status.toLowerCase() === "rejected").length;
-// //     const pending = data.filter(
-// //       (a) =>
-// //         a.status.toLowerCase() === "submitted" ||
-// //         a.status.toLowerCase() === "under review"
-// //     ).length;
-
-// //     setStats({ total, approved, rejected, pending });
-// //   };
-
-// //   const updateTrend = (data) => {
-// //     const trendMap = {};
-// //     data.forEach((item) => {
-// //       const date = new Date(item.createdAt).toISOString().split("T")[0];
-// //       trendMap[date] = (trendMap[date] || 0) + 1;
-// //     });
-// //     setTrend(Object.keys(trendMap).map((date) => ({ date, count: trendMap[date] })));
-// //   };
-
-// //   const updateAbstractLocal = async (userId, newStatus) => {
-// //     try {
-// //       await axios.put(
-// //         `https://it-con-backend.onrender.com/api/admin/users/abstract/${userId}`,
-// //         { status: newStatus },
-// //         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-// //       );
-// //       fetchAbstracts();
-// //     } catch (err) {
-// //       console.error("Error updating abstract status:", err);
-// //     }
-// //   };
-
-// //   const chartData = [{ name: "Abstracts", approved: stats.approved, rejected: stats.rejected }];
-
-// //   return (
-// //     <div className="space-y-6 p-4">
-// //       {/* Stat Cards */}
-// //       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-// //         <StatCard icon={icons.total} title="Total Abstracts" value={stats.total} change="+5%" isPositive />
-// //         <StatCard icon={icons.approved} title="Approved" value={stats.approved} change="+3%" isPositive />
-// //         <StatCard icon={icons.rejected} title="Rejected" value={stats.rejected} change="-1%" isPositive={false} />
-// //         <StatCard icon={icons.pending} title="Pending" value={stats.pending} change="+2%" isPositive />
-// //       </div>
-
-// //       {/* Charts */}
-// //       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-// //         <RevenueChart data={chartData} />
-// //         <AbstractStatusPie
-// //           data={[
-// //             { name: "Approved", value: stats.approved },
-// //             { name: "Rejected", value: stats.rejected },
-// //             { name: "Pending", value: stats.total - stats.approved - stats.rejected },
-// //           ]}
-// //         />
-// //       </div>
-
-// //       {/* Trend */}
-// //       <AbstractTrendChart data={trend} />
-
-// //       {/* Table */}
-// //       <h1 className="text-2xl font-bold mb-6">Abstract Support Dashboard</h1>
-// //       <UnifiedAbstractDashboard
-// //         abstractsData={abstracts}
-// //         loading={loading}
-// //         updateAbstractLocal={updateAbstractLocal}
-// //         refreshTrigger={refreshTrigger}
-// //         setRefreshTrigger={setRefreshTrigger}
-// //       />
-// //     </div>
-// //   );
-// // };
-
-// // export default AbstractSupport;
-
-
-
-// import React, { useState, useCallback, useEffect, useMemo } from "react";
-// import axios from "axios";
-// import * as XLSX from "xlsx";
-// import {
-//   BarChart,
-//   Bar,
-//   PieChart,
-//   Pie,
-//   Cell,
-//   ResponsiveContainer,
-//   CartesianGrid,
-//   XAxis,
-//   YAxis,
-//   Tooltip,
-//   Legend,
-//   LineChart,
-//   Line,
-// } from "recharts";
-// import {
-//   Loader2,
-//   Download,
-//   X,
-//   Users,
-//   Search,
-//   FileText,
-//   CheckCircle,
-//   XCircle,
-//   Clock,
-// } from "lucide-react";
-
-// /* ----------------------------- Small Components & Utils ----------------------------- */
-
-// // Icon map
-// const icons = {
-//   total: (
-//     <svg className="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7h18M3 12h18M3 17h18"></path>
-//     </svg>
-//   ),
-//   approved: (
-//     <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-//     </svg>
-//   ),
-//   rejected: (
-//     <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-//     </svg>
-//   ),
-//   pending: (
-//     <svg className="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//       <circle cx="12" cy="12" r="10" strokeWidth="2"></circle>
-//       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6l4 2"></path>
-//     </svg>
-//   ),
-// };
-
-// // Reusable Modal Component
-// const Modal = ({ children, onClose, size = "md" }) => {
-//   const sizeClasses = { sm: "max-w-sm", md: "max-w-2xl", lg: "max-w-4xl" };
-//   return (
-//     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-//       <div className={`bg-white w-full ${sizeClasses[size]} rounded-2xl shadow-xl p-6 relative`}>
-//         <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-3xl">
-//           <X className="w-6 h-6" />
-//         </button>
-//         {children}
-//       </div>
-//     </div>
-//   );
-// };
-
-// // Stat Card
-// const StatCard = ({ icon, title, value, hint }) => (
-//   <div className="bg-white border border-gray-100 rounded-2xl shadow p-4 hover:shadow-md transition">
-//     <div className="flex items-start justify-between">
-//       <div>
-//         <div className="text-sm text-gray-500 font-medium">{title}</div>
-//         <div className="mt-2 text-2xl font-bold text-gray-800">{value}</div>
-//         {hint && <div className="text-xs text-gray-400 mt-1">{hint}</div>}
-//       </div>
-//       <div className="p-2 bg-gray-50 rounded-full">{icon}</div>
-//     </div>
-//   </div>
-// );
-
-// // Abstract Status Pie Chart Component
-// const AbstractStatusPie = ({ data }) => {
-//   const COLORS = ["#10B981", "#EF4444", "#F59E0B", "#6B7280"];
-  
-//   return (
-//     <div className="bg-white p-4 rounded-2xl shadow">
-//       <h3 className="text-lg font-semibold mb-3">Abstract Status Distribution</h3>
-//       <ResponsiveContainer width="100%" height={260}>
-//         <PieChart>
-//           <Pie
-//             data={data}
-//             cx="50%"
-//             cy="50%"
-//             outerRadius={80}
-//             fill="#8884d8"
-//             dataKey="value"
-//             label={({ name, value }) => `${name}: ${value}`}
-//           >
-//             {data.map((entry, index) => (
-//               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-//             ))}
-//           </Pie>
-//           <Tooltip />
-//           <Legend />
-//         </PieChart>
-//       </ResponsiveContainer>
-//     </div>
-//   );
-// };
-
-// // Abstract Trend Chart Component
-// const AbstractTrendChart = ({ data }) => (
-//   <div className="bg-white p-4 rounded-2xl shadow">
-//     <h3 className="text-lg font-semibold mb-3">Abstract Submission Trend</h3>
-//     <ResponsiveContainer width="100%" height={260}>
-//       <LineChart data={data}>
-//         <CartesianGrid strokeDasharray="3 3" />
-//         <XAxis dataKey="date" />
-//         <YAxis allowDecimals={false} />
-//         <Tooltip />
-//         <Line
-//           type="monotone"
-//           dataKey="count"
-//           name="Abstracts"
-//           stroke="#3B82F6"
-//           strokeWidth={2}
-//         />
-//       </LineChart>
-//     </ResponsiveContainer>
-//   </div>
-// );
-
-// // Status Snapshot Chart Component
-// const StatusSnapshotChart = ({ stats }) => (
-//   <div className="bg-white p-4 rounded-2xl shadow">
-//     <h3 className="text-lg font-semibold mb-3">Abstract Status Snapshot</h3>
-//     <ResponsiveContainer width="100%" height={260}>
-//       <BarChart
-//         data={[
-//           {
-//             name: "Abstracts",
-//             approved: stats.approved,
-//             pending: stats.pending,
-//             rejected: stats.rejected,
-//           },
-//         ]}
-//       >
-//         <CartesianGrid strokeDasharray="3 3" />
-//         <XAxis dataKey="name" hide />
-//         <YAxis allowDecimals={false} />
-//         <Tooltip />
-//         <Legend />
-//         <Bar dataKey="approved" name="Approved" fill="#10B981" />
-//         <Bar dataKey="pending" name="Pending" fill="#F59E0B" />
-//         <Bar dataKey="rejected" name="Rejected" fill="#EF4444" />
-//       </BarChart>
-//     </ResponsiveContainer>
-//   </div>
-// );
-
-// /* ----------------------------- Main Component ----------------------------- */
-
-// const AbstractSupport = () => {
-//   const [abstracts, setAbstracts] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [stats, setStats] = useState({
-//     total: 0,
-//     approved: 0,
-//     rejected: 0,
-//     pending: 0,
-//   });
-//   const [trend, setTrend] = useState([]);
-//   const [searchTerm, setSearchTerm] = useState("");
-//   const [statusFilter, setStatusFilter] = useState("All");
-//   const [teamModalData, setTeamModalData] = useState(null);
-//   const [abstractModalData, setAbstractModalData] = useState(null);
-//   const [rejectionModalData, setRejectionModalData] = useState(null);
-//   const [rejectionReason, setRejectionReason] = useState("");
-//   const [actionLoading, setActionLoading] = useState(false);
-//   const [refreshTrigger, setRefreshTrigger] = useState(false);
-
-//   /**
-//    * Computes statistics for the dashboard cards.
-//    */
-//   const computeStats = useCallback((data) => {
-//     setStats({
-//       total: data.length,
-//       approved: data.filter((d) => d.status.toLowerCase() === "approved").length,
-//       rejected: data.filter((d) => d.status.toLowerCase() === "rejected").length,
-//       pending: data.filter((d) => 
-//         d.status.toLowerCase() === "submitted" || 
-//         d.status.toLowerCase() === "under review" ||
-//         d.status.toLowerCase() === "pending"
-//       ).length,
-//     });
-//   }, []);
-
-//   /**
-//    * Computes the submission trend based on the creation date.
-//    */
-//   const computeTrend = useCallback((data) => {
-//     const groups = {};
-//     data.forEach((d) => {
-//       const date = new Date(d.createdAt).toISOString().split("T")[0];
-//       groups[date] = (groups[date] || 0) + 1;
-//     });
-//     const arr = Object.entries(groups)
-//       .map(([date, count]) => ({ date, count }))
-//       .sort((a, b) => new Date(a.date) - new Date(b.date));
-//     setTrend(arr);
-//   }, []);
-
-//   // Format each abstract
-//   const formatAbstract = (item) => {
-//     const teamMembers = item.registration?.participants?.length
-//       ? item.registration.participants.map((p) => ({
-//           name: p.name || "Unknown",
-//           email: p.email || "-",
-//           phone: p.phone || "-",
-//           designation: p.designation || "-",
-//           organisation: p.organisation || "-",
-//           gender: p.gender || "-",
-//           proofUrl: p.proofUrl || null,
-//         }))
-//       : [];
-
-//     return {
-//       id: item._id,
-//       userId: item.userId || "N/A",
-//       authorName: item.name || "Unknown",
-//       email: item.registration?.participants?.[0]?.email || "-",
-//       mobile: item.registration?.participants?.[0]?.phone || "-",
-//       uniqueId: item.registration?.uniqueId || "-",
-//       track: item.registration?.track || "-",
-//       presentationMode: item.registration?.presentationMode || "-",
-//       title: item.registration?.abstractTitle || "No Title",
-//       content: item.registration?.abstractContent || "No content available",
-//       team: teamMembers,
-//       country: item.registration?.country || "-",
-//       proofUrl: item.registration?.proofUrl || null,
-//       status: (item.workflow?.abstractStatus || "pending").toLowerCase(),
-//       createdAt: item.workflow?.createdAt || new Date().toISOString(),
-//     };
-//   };
-
-//   // Fetch abstracts
-//   const fetchAbstracts = useCallback(async () => {
-//     setLoading(true);
-//     try {
-//       const token = localStorage.getItem("token");
-//       const { data } = await axios.get(
-//         "https://s3conference.ksrce.ac.in/api/admin/users",
-//         { headers: { Authorization: `Bearer ${token}` } }
-//       );
-
-//       const formatted = (Array.isArray(data) ? data : []).map(formatAbstract);
-//       console.log("this is the data",formatted);
-//       // Filter only abstracts with actual content
-//       const filteredData = formatted.filter(
-//         (item) =>
-//           item.content &&
-//           item.content.trim() !== "" &&
-//           item.content !== "No content available"
-//       );
-
-//       setAbstracts(filteredData);
-//       computeStats(filteredData);
-//       computeTrend(filteredData);
-//     } catch (err) {
-//       console.error("Error fetching abstracts:", err);
-//       setAbstracts([]);
-//       setStats({ total: 0, approved: 0, rejected: 0, pending: 0 });
-//       setTrend([]);
-//     } finally {
-//       setLoading(false);
-//     }
-//   }, [computeStats, computeTrend]);
-
-//   useEffect(() => {
-//     fetchAbstracts();
-//   }, [fetchAbstracts, refreshTrigger]);
-
-//   // Update local state after successful API call
-//   const updateAbstractLocal = useCallback((id, newStatus) => {
-//     setAbstracts((prevAbstracts) => {
-//       const updatedAbstracts = prevAbstracts.map((abs) => {
-//         if (abs.id === id) {
-//           return { ...abs, status: newStatus.toLowerCase() };
-//         }
-//         return abs;
-//       });
-      
-//       computeStats(updatedAbstracts);
-//       computeTrend(updatedAbstracts);
-//       return updatedAbstracts;
-//     });
-//   }, [computeStats, computeTrend]);
-
-//   // Search & Filter (Memoized)
-//   const filteredAndSearchedAbstracts = useMemo(() => {
-//     const q = searchTerm.trim().toLowerCase();
-//     const isAllStatus = statusFilter.toLowerCase() === "all";
-
-//     return abstracts.filter((abs) => {
-//       const matchesSearch =
-//         abs.authorName.toLowerCase().includes(q) ||
-//         abs.email.toLowerCase().includes(q) ||
-//         abs.uniqueId.toLowerCase().includes(q) ||
-//         abs.title.toLowerCase().includes(q) ||
-//         abs.userId.toLowerCase().includes(q) ||
-//         abs.track.toLowerCase().includes(q);
-
-//       const matchesFilter =
-//         isAllStatus || abs.status.toLowerCase() === statusFilter.toLowerCase();
-
-//       return matchesSearch && matchesFilter;
-//     });
-//   }, [abstracts, searchTerm, statusFilter]);
-
-//   // Badge Styling
-//   const getStatusBadgeClass = (status) => {
-//     switch (status?.toLowerCase()) {
-//       case "approved":
-//         return "bg-green-100 text-green-700";
-//       case "rejected":
-//         return "bg-red-100 text-red-700";
-//       case "under review":
-//         return "bg-orange-100 text-orange-700";
-//       case "submitted":
-//         return "bg-blue-100 text-blue-700";
-//       case "pending":
-//         return "bg-gray-100 text-gray-700";
-//       default:
-//         return "bg-gray-100 text-gray-700";
-//     }
-//   };
-
-//   // Handle Export to Excel
-//   const handleExportExcel = () => {
-//     if (!filteredAndSearchedAbstracts.length) return alert("No data to export!");
-
-//     const exportData = filteredAndSearchedAbstracts.map((abs) => ({
-//       "Unique ID": abs.uniqueId,
-//       "User ID": abs.userId,
-//       "Author Name": abs.authorName,
-//       Email: abs.email,
-//       "Mobile": abs.mobile,
-//       Title: abs.title,
-//       Track: abs.track,
-//       "Presentation Mode": abs.presentationMode,
-//       "Abstract Status": abs.status,
-//       "Country": abs.country,
-//       "Registration Date": new Date(abs.createdAt).toLocaleDateString(),
-//     }));
-
-//     const ws = XLSX.utils.json_to_sheet(exportData);
-//     const wb = XLSX.utils.book_new();
-//     XLSX.utils.book_append_sheet(wb, ws, "Abstracts");
-//     XLSX.writeFile(wb, `abstracts_${new Date().toISOString().split('T')[0]}.xlsx`);
-//   };
-
-//   // Handle Abstract Status Update
-//   const handleAbstractStatusUpdate = async (newStatus, reason = "") => {
-//     if (!abstractModalData) return;
-
-//     setActionLoading(true);
-//     try {
-//       const token = localStorage.getItem("token");
-//       const payload = {
-//         abstractStatus: newStatus.toLowerCase(),
-//       };
-
-//       if (newStatus.toLowerCase() === "rejected" && reason) {
-//         payload.abstractrejectedReason = reason;
-//       }
-
-//       const API_URL = `https://s3conference.ksrce.ac.in/api/admin/update/${abstractModalData.id}`;
-
-//       const response = await axios.put(API_URL, payload, {
-//         headers: {
-//           Authorization: `Bearer ${token}`,
-//           "Content-Type": "application/json",
-//         },
-//       });
-
-//       if (response.data?.success) {
-//         alert(`✅ Abstract status updated to "${newStatus}"`);
-//         updateAbstractLocal(abstractModalData.id, newStatus);
-//         setAbstractModalData(null);
-//         setRejectionModalData(null);
-//         setRejectionReason("");
-//         setRefreshTrigger(prev => !prev);
-//       } else {
-//         alert(response.data?.message || "Unexpected server response.");
-//       }
-//     } catch (err) {
-//       console.error("❌ Error updating abstract status:", err.response?.data || err.message);
-//       alert(err.response?.data?.message || "Failed to update abstract status.");
-//     } finally {
-//       setActionLoading(false);
-//     }
-//   };
-
-//   // Handle Rejection Submit
-//   const handleRejectionSubmit = () => {
-//     if (!rejectionReason.trim()) {
-//       alert("Please provide a reason for rejection.");
-//       return;
-//     }
-//     handleAbstractStatusUpdate("rejected", rejectionReason.trim());
-//   };
-
-//   // Handle View Proof
-//   const handleViewProof = (proofUrl) => {
-//     if (!proofUrl) return alert("No proof available.");
-//     if (proofUrl.startsWith("http")) window.open(proofUrl, "_blank");
-//     else alert("Invalid proof URL: " + proofUrl);
-//   };
-
-//   // Pie Chart Data
-//   const pieChartData = [
-//     { name: "Approved", value: stats.approved },
-//     { name: "Rejected", value: stats.rejected },
-//     { name: "Pending", value: stats.pending },
-//   ];
-
-//   return (
-//     <div className="space-y-6 p-4">
-//       <div>
-//         <h1 className="text-2xl font-bold">Abstract Support</h1>
-//         <p className="text-sm text-gray-500 mt-1">
-//           Manage abstract submissions, reviews, and approval statuses.
-//         </p>
-//       </div>
-
-//       {/* Stats */}
-//       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-//         <StatCard icon={icons.total} title="Total Abstracts" value={stats.total} />
-//         <StatCard icon={icons.approved} title="Approved" value={stats.approved} />
-//         <StatCard icon={icons.rejected} title="Rejected" value={stats.rejected} />
-//         <StatCard icon={icons.pending} title="Pending Review" value={stats.pending} />
-//       </div>
-
-//       {/* Charts */}
-//       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-//         <StatusSnapshotChart stats={stats} />
-//         <AbstractStatusPie data={pieChartData} />
-//       </div>
-
-//       {/* Trend Chart */}
-//       <AbstractTrendChart data={trend} />
-
-//       {/* Table Section */}
-//       <div className="bg-white rounded-2xl shadow border overflow-hidden">
-//         {/* Toolbar (Search & Filter) */}
-//         <div className="flex flex-col md:flex-row items-center justify-between gap-3 p-4 border-b bg-gray-50">
-//           <div className="flex items-center gap-3 w-full md:w-auto">
-//             <div className="flex items-center border rounded-lg overflow-hidden bg-white w-full md:w-72">
-//               <Search className="w-5 h-5 ml-3 text-gray-400" />
-//               <input
-//                 type="text"
-//                 placeholder="Search by ID, name, email, or title..."
-//                 value={searchTerm}
-//                 onChange={(e) => setSearchTerm(e.target.value)}
-//                 className="px-3 py-2 outline-none text-sm w-full"
-//               />
-//               <button
-//                 onClick={() => setSearchTerm("")}
-//                 className="px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"
-//               >
-//                 Clear
-//               </button>
-//             </div>
-
-//             <select
-//               value={statusFilter}
-//               onChange={(e) => setStatusFilter(e.target.value)}
-//               className="border rounded-lg p-2 text-sm w-full md:w-auto"
-//             >
-//               <option value="All">All Statuses</option>
-//               <option value="approved">Approved</option>
-//               <option value="rejected">Rejected</option>
-//               <option value="under review">Under Review</option>
-//               <option value="submitted">Submitted</option>
-//               <option value="pending">Pending</option>
-//             </select>
-//           </div>
-
-//           <div className="flex items-center gap-2 w-full md:w-auto">
-//             <button
-//               onClick={fetchAbstracts}
-//               className="px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 w-full md:w-auto"
-//               disabled={loading}
-//             >
-//               {loading ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : 'Refresh Data'}
-//             </button>
-//             <button
-//               onClick={handleExportExcel}
-//               className="px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 flex items-center gap-2 w-full md:w-auto"
-//             >
-//               <Download className="w-4 h-4" /> Export Excel
-//             </button>
-//           </div>
-//         </div>
-
-//         {/* Table */}
-//         {loading ? (
-//           <div className="flex items-center justify-center p-10">
-//             <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
-//           </div>
-//         ) : filteredAndSearchedAbstracts.length === 0 ? (
-//           <div className="p-8 text-center text-gray-600">
-//             No records match the current filters.
-//           </div>
-//         ) : (
-//           <div className="overflow-x-auto">
-//             <table className="min-w-full text-sm divide-y divide-gray-200">
-//               <thead className="bg-gray-50 text-xs uppercase text-gray-700">
-//                 <tr>
-//                   <th className="p-3">User ID</th>
-//                   <th className="p-3">Author Name</th>
-//                   <th className="p-3">Email</th>
-//                   <th className="p-3">Title</th>
-//                   <th className="p-3">Track</th>
-//                   <th className="p-3 text-center">Status</th>
-//                   <th className="p-3 text-center">Team</th>
-//                   <th className="p-3 text-center">Actions</th>
-//                 </tr>
-//               </thead>
-//               <tbody className="divide-y divide-gray-100">
-//                 {filteredAndSearchedAbstracts.map((abs) => (
-//                   <tr key={abs.id} className="hover:bg-gray-50">
-//                     <td className="p-3 font-mono text-xs text-gray-600">
-//                       {abs.userId}
-//                     </td>
-//                     <td className="p-3 font-medium">{abs.authorName}</td>
-//                     <td className="p-3 text-gray-600">{abs.email}</td>
-//                     <td className="p-3 text-gray-600 max-w-xs truncate">{abs.title}</td>
-//                     <td className="p-3 text-gray-600">{abs.track}</td>
-//                     <td className="p-3 text-center">
-//                       <span
-//                         className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusBadgeClass(
-//                           abs.status
-//                         )}`}
-//                       >
-//                         {abs.status.toUpperCase()}
-//                       </span>
-//                     </td>
-//                     <td className="p-3 text-center">
-//                       {Array.isArray(abs.team) && abs.team.length ? (
-//                         <button
-//                           onClick={() => setTeamModalData(abs)}
-//                           className="text-blue-500 hover:underline flex items-center justify-center gap-1 mx-auto text-xs"
-//                         >
-//                           <Users className="w-4 h-4" /> View
-//                         </button>
-//                       ) : (
-//                         "-"
-//                       )}
-//                     </td>
-//                     <td className="p-3 text-center">
-//                       <button
-//                         onClick={() => setAbstractModalData(abs)}
-//                         className="px-3 py-1 bg-indigo-600 text-white rounded text-xs hover:bg-indigo-700"
-//                       >
-//                         Review
-//                       </button>
-//                     </td>
-//                   </tr>
-//                 ))}
-//               </tbody>
-//             </table>
-//           </div>
-//         )}
-//       </div>
-
-//       {/* Team Modal */}
-//       {teamModalData && (
-//         <Modal onClose={() => setTeamModalData(null)} size="lg">
-//           <h3 className="text-xl font-bold mb-4">
-//             Team Members for "{teamModalData.title}"
-//           </h3>
-//           {Array.isArray(teamModalData.team) && teamModalData.team.length ? (
-//             <div className="overflow-x-auto max-h-[70vh]">
-//               <table className="min-w-full divide-y divide-gray-200 text-sm">
-//                 <thead className="bg-gray-100 sticky top-0">
-//                   <tr>
-//                     <th className="p-2 text-left">Name</th>
-//                     <th className="p-2 text-left">Email</th>
-//                     <th className="p-2 text-left">Phone</th>
-//                     <th className="p-2 text-left">Designation</th>
-//                     <th className="p-2 text-left">Organisation</th>
-//                     <th className="p-2 text-left">Gender</th>
-//                     <th className="p-2 text-left">Proof</th>
-//                   </tr>
-//                 </thead>
-//                 <tbody className="divide-y divide-gray-200">
-//                   {teamModalData.team.map((member, i) => (
-//                     <tr key={i}>
-//                       <td className="p-2">{member.name || "Unnamed"}</td>
-//                       <td className="p-2">{member.email || "-"}</td>
-//                       <td className="p-2">{member.phone || "-"}</td>
-//                       <td className="p-2">{member.designation || "-"}</td>
-//                       <td className="p-2">{member.organisation || "-"}</td>
-//                       <td className="p-2">{member.gender || "-"}</td>
-//                       <td className="p-2">
-//                         {member.proofUrl ? (
-//                           <button
-//                             onClick={() => handleViewProof(member.proofUrl)}
-//                             className="text-blue-500 hover:underline text-xs"
-//                           >
-//                             View Proof
-//                           </button>
-//                         ) : (
-//                           "-"
-//                         )}
-//                       </td>
-//                     </tr>
-//                   ))}
-//                 </tbody>
-//               </table>
-//             </div>
-//           ) : (
-//             <p>No team members available.</p>
-//           )}
-//         </Modal>
-//       )}
-
-//       {/* Abstract Review Modal */}
-//       {abstractModalData && (
-//         <Modal onClose={() => setAbstractModalData(null)} size="lg">
-//           <h2 className="text-xl font-bold mb-2">
-//             Abstract Review: {abstractModalData.authorName}
-//           </h2>
-//           <p className="text-gray-600 mb-4">
-//             Title: {abstractModalData.title}
-//           </p>
-
-//           <div className="space-y-4">
-//             <div className="flex justify-between items-center bg-blue-50 p-3 rounded-lg">
-//               <span className="font-semibold">Current Status:</span>
-//               <span className={`px-2 py-1 rounded-full text-sm font-bold ${getStatusBadgeClass(abstractModalData.status)}`}>
-//                 {abstractModalData.status.toUpperCase()}
-//               </span>
-//             </div>
-
-//             <div className="p-3 border rounded-lg">
-//               <h4 className="font-bold mb-2">Abstract Details</h4>
-//               <div className="space-y-2 text-sm">
-//                 <p><strong>Track:</strong> {abstractModalData.track}</p>
-//                 <p><strong>Presentation Mode:</strong> {abstractModalData.presentationMode}</p>
-//                 <p><strong>Email:</strong> {abstractModalData.email}</p>
-//                 <p><strong>Mobile:</strong> {abstractModalData.mobile}</p>
-//                 <p><strong>Country:</strong> {abstractModalData.country}</p>
-//               </div>
-//             </div>
-
-//             <div className="p-3 border rounded-lg max-h-60 overflow-y-auto">
-//               <h4 className="font-bold mb-2">Abstract Content</h4>
-//               <p className="text-sm text-gray-700 whitespace-pre-wrap">
-//                 {abstractModalData.content}
-//               </p>
-//             </div>
-
-//             <div className="flex justify-end gap-3 pt-4 border-t">
-//               <button
-//                 onClick={() => {
-//                   setRejectionModalData(abstractModalData);
-//                   setRejectionReason("");
-//                 }}
-//                 className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 flex items-center gap-2"
-//                 disabled={actionLoading}
-//               >
-//                 <XCircle className="w-4 h-4" /> Reject
-//               </button>
-              
-//               <button
-//                 onClick={() => handleAbstractStatusUpdate("approved")}
-//                 disabled={actionLoading}
-//                 className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
-//               >
-//                 <CheckCircle className="w-4 h-4" /> 
-//                 {actionLoading ? "Processing..." : "Approve"}
-//               </button>
-
-//               <button
-//                 onClick={() => handleAbstractStatusUpdate("under review")}
-//                 disabled={actionLoading}
-//                 className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 flex items-center gap-2"
-//               >
-//                 <Clock className="w-4 h-4" />
-//                 {actionLoading ? "Processing..." : "Mark Under Review"}
-//               </button>
-//             </div>
-//           </div>
-//         </Modal>
-//       )}
-
-//       {/* Rejection Modal */}
-//       {rejectionModalData && (
-//         <Modal onClose={() => setRejectionModalData(null)} size="md">
-//           <div className="text-center p-4">
-//             <div className="mx-auto w-fit bg-orange-100 rounded-full p-4 mb-4">
-//               <FileText className="w-8 h-8 text-orange-500" />
-//             </div>
-//             <h3 className="text-2xl font-bold my-2">Provide Rejection Reason</h3>
-//             <p className="text-gray-500 mb-4">
-//               Please provide a reason for rejecting this abstract.
-//             </p>
-//             <textarea
-//               rows="4"
-//               className="w-full border rounded-lg p-3 mb-4 focus:ring-2 focus:ring-orange-400 outline-none"
-//               placeholder="Write rejection reason here..."
-//               value={rejectionReason}
-//               onChange={(e) => setRejectionReason(e.target.value)}
-//             ></textarea>
-//             <div className="flex gap-3">
-//               <button
-//                 onClick={() => setRejectionModalData(null)}
-//                 className="flex-1 px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
-//                 disabled={actionLoading}
-//               >
-//                 Cancel
-//               </button>
-//               <button
-//                 onClick={handleRejectionSubmit}
-//                 disabled={actionLoading || !rejectionReason.trim()}
-//                 className="flex-1 bg-red-600 text-white font-semibold py-2 rounded-lg hover:bg-red-700 disabled:opacity-50 flex items-center justify-center gap-2"
-//               >
-//                 {actionLoading ? (
-//                   <Loader2 className="h-4 w-4 animate-spin" />
-//                 ) : (
-//                   <XCircle className="w-4 h-4" />
-//                 )}
-//                 Reject Abstract
-//               </button>
-//             </div>
-//           </div>
-//         </Modal>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default AbstractSupport;
-
-
-// import React, { useState, useCallback, useEffect, useMemo } from "react";
-// import axios from "axios";
-// import * as XLSX from "xlsx";
-// import {
-//   BarChart,
-//   Bar,
-//   PieChart,
-//   Pie,
-//   Cell,
-//   ResponsiveContainer,
-//   CartesianGrid,
-//   XAxis,
-//   YAxis,
-//   Tooltip,
-//   Legend,
-//   LineChart,
-//   Line,
-// } from "recharts";
-// import {
-//   Loader2,
-//   Download,
-//   X,
-//   Users,
-//   Search,
-//   FileText,
-//   CheckCircle,
-//   XCircle,
-//   Clock,
-//   Eye,
-// } from "lucide-react";
-
-// /* ----------------------------- Small Components & Utils ----------------------------- */
-
-// // Icon map
-// const icons = {
-//   total: (
-//     <svg className="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7h18M3 12h18M3 17h18"></path>
-//     </svg>
-//   ),
-//   approved: (
-//     <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-//     </svg>
-//   ),
-//   rejected: (
-//     <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-//     </svg>
-//   ),
-//   pending: (
-//     <svg className="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//       <circle cx="12" cy="12" r="10" strokeWidth="2"></circle>
-//       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6l4 2"></path>
-//     </svg>
-//   ),
-// };
-
-// // Reusable Modal Component
-// const Modal = ({ children, onClose, size = "md" }) => {
-//   const sizeClasses = { sm: "max-w-sm", md: "max-w-2xl", lg: "max-w-4xl" };
-//   return (
-//     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-//       <div className={`bg-white w-full ${sizeClasses[size]} rounded-2xl shadow-xl p-6 relative`}>
-//         <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-3xl">
-//           <X className="w-6 h-6" />
-//         </button>
-//         {children}
-//       </div>
-//     </div>
-//   );
-// };
-
-// // Image Preview Modal
-// const ImagePreviewModal = ({ imageUrl, onClose }) => {
-//   return (
-//     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
-//       <div className="bg-white rounded-2xl shadow-xl max-w-4xl max-h-[90vh] w-full relative">
-//         <button 
-//           onClick={onClose} 
-//           className="absolute -top-12 right-0 text-white hover:text-gray-300 text-3xl z-10"
-//         >
-//           <X className="w-8 h-8" />
-//         </button>
-//         <div className="p-4 border-b">
-//           <h3 className="text-lg font-semibold">Proof Document Preview</h3>
-//         </div>
-//         <div className="p-4 max-h-[70vh] overflow-auto">
-//           {imageUrl ? (
-//             <img 
-//               src={imageUrl} 
-//               alt="Proof Document" 
-//               className="w-full h-auto rounded-lg shadow-md"
-//               onError={(e) => {
-//                 e.target.style.display = 'none';
-//                 const errorDiv = e.target.parentNode.querySelector('.image-error');
-//                 if (errorDiv) errorDiv.style.display = 'block';
-//               }}
-//             />
-//           ) : (
-//             <div className="text-center text-gray-500 py-8">
-//               No image available
-//             </div>
-//           )}
-//           <div className="image-error text-center text-red-500 py-4" style={{ display: 'none' }}>
-//             <p>Failed to load image.</p>
-//             <p className="text-sm text-gray-600 break-all mt-2">{imageUrl}</p>
-//           </div>
-//         </div>
-//         <div className="p-4 border-t flex justify-between items-center">
-//           <span className="text-sm text-gray-500 break-all flex-1 mr-4">
-//             {imageUrl}
-//           </span>
-//           <button 
-//             onClick={() => window.open(imageUrl, '_blank')}
-//             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
-//           >
-//             <Eye className="w-4 h-4" />
-//             Open in New Tab
-//           </button>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// // Stat Card
-// const StatCard = ({ icon, title, value, hint }) => (
-//   <div className="bg-white border border-gray-100 rounded-2xl shadow p-4 hover:shadow-md transition">
-//     <div className="flex items-start justify-between">
-//       <div>
-//         <div className="text-sm text-gray-500 font-medium">{title}</div>
-//         <div className="mt-2 text-2xl font-bold text-gray-800">{value}</div>
-//         {hint && <div className="text-xs text-gray-400 mt-1">{hint}</div>}
-//       </div>
-//       <div className="p-2 bg-gray-50 rounded-full">{icon}</div>
-//     </div>
-//   </div>
-// );
-
-// // Abstract Status Pie Chart Component
-// const AbstractStatusPie = ({ data }) => {
-//   const COLORS = ["#10B981", "#EF4444", "#F59E0B", "#6B7280"];
-  
-//   return (
-//     <div className="bg-white p-4 rounded-2xl shadow">
-//       <h3 className="text-lg font-semibold mb-3">Abstract Status Distribution</h3>
-//       <ResponsiveContainer width="100%" height={260}>
-//         <PieChart>
-//           <Pie
-//             data={data}
-//             cx="50%"
-//             cy="50%"
-//             outerRadius={80}
-//             fill="#8884d8"
-//             dataKey="value"
-//             label={({ name, value }) => `${name}: ${value}`}
-//           >
-//             {data.map((entry, index) => (
-//               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-//             ))}
-//           </Pie>
-//           <Tooltip />
-//           <Legend />
-//         </PieChart>
-//       </ResponsiveContainer>
-//     </div>
-//   );
-// };
-
-// // Abstract Trend Chart Component
-// const AbstractTrendChart = ({ data }) => (
-//   <div className="bg-white p-4 rounded-2xl shadow">
-//     <h3 className="text-lg font-semibold mb-3">Abstract Submission Trend</h3>
-//     <ResponsiveContainer width="100%" height={260}>
-//       <LineChart data={data}>
-//         <CartesianGrid strokeDasharray="3 3" />
-//         <XAxis dataKey="date" />
-//         <YAxis allowDecimals={false} />
-//         <Tooltip />
-//         <Line
-//           type="monotone"
-//           dataKey="count"
-//           name="Abstracts"
-//           stroke="#3B82F6"
-//           strokeWidth={2}
-//         />
-//       </LineChart>
-//     </ResponsiveContainer>
-//   </div>
-// );
-
-// // Status Snapshot Chart Component
-// const StatusSnapshotChart = ({ stats }) => (
-//   <div className="bg-white p-4 rounded-2xl shadow">
-//     <h3 className="text-lg font-semibold mb-3">Abstract Status Snapshot</h3>
-//     <ResponsiveContainer width="100%" height={260}>
-//       <BarChart
-//         data={[
-//           {
-//             name: "Abstracts",
-//             approved: stats.approved,
-//             pending: stats.pending,
-//             rejected: stats.rejected,
-//           },
-//         ]}
-//       >
-//         <CartesianGrid strokeDasharray="3 3" />
-//         <XAxis dataKey="name" hide />
-//         <YAxis allowDecimals={false} />
-//         <Tooltip />
-//         <Legend />
-//         <Bar dataKey="approved" name="Approved" fill="#10B981" />
-//         <Bar dataKey="pending" name="Pending" fill="#F59E0B" />
-//         <Bar dataKey="rejected" name="Rejected" fill="#EF4444" />
-//       </BarChart>
-//     </ResponsiveContainer>
-//   </div>
-// );
-
-// /* ----------------------------- Main Component ----------------------------- */
-
-// const AbstractSupport = () => {
-//   const [abstracts, setAbstracts] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [stats, setStats] = useState({
-//     total: 0,
-//     approved: 0,
-//     rejected: 0,
-//     pending: 0,
-//   });
-//   const [trend, setTrend] = useState([]);
-//   const [searchTerm, setSearchTerm] = useState("");
-//   const [statusFilter, setStatusFilter] = useState("All");
-//   const [teamModalData, setTeamModalData] = useState(null);
-//   const [abstractModalData, setAbstractModalData] = useState(null);
-//   const [rejectionModalData, setRejectionModalData] = useState(null);
-//   const [rejectionReason, setRejectionReason] = useState("");
-//   const [actionLoading, setActionLoading] = useState(false);
-//   const [refreshTrigger, setRefreshTrigger] = useState(false);
-//   const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
-
-//   /**
-//    * Computes statistics for the dashboard cards.
-//    */
-//   const computeStats = useCallback((data) => {
-//     setStats({
-//       total: data.length,
-//       approved: data.filter((d) => d.status.toLowerCase() === "approved").length,
-//       rejected: data.filter((d) => d.status.toLowerCase() === "rejected").length,
-//       pending: data.filter((d) => 
-//         d.status.toLowerCase() === "submitted" || 
-//         d.status.toLowerCase() === "under review" ||
-//         d.status.toLowerCase() === "pending"
-//       ).length,
-//     });
-//   }, []);
-
-//   /**
-//    * Computes the submission trend based on the creation date.
-//    */
-//   const computeTrend = useCallback((data) => {
-//     const groups = {};
-//     data.forEach((d) => {
-//       const date = new Date(d.createdAt).toISOString().split("T")[0];
-//       groups[date] = (groups[date] || 0) + 1;
-//     });
-//     const arr = Object.entries(groups)
-//       .map(([date, count]) => ({ date, count }))
-//       .sort((a, b) => new Date(a.date) - new Date(b.date));
-//     setTrend(arr);
-//   }, []);
-
-//   /**
-//    * Formats proof URL to ensure it's a complete, valid URL
-//    */
-//   const formatProofUrl = (url) => {
-//     if (!url) return null;
-    
-//     // If it's already a full URL, return as is
-//     if (url.startsWith('http://') || url.startsWith('https://')) {
-//       return url;
-//     }
-    
-//     // If it's a relative path starting with /uploads, prepend the base URL
-//     if (url.startsWith('/uploads/')) {
-//       return `https://s3conference.ksrce.ac.in${url}`;
-//     }
-    
-//     // If it's just a filename, construct the full path
-//     if (url.includes('proof_')) {
-//       return `https://s3conference.ksrce.ac.in/uploads/proofs/${url}`;
-//     }
-    
-//     return url;
-//   };
-
-//   // Format each abstract
-//   const formatAbstract = (item) => {
-//     const teamMembers = item.registration?.participants?.length
-//       ? item.registration.participants.map((p) => ({
-//           name: p.name || "Unknown",
-//           email: p.email || "-",
-//           phone: p.phone || "-",
-//           designation: p.designation || "-",
-//           organisation: p.organisation || "-",
-//           gender: p.gender || "-",
-//           proofUrl: formatProofUrl(p.proofUrl),
-//         }))
-//       : [];
-
-//     return {
-//       id: item._id,
-//       userId: item.userId || "N/A",
-//       authorName: item.name || "Unknown",
-//       email: item.registration?.participants?.[0]?.email || "-",
-//       mobile: item.registration?.participants?.[0]?.phone || "-",
-//       uniqueId: item.registration?.uniqueId || "-",
-//       track: item.registration?.track || "-",
-//       presentationMode: item.registration?.presentationMode || "-",
-//       title: item.registration?.abstractTitle || "No Title",
-//       content: item.registration?.abstractContent || "No content available",
-//       team: teamMembers,
-//       country: item.registration?.country || "-",
-//       proofUrl: formatProofUrl(item.registration?.proofUrl),
-//       status: (item.workflow?.abstractStatus || "pending").toLowerCase(),
-//       createdAt: item.workflow?.createdAt || new Date().toISOString(),
-//     };
-//   };
-
-//   // Fetch abstracts
-//   const fetchAbstracts = useCallback(async () => {
-//     setLoading(true);
-//     try {
-//       const token = localStorage.getItem("token");
-//       const { data } = await axios.get(
-//         "https://s3conference.ksrce.ac.in/api/admin/users",
-//         { headers: { Authorization: `Bearer ${token}` } }
-//       );
-
-//       const formatted = (Array.isArray(data) ? data : []).map(formatAbstract);
-//       console.log("this is the data", formatted);
-//       // Filter only abstracts with actual content
-//       const filteredData = formatted.filter(
-//         (item) =>
-//           item.content &&
-//           item.content.trim() !== "" &&
-//           item.content !== "No content available"
-//       );
-
-//       setAbstracts(filteredData);
-//       computeStats(filteredData);
-//       computeTrend(filteredData);
-//     } catch (err) {
-//       console.error("Error fetching abstracts:", err);
-//       setAbstracts([]);
-//       setStats({ total: 0, approved: 0, rejected: 0, pending: 0 });
-//       setTrend([]);
-//     } finally {
-//       setLoading(false);
-//     }
-//   }, [computeStats, computeTrend]);
-
-//   useEffect(() => {
-//     fetchAbstracts();
-//   }, [fetchAbstracts, refreshTrigger]);
-
-//   // Update local state after successful API call
-//   const updateAbstractLocal = useCallback((id, newStatus) => {
-//     setAbstracts((prevAbstracts) => {
-//       const updatedAbstracts = prevAbstracts.map((abs) => {
-//         if (abs.id === id) {
-//           return { ...abs, status: newStatus.toLowerCase() };
-//         }
-//         return abs;
-//       });
-      
-//       computeStats(updatedAbstracts);
-//       computeTrend(updatedAbstracts);
-//       return updatedAbstracts;
-//     });
-//   }, [computeStats, computeTrend]);
-
-//   // Search & Filter (Memoized)
-//   const filteredAndSearchedAbstracts = useMemo(() => {
-//     const q = searchTerm.trim().toLowerCase();
-//     const isAllStatus = statusFilter.toLowerCase() === "all";
-
-//     return abstracts.filter((abs) => {
-//       const matchesSearch =
-//         abs.authorName.toLowerCase().includes(q) ||
-//         abs.email.toLowerCase().includes(q) ||
-//         abs.uniqueId.toLowerCase().includes(q) ||
-//         abs.title.toLowerCase().includes(q) ||
-//         abs.userId.toLowerCase().includes(q) ||
-//         abs.track.toLowerCase().includes(q);
-
-//       const matchesFilter =
-//         isAllStatus || abs.status.toLowerCase() === statusFilter.toLowerCase();
-
-//       return matchesSearch && matchesFilter;
-//     });
-//   }, [abstracts, searchTerm, statusFilter]);
-
-//   // Badge Styling
-//   const getStatusBadgeClass = (status) => {
-//     switch (status?.toLowerCase()) {
-//       case "approved":
-//         return "bg-green-100 text-green-700";
-//       case "rejected":
-//         return "bg-red-100 text-red-700";
-//       case "under review":
-//         return "bg-orange-100 text-orange-700";
-//       case "submitted":
-//         return "bg-blue-100 text-blue-700";
-//       case "pending":
-//         return "bg-gray-100 text-gray-700";
-//       default:
-//         return "bg-gray-100 text-gray-700";
-//     }
-//   };
-
-//   // Handle Export to Excel
-//   const handleExportExcel = () => {
-//     if (!filteredAndSearchedAbstracts.length) return alert("No data to export!");
-
-//     const exportData = filteredAndSearchedAbstracts.map((abs) => ({
-//       "Unique ID": abs.uniqueId,
-//       "User ID": abs.userId,
-//       "Author Name": abs.authorName,
-//       Email: abs.email,
-//       "Mobile": abs.mobile,
-//       Title: abs.title,
-//       Track: abs.track,
-//       "Presentation Mode": abs.presentationMode,
-//       "Abstract Status": abs.status,
-//       "Country": abs.country,
-//       "Registration Date": new Date(abs.createdAt).toLocaleDateString(),
-//     }));
-
-//     const ws = XLSX.utils.json_to_sheet(exportData);
-//     const wb = XLSX.utils.book_new();
-//     XLSX.utils.book_append_sheet(wb, ws, "Abstracts");
-//     XLSX.writeFile(wb, `abstracts_${new Date().toISOString().split('T')[0]}.xlsx`);
-//   };
-
-//   // Handle Abstract Status Update
-//   const handleAbstractStatusUpdate = async (newStatus, reason = "") => {
-//     if (!abstractModalData) return;
-
-//     setActionLoading(true);
-//     try {
-//       const token = localStorage.getItem("token");
-//       const payload = {
-//         abstractStatus: newStatus.toLowerCase(),
-//       };
-
-//       if (newStatus.toLowerCase() === "rejected" && reason) {
-//         payload.abstractrejectedReason = reason;
-//       }
-
-//       const API_URL = `https://s3conference.ksrce.ac.in/api/admin/update/${abstractModalData.id}`;
-
-//       const response = await axios.put(API_URL, payload, {
-//         headers: {
-//           Authorization: `Bearer ${token}`,
-//           "Content-Type": "application/json",
-//         },
-//       });
-
-//       if (response.data?.success) {
-//         alert(`✅ Abstract status updated to "${newStatus}"`);
-//         updateAbstractLocal(abstractModalData.id, newStatus);
-//         setAbstractModalData(null);
-//         setRejectionModalData(null);
-//         setRejectionReason("");
-//         setRefreshTrigger(prev => !prev);
-//       } else {
-//         alert(response.data?.message || "Unexpected server response.");
-//       }
-//     } catch (err) {
-//       console.error("❌ Error updating abstract status:", err.response?.data || err.message);
-//       alert(err.response?.data?.message || "Failed to update abstract status.");
-//     } finally {
-//       setActionLoading(false);
-//     }
-//   };
-
-//   // Handle Rejection Submit
-//   const handleRejectionSubmit = () => {
-//     if (!rejectionReason.trim()) {
-//       alert("Please provide a reason for rejection.");
-//       return;
-//     }
-//     handleAbstractStatusUpdate("rejected", rejectionReason.trim());
-//   };
-
-//   // Handle View Proof - Updated function
-//   const handleViewProof = (proofUrl) => {
-//     if (!proofUrl) {
-//       alert("No proof available for this team member.");
-//       return;
-//     }
-
-//     // Test if the URL is accessible
-//     const img = new Image();
-//     img.onload = () => {
-//       // Image loaded successfully, open preview
-//       setImagePreviewUrl(proofUrl);
-//     };
-//     img.onerror = () => {
-//       // Image failed to load, show error with URL details
-//       alert(`Unable to load the proof image. The URL may be invalid or the image may not be accessible.\n\nURL: ${proofUrl}`);
-//     };
-//     img.src = proofUrl;
-//   };
-
-//   // Pie Chart Data
-//   const pieChartData = [
-//     { name: "Approved", value: stats.approved },
-//     { name: "Rejected", value: stats.rejected },
-//     { name: "Pending", value: stats.pending },
-//   ];
-
-//   return (
-//     <div className="space-y-6 p-4">
-//       <div>
-//         <h1 className="text-2xl font-bold">Abstract Support</h1>
-//         <p className="text-sm text-gray-500 mt-1">
-//           Manage abstract submissions, reviews, and approval statuses.
-//         </p>
-//       </div>
-
-//       {/* Stats */}
-//       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-//         <StatCard icon={icons.total} title="Total Abstracts" value={stats.total} />
-//         <StatCard icon={icons.approved} title="Approved" value={stats.approved} />
-//         <StatCard icon={icons.rejected} title="Rejected" value={stats.rejected} />
-//         <StatCard icon={icons.pending} title="Pending Review" value={stats.pending} />
-//       </div>
-
-//       {/* Charts */}
-//       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-//         <StatusSnapshotChart stats={stats} />
-//         <AbstractStatusPie data={pieChartData} />
-//       </div>
-
-//       {/* Trend Chart */}
-//       <AbstractTrendChart data={trend} />
-
-//       {/* Table Section */}
-//       <div className="bg-white rounded-2xl shadow border overflow-hidden">
-//         {/* Toolbar (Search & Filter) */}
-//         <div className="flex flex-col md:flex-row items-center justify-between gap-3 p-4 border-b bg-gray-50">
-//           <div className="flex items-center gap-3 w-full md:w-auto">
-//             <div className="flex items-center border rounded-lg overflow-hidden bg-white w-full md:w-72">
-//               <Search className="w-5 h-5 ml-3 text-gray-400" />
-//               <input
-//                 type="text"
-//                 placeholder="Search by ID, name, email, or title..."
-//                 value={searchTerm}
-//                 onChange={(e) => setSearchTerm(e.target.value)}
-//                 className="px-3 py-2 outline-none text-sm w-full"
-//               />
-//               <button
-//                 onClick={() => setSearchTerm("")}
-//                 className="px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"
-//               >
-//                 Clear
-//               </button>
-//             </div>
-
-//             <select
-//               value={statusFilter}
-//               onChange={(e) => setStatusFilter(e.target.value)}
-//               className="border rounded-lg p-2 text-sm w-full md:w-auto"
-//             >
-//               <option value="All">All Statuses</option>
-//               <option value="approved">Approved</option>
-//               <option value="rejected">Rejected</option>
-//               <option value="under review">Under Review</option>
-//               <option value="submitted">Submitted</option>
-//               <option value="pending">Pending</option>
-//             </select>
-//           </div>
-
-//           <div className="flex items-center gap-2 w-full md:w-auto">
-//             <button
-//               onClick={fetchAbstracts}
-//               className="px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 w-full md:w-auto"
-//               disabled={loading}
-//             >
-//               {loading ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : 'Refresh Data'}
-//             </button>
-//             <button
-//               onClick={handleExportExcel}
-//               className="px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 flex items-center gap-2 w-full md:w-auto"
-//             >
-//               <Download className="w-4 h-4" /> Export Excel
-//             </button>
-//           </div>
-//         </div>
-
-//         {/* Table */}
-//         {loading ? (
-//           <div className="flex items-center justify-center p-10">
-//             <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
-//           </div>
-//         ) : filteredAndSearchedAbstracts.length === 0 ? (
-//           <div className="p-8 text-center text-gray-600">
-//             No records match the current filters.
-//           </div>
-//         ) : (
-//           <div className="overflow-x-auto">
-//             <table className="min-w-full text-sm divide-y divide-gray-200">
-//               <thead className="bg-gray-50 text-xs uppercase text-gray-700">
-//                 <tr>
-//                   <th className="p-3">User ID</th>
-//                   <th className="p-3">Author Name</th>
-//                   <th className="p-3">Email</th>
-//                   <th className="p-3">Title</th>
-//                   <th className="p-3">Track</th>
-//                   <th className="p-3 text-center">Status</th>
-//                   <th className="p-3 text-center">Team</th>
-//                   <th className="p-3 text-center">Actions</th>
-//                 </tr>
-//               </thead>
-//               <tbody className="divide-y divide-gray-100">
-//                 {filteredAndSearchedAbstracts.map((abs) => (
-//                   <tr key={abs.id} className="hover:bg-gray-50">
-//                     <td className="p-3 font-mono text-xs text-gray-600">
-//                       {abs.userId}
-//                     </td>
-//                     <td className="p-3 font-medium">{abs.authorName}</td>
-//                     <td className="p-3 text-gray-600">{abs.email}</td>
-//                     <td className="p-3 text-gray-600 max-w-xs truncate">{abs.title}</td>
-//                     <td className="p-3 text-gray-600">{abs.track}</td>
-//                     <td className="p-3 text-center">
-//                       <span
-//                         className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusBadgeClass(
-//                           abs.status
-//                         )}`}
-//                       >
-//                         {abs.status.toUpperCase()}
-//                       </span>
-//                     </td>
-//                     <td className="p-3 text-center">
-//                       {Array.isArray(abs.team) && abs.team.length ? (
-//                         <button
-//                           onClick={() => setTeamModalData(abs)}
-//                           className="text-blue-500 hover:underline flex items-center justify-center gap-1 mx-auto text-xs"
-//                         >
-//                           <Users className="w-4 h-4" /> View
-//                         </button>
-//                       ) : (
-//                         "-"
-//                       )}
-//                     </td>
-//                     <td className="p-3 text-center">
-//                       <button
-//                         onClick={() => setAbstractModalData(abs)}
-//                         className="px-3 py-1 bg-indigo-600 text-white rounded text-xs hover:bg-indigo-700"
-//                       >
-//                         Review
-//                       </button>
-//                     </td>
-//                   </tr>
-//                 ))}
-//               </tbody>
-//             </table>
-//           </div>
-//         )}
-//       </div>
-
-//       {/* Team Modal */}
-//       {teamModalData && (
-//         <Modal onClose={() => setTeamModalData(null)} size="lg">
-//           <h3 className="text-xl font-bold mb-4">
-//             Team Members for "{teamModalData.title}"
-//           </h3>
-//           {Array.isArray(teamModalData.team) && teamModalData.team.length ? (
-//             <div className="overflow-x-auto max-h-[70vh]">
-//               <table className="min-w-full divide-y divide-gray-200 text-sm">
-//                 <thead className="bg-gray-100 sticky top-0">
-//                   <tr>
-//                     <th className="p-2 text-left">Name</th>
-//                     <th className="p-2 text-left">Email</th>
-//                     <th className="p-2 text-left">Phone</th>
-//                     <th className="p-2 text-left">Designation</th>
-//                     <th className="p-2 text-left">Organisation</th>
-//                     <th className="p-2 text-left">Gender</th>
-//                     <th className="p-2 text-left">Proof</th>
-//                   </tr>
-//                 </thead>
-//                 <tbody className="divide-y divide-gray-200">
-//                   {teamModalData.team.map((member, i) => (
-//                     <tr key={i}>
-//                       <td className="p-2">{member.name || "Unnamed"}</td>
-//                       <td className="p-2">{member.email || "-"}</td>
-//                       <td className="p-2">{member.phone || "-"}</td>
-//                       <td className="p-2">{member.designation || "-"}</td>
-//                       <td className="p-2">{member.organisation || "-"}</td>
-//                       <td className="p-2">{member.gender || "-"}</td>
-//                       <td className="p-2">
-//                         {member.proofUrl ? (
-//                           <button
-//                             onClick={() => handleViewProof(member.proofUrl)}
-//                             className="text-blue-500 hover:underline text-xs flex items-center gap-1"
-//                           >
-//                             <Eye className="w-3 h-3" /> View Proof
-//                           </button>
-//                         ) : (
-//                           "-"
-//                         )}
-//                       </td>
-//                     </tr>
-//                   ))}
-//                 </tbody>
-//               </table>
-//             </div>
-//           ) : (
-//             <p>No team members available.</p>
-//           )}
-//         </Modal>
-//       )}
-
-//       {/* Abstract Review Modal */}
-//       {abstractModalData && (
-//         <Modal onClose={() => setAbstractModalData(null)} size="lg">
-//           <h2 className="text-xl font-bold mb-2">
-//             Abstract Review: {abstractModalData.authorName}
-//           </h2>
-//           <p className="text-gray-600 mb-4">
-//             Title: {abstractModalData.title}
-//           </p>
-
-//           <div className="space-y-4">
-//             <div className="flex justify-between items-center bg-blue-50 p-3 rounded-lg">
-//               <span className="font-semibold">Current Status:</span>
-//               <span className={`px-2 py-1 rounded-full text-sm font-bold ${getStatusBadgeClass(abstractModalData.status)}`}>
-//                 {abstractModalData.status.toUpperCase()}
-//               </span>
-//             </div>
-
-//             <div className="p-3 border rounded-lg">
-//               <h4 className="font-bold mb-2">Abstract Details</h4>
-//               <div className="space-y-2 text-sm">
-//                 <p><strong>Track:</strong> {abstractModalData.track}</p>
-//                 <p><strong>Presentation Mode:</strong> {abstractModalData.presentationMode}</p>
-//                 <p><strong>Email:</strong> {abstractModalData.email}</p>
-//                 <p><strong>Mobile:</strong> {abstractModalData.mobile}</p>
-//                 <p><strong>Country:</strong> {abstractModalData.country}</p>
-//               </div>
-//             </div>
-
-//             <div className="p-3 border rounded-lg max-h-60 overflow-y-auto">
-//               <h4 className="font-bold mb-2">Abstract Content</h4>
-//               <p className="text-sm text-gray-700 whitespace-pre-wrap">
-//                 {abstractModalData.content}
-//               </p>
-//             </div>
-
-//             <div className="flex justify-end gap-3 pt-4 border-t">
-//               <button
-//                 onClick={() => {
-//                   setRejectionModalData(abstractModalData);
-//                   setRejectionReason("");
-//                 }}
-//                 className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 flex items-center gap-2"
-//                 disabled={actionLoading}
-//               >
-//                 <XCircle className="w-4 h-4" /> Reject
-//               </button>
-              
-//               <button
-//                 onClick={() => handleAbstractStatusUpdate("approved")}
-//                 disabled={actionLoading}
-//                 className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
-//               >
-//                 <CheckCircle className="w-4 h-4" /> 
-//                 {actionLoading ? "Processing..." : "Approve"}
-//               </button>
-
-//               <button
-//                 onClick={() => handleAbstractStatusUpdate("under review")}
-//                 disabled={actionLoading}
-//                 className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 flex items-center gap-2"
-//               >
-//                 <Clock className="w-4 h-4" />
-//                 {actionLoading ? "Processing..." : "Mark Under Review"}
-//               </button>
-//             </div>
-//           </div>
-//         </Modal>
-//       )}
-
-//       {/* Rejection Modal */}
-//       {rejectionModalData && (
-//         <Modal onClose={() => setRejectionModalData(null)} size="md">
-//           <div className="text-center p-4">
-//             <div className="mx-auto w-fit bg-orange-100 rounded-full p-4 mb-4">
-//               <FileText className="w-8 h-8 text-orange-500" />
-//             </div>
-//             <h3 className="text-2xl font-bold my-2">Provide Rejection Reason</h3>
-//             <p className="text-gray-500 mb-4">
-//               Please provide a reason for rejecting this abstract.
-//             </p>
-//             <textarea
-//               rows="4"
-//               className="w-full border rounded-lg p-3 mb-4 focus:ring-2 focus:ring-orange-400 outline-none"
-//               placeholder="Write rejection reason here..."
-//               value={rejectionReason}
-//               onChange={(e) => setRejectionReason(e.target.value)}
-//             ></textarea>
-//             <div className="flex gap-3">
-//               <button
-//                 onClick={() => setRejectionModalData(null)}
-//                 className="flex-1 px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
-//                 disabled={actionLoading}
-//               >
-//                 Cancel
-//               </button>
-//               <button
-//                 onClick={handleRejectionSubmit}
-//                 disabled={actionLoading || !rejectionReason.trim()}
-//                 className="flex-1 bg-red-600 text-white font-semibold py-2 rounded-lg hover:bg-red-700 disabled:opacity-50 flex items-center justify-center gap-2"
-//               >
-//                 {actionLoading ? (
-//                   <Loader2 className="h-4 w-4 animate-spin" />
-//                 ) : (
-//                   <XCircle className="w-4 h-4" />
-//                 )}
-//                 Reject Abstract
-//               </button>
-//             </div>
-//           </div>
-//         </Modal>
-//       )}
-
-//       {/* Image Preview Modal */}
-//       {imagePreviewUrl && (
-//         <ImagePreviewModal 
-//           imageUrl={imagePreviewUrl} 
-//           onClose={() => setImagePreviewUrl(null)} 
-//         />
-//       )}
-//     </div>
-//   );
-// };
-
-// export default AbstractSupport;
-// import React, { useState, useCallback, useEffect, useMemo } from "react";
-// import axios from "axios";
-// import * as XLSX from "xlsx";
-// import {
-//   BarChart,
-//   Bar,
-//   PieChart,
-//   Pie,
-//   Cell,
-//   ResponsiveContainer,
-//   CartesianGrid,
-//   XAxis,
-//   YAxis,
-//   Tooltip,
-//   Legend,
-//   LineChart,
-//   Line,
-// } from "recharts";
-// import {
-//   Loader2,
-//   Download,
-//   X,
-//   Users,
-//   Search,
-//   FileText,
-//   CheckCircle,
-//   XCircle,
-//   Clock,
-//   Eye,
-// } from "lucide-react";
-
-// /* ----------------------------- Small Components & Utils ----------------------------- */
-
-// // Icon map
-// const icons = {
-//   total: (
-//     <svg className="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7h18M3 12h18M3 17h18"></path>
-//     </svg>
-//   ),
-//   approved: (
-//     <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-//     </svg>
-//   ),
-//   rejected: (
-//     <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-//     </svg>
-//   ),
-//   pending: (
-//     <svg className="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//       <circle cx="12" cy="12" r="10" strokeWidth="2"></circle>
-//       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6l4 2"></path>
-//     </svg>
-//   ),
-// };
-
-// // Reusable Modal Component
-// const Modal = ({ children, onClose, size = "md" }) => {
-//   const sizeClasses = { sm: "max-w-sm", md: "max-w-2xl", lg: "max-w-4xl" };
-//   return (
-//     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-//       <div className={`bg-white w-full ${sizeClasses[size]} rounded-2xl shadow-xl p-6 relative`}>
-//         <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-3xl">
-//           <X className="w-6 h-6" />
-//         </button>
-//         {children}
-//       </div>
-//     </div>
-//   );
-// };
-
-// // Image Preview Modal
-// const ImagePreviewModal = ({ imageUrl, onClose }) => {
-//   return (
-//     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
-//       <div className="bg-white rounded-2xl shadow-xl max-w-4xl max-h-[90vh] w-full relative">
-//         <button 
-//           onClick={onClose} 
-//           className="absolute -top-12 right-0 text-white hover:text-gray-300 text-3xl z-10"
-//         >
-//           <X className="w-8 h-8" />
-//         </button>
-//         <div className="p-4 border-b">
-//           <h3 className="text-lg font-semibold">Proof Document Preview</h3>
-//         </div>
-//         <div className="p-4 max-h-[70vh] overflow-auto">
-//           {imageUrl ? (
-//             <img 
-//               src={imageUrl} 
-//               alt="Proof Document" 
-//               className="w-full h-auto rounded-lg shadow-md"
-//               onError={(e) => {
-//                 e.target.style.display = 'none';
-//                 const errorDiv = e.target.parentNode.querySelector('.image-error');
-//                 if (errorDiv) errorDiv.style.display = 'block';
-//               }}
-//             />
-//           ) : (
-//             <div className="text-center text-gray-500 py-8">
-//               No image available
-//             </div>
-//           )}
-//           <div className="image-error text-center text-red-500 py-4" style={{ display: 'none' }}>
-//             <p>Failed to load image.</p>
-//             <p className="text-sm text-gray-600 break-all mt-2">{imageUrl}</p>
-//           </div>
-//         </div>
-//         <div className="p-4 border-t flex justify-between items-center">
-//           <span className="text-sm text-gray-500 break-all flex-1 mr-4">
-//             {imageUrl}
-//           </span>
-//           <button 
-//             onClick={() => window.open(imageUrl, '_blank')}
-//             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
-//           >
-//             <Eye className="w-4 h-4" />
-//             Open in New Tab
-//           </button>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// // Stat Card
-// const StatCard = ({ icon, title, value, hint }) => (
-//   <div className="bg-white border border-gray-100 rounded-2xl shadow p-4 hover:shadow-md transition">
-//     <div className="flex items-start justify-between">
-//       <div>
-//         <div className="text-sm text-gray-500 font-medium">{title}</div>
-//         <div className="mt-2 text-2xl font-bold text-gray-800">{value}</div>
-//         {hint && <div className="text-xs text-gray-400 mt-1">{hint}</div>}
-//       </div>
-//       <div className="p-2 bg-gray-50 rounded-full">{icon}</div>
-//     </div>
-//   </div>
-// );
-
-// // Abstract Status Pie Chart Component
-// const AbstractStatusPie = ({ data }) => {
-//   const COLORS = ["#10B981", "#EF4444", "#F59E0B", "#6B7280"];
-  
-//   return (
-//     <div className="bg-white p-4 rounded-2xl shadow">
-//       <h3 className="text-lg font-semibold mb-3">Abstract Status Distribution</h3>
-//       <ResponsiveContainer width="100%" height={260}>
-//         <PieChart>
-//           <Pie
-//             data={data}
-//             cx="50%"
-//             cy="50%"
-//             outerRadius={80}
-//             fill="#8884d8"
-//             dataKey="value"
-//             label={({ name, value }) => `${name}: ${value}`}
-//           >
-//             {data.map((entry, index) => (
-//               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-//             ))}
-//           </Pie>
-//           <Tooltip />
-//           <Legend />
-//         </PieChart>
-//       </ResponsiveContainer>
-//     </div>
-//   );
-// };
-
-// // Abstract Trend Chart Component
-// const AbstractTrendChart = ({ data }) => (
-//   <div className="bg-white p-4 rounded-2xl shadow">
-//     <h3 className="text-lg font-semibold mb-3">Abstract Submission Trend</h3>
-//     <ResponsiveContainer width="100%" height={260}>
-//       <LineChart data={data}>
-//         <CartesianGrid strokeDasharray="3 3" />
-//         <XAxis dataKey="date" />
-//         <YAxis allowDecimals={false} />
-//         <Tooltip />
-//         <Line
-//           type="monotone"
-//           dataKey="count"
-//           name="Abstracts"
-//           stroke="#3B82F6"
-//           strokeWidth={2}
-//         />
-//       </LineChart>
-//     </ResponsiveContainer>
-//   </div>
-// );
-
-// // Status Snapshot Chart Component
-// const StatusSnapshotChart = ({ stats }) => (
-//   <div className="bg-white p-4 rounded-2xl shadow">
-//     <h3 className="text-lg font-semibold mb-3">Abstract Status Snapshot</h3>
-//     <ResponsiveContainer width="100%" height={260}>
-//       <BarChart
-//         data={[
-//           {
-//             name: "Abstracts",
-//             approved: stats.approved,
-//             pending: stats.pending,
-//             rejected: stats.rejected,
-//           },
-//         ]}
-//       >
-//         <CartesianGrid strokeDasharray="3 3" />
-//         <XAxis dataKey="name" hide />
-//         <YAxis allowDecimals={false} />
-//         <Tooltip />
-//         <Legend />
-//         <Bar dataKey="approved" name="Approved" fill="#10B981" />
-//         <Bar dataKey="pending" name="Pending" fill="#F59E0B" />
-//         <Bar dataKey="rejected" name="Rejected" fill="#EF4444" />
-//       </BarChart>
-//     </ResponsiveContainer>
-//   </div>
-// );
-
-// /* ----------------------------- Main Component ----------------------------- */
-
-// const AbstractSupport = () => {
-//   const [abstracts, setAbstracts] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [stats, setStats] = useState({
-//     total: 0,
-//     approved: 0,
-//     rejected: 0,
-//     pending: 0,
-//   });
-//   const [trend, setTrend] = useState([]);
-//   const [searchTerm, setSearchTerm] = useState("");
-//   const [statusFilter, setStatusFilter] = useState("All");
-//   const [teamModalData, setTeamModalData] = useState(null);
-//   const [abstractModalData, setAbstractModalData] = useState(null);
-//   const [rejectionModalData, setRejectionModalData] = useState(null);
-//   const [rejectionReason, setRejectionReason] = useState("");
-//   const [actionLoading, setActionLoading] = useState(false);
-//   const [refreshTrigger, setRefreshTrigger] = useState(false);
-//   const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
-
-//   // Define the base URL once
-//   const BASE_URL = "https://s3conference.ksrce.ac.in";
-
-//   /**
-//    * Formats proof URL to ensure it's a complete, valid URL
-//    */
-//   const formatProofUrl = useCallback((url) => {
-//     if (!url) return null;
-    
-//     // If it's already a full URL, return as is
-//     if (url.startsWith('http://') || url.startsWith('https://')) {
-//       return url;
-//     }
-    
-//     // If it's a relative path starting with /uploads, prepend the base URL
-//     // This is the most likely case causing the issue: /uploads/proofs/...
-//     if (url.startsWith('/')) {
-//       return `${BASE_URL}${url}`;
-//     }
-    
-//     // If it's just a filename, construct the full path (less common)
-//     if (url.includes('proof_')) {
-//       return `${BASE_URL}/uploads/proofs/${url}`;
-//     }
-    
-//     return url;
-//   }, [BASE_URL]); // BASE_URL is constant, but useCallback is good practice
-
-//   /**
-//    * Computes statistics for the dashboard cards.
-//    */
-//   const computeStats = useCallback((data) => {
-//     setStats({
-//       total: data.length,
-//       approved: data.filter((d) => d.status.toLowerCase() === "approved").length,
-//       rejected: data.filter((d) => d.status.toLowerCase() === "rejected").length,
-//       pending: data.filter((d) => 
-//         d.status.toLowerCase() === "submitted" || 
-//         d.status.toLowerCase() === "under review" ||
-//         d.status.toLowerCase() === "pending"
-//       ).length,
-//     });
-//   }, []);
-
-//   /**
-//    * Computes the submission trend based on the creation date.
-//    */
-//   const computeTrend = useCallback((data) => {
-//     const groups = {};
-//     data.forEach((d) => {
-//       const date = new Date(d.createdAt).toISOString().split("T")[0];
-//       groups[date] = (groups[date] || 0) + 1;
-//     });
-//     const arr = Object.entries(groups)
-//       .map(([date, count]) => ({ date, count }))
-//       .sort((a, b) => new Date(a.date) - new Date(b.date));
-//     setTrend(arr);
-//   }, []);
-
-//   // Format each abstract
-//   const formatAbstract = useCallback((item) => {
-//     const teamMembers = item.registration?.participants?.length
-//       ? item.registration.participants.map((p) => ({
-//           name: p.name || "Unknown",
-//           email: p.email || "-",
-//           phone: p.phone || "-",
-//           designation: p.designation || "-",
-//           organisation: p.organisation || "-",
-//           gender: p.gender || "-",
-//           proofUrl: formatProofUrl(p.proofUrl), // Formatted URL stored here
-//         }))
-//       : [];
-
-//     return {
-//       id: item._id,
-//       userId: item.userId || "N/A",
-//       authorName: item.name || "Unknown",
-//       email: item.registration?.participants?.[0]?.email || "-",
-//       mobile: item.registration?.participants?.[0]?.phone || "-",
-//       uniqueId: item.registration?.uniqueId || "-",
-//       track: item.registration?.track || "-",
-//       presentationMode: item.registration?.presentationMode || "-",
-//       title: item.registration?.abstractTitle || "No Title",
-//       content: item.registration?.abstractContent || "No content available",
-//       team: teamMembers,
-//       country: item.registration?.country || "-",
-//       proofUrl: formatProofUrl(item.registration?.proofUrl),
-//       status: (item.workflow?.abstractStatus || "pending").toLowerCase(),
-//       createdAt: item.workflow?.createdAt || new Date().toISOString(),
-//     };
-//   }, [formatProofUrl]); // Dependency on formatProofUrl
-
-//   // Fetch abstracts
-//   const fetchAbstracts = useCallback(async () => {
-//     setLoading(true);
-//     try {
-//       const token = localStorage.getItem("token");
-//       const { data } = await axios.get(
-//         `${BASE_URL}/api/admin/users`, // Use BASE_URL here too
-//         { headers: { Authorization: `Bearer ${token}` } }
-//       );
-
-//       const formatted = (Array.isArray(data) ? data : []).map(formatAbstract);
-      
-//       // Filter only abstracts with actual content
-//       const filteredData = formatted.filter(
-//         (item) =>
-//           item.content &&
-//           item.content.trim() !== "" &&
-//           item.content !== "No content available"
-//       );
-
-//       setAbstracts(filteredData);
-//       computeStats(filteredData);
-//       computeTrend(filteredData);
-//     } catch (err) {
-//       console.error("Error fetching abstracts:", err);
-//       setAbstracts([]);
-//       setStats({ total: 0, approved: 0, rejected: 0, pending: 0 });
-//       setTrend([]);
-//     } finally {
-//       setLoading(false);
-//     }
-//   }, [computeStats, computeTrend, formatAbstract, BASE_URL]);
-
-//   useEffect(() => {
-//     fetchAbstracts();
-//   }, [fetchAbstracts, refreshTrigger]);
-
-//   // Update local state after successful API call
-//   const updateAbstractLocal = useCallback((id, newStatus) => {
-//     setAbstracts((prevAbstracts) => {
-//       const updatedAbstracts = prevAbstracts.map((abs) => {
-//         if (abs.id === id) {
-//           return { ...abs, status: newStatus.toLowerCase() };
-//         }
-//         return abs;
-//       });
-      
-//       computeStats(updatedAbstracts);
-//       computeTrend(updatedAbstracts);
-//       return updatedAbstracts;
-//     });
-//   }, [computeStats, computeTrend]);
-
-//   // Search & Filter (Memoized)
-//   const filteredAndSearchedAbstracts = useMemo(() => {
-//     const q = searchTerm.trim().toLowerCase();
-//     const isAllStatus = statusFilter.toLowerCase() === "all";
-
-//     return abstracts.filter((abs) => {
-//       const matchesSearch =
-//         abs.authorName.toLowerCase().includes(q) ||
-//         abs.email.toLowerCase().includes(q) ||
-//         abs.uniqueId.toLowerCase().includes(q) ||
-//         abs.title.toLowerCase().includes(q) ||
-//         abs.userId.toLowerCase().includes(q) ||
-//         abs.track.toLowerCase().includes(q);
-
-//       const matchesFilter =
-//         isAllStatus || abs.status.toLowerCase() === statusFilter.toLowerCase();
-
-//       return matchesSearch && matchesFilter;
-//     });
-//   }, [abstracts, searchTerm, statusFilter]);
-
-//   // Badge Styling
-//   const getStatusBadgeClass = (status) => {
-//     switch (status?.toLowerCase()) {
-//       case "approved":
-//         return "bg-green-100 text-green-700";
-//       case "rejected":
-//         return "bg-red-100 text-red-700";
-//       case "under review":
-//         return "bg-orange-100 text-orange-700";
-//       case "submitted":
-//         return "bg-blue-100 text-blue-700";
-//       case "pending":
-//         return "bg-gray-100 text-gray-700";
-//       default:
-//         return "bg-gray-100 text-gray-700";
-//     }
-//   };
-
-//   // Handle Export to Excel
-//   const handleExportExcel = () => {
-//     if (!filteredAndSearchedAbstracts.length) return alert("No data to export!");
-
-//     const exportData = filteredAndSearchedAbstracts.map((abs) => ({
-//       "Unique ID": abs.uniqueId,
-//       "User ID": abs.userId,
-//       "Author Name": abs.authorName,
-//       Email: abs.email,
-//       "Mobile": abs.mobile,
-//       Title: abs.title,
-//       Track: abs.track,
-//       "Presentation Mode": abs.presentationMode,
-//       "Abstract Status": abs.status,
-//       "Country": abs.country,
-//       "Registration Date": new Date(abs.createdAt).toLocaleDateString(),
-//     }));
-
-//     const ws = XLSX.utils.json_to_sheet(exportData);
-//     const wb = XLSX.utils.book_new();
-//     XLSX.utils.book_append_sheet(wb, ws, "Abstracts");
-//     XLSX.writeFile(wb, `abstracts_${new Date().toISOString().split('T')[0]}.xlsx`);
-//   };
-
-//   // Handle Abstract Status Update
-//   const handleAbstractStatusUpdate = async (newStatus, reason = "") => {
-//     if (!abstractModalData) return;
-
-//     setActionLoading(true);
-//     try {
-//       const token = localStorage.getItem("token");
-//       const payload = {
-//         abstractStatus: newStatus.toLowerCase(),
-//       };
-
-//       if (newStatus.toLowerCase() === "rejected" && reason) {
-//         payload.abstractrejectedReason = reason;
-//       }
-
-//       const API_URL = `${BASE_URL}/api/admin/update/${abstractModalData.id}`;
-
-//       const response = await axios.put(API_URL, payload, {
-//         headers: {
-//           Authorization: `Bearer ${token}`,
-//           "Content-Type": "application/json",
-//         },
-//       });
-
-//       if (response.data?.success) {
-//         alert(`✅ Abstract status updated to "${newStatus}"`);
-//         updateAbstractLocal(abstractModalData.id, newStatus);
-//         setAbstractModalData(null);
-//         setRejectionModalData(null);
-//         setRejectionReason("");
-//         setRefreshTrigger(prev => !prev);
-//       } else {
-//         alert(response.data?.message || "Unexpected server response.");
-//       }
-//     } catch (err) {
-//       console.error("❌ Error updating abstract status:", err.response?.data || err.message);
-//       alert(err.response?.data?.message || "Failed to update abstract status.");
-//     } finally {
-//       setActionLoading(false);
-//     }
-//   };
-
-//   // Handle Rejection Submit
-//   const handleRejectionSubmit = () => {
-//     if (!rejectionReason.trim()) {
-//       alert("Please provide a reason for rejection.");
-//       return;
-//     }
-//     handleAbstractStatusUpdate("rejected", rejectionReason.trim());
-//   };
-
-//   // Handle View Proof - **FIXED:** Now calls the function with the already-formatted URL
-//   const handleViewProof = (proofUrl) => {
-//     // Note: proofUrl passed here should already be fully qualified due to fix in the table below
-//     if (!proofUrl) {
-//       alert("No proof available for this team member.");
-//       return;
-//     }
-
-//     console.log("Attempting to load proof from URL:", proofUrl); // Added for debugging
-
-//     // Test if the URL is accessible
-//     const img = new Image();
-//     img.onload = () => {
-//       // Image loaded successfully, open preview
-//       setImagePreviewUrl(proofUrl);
-//     };
-//     img.onerror = () => {
-//       // Image failed to load, show error with URL details
-//       // The alert message is now more helpful and shows the full URL if available
-//       alert(`Unable to load the proof image. The URL may be invalid or the image may not be accessible.\n\nURL: ${proofUrl}`);
-//     };
-//     img.src = proofUrl;
-//   };
-
-//   // Pie Chart Data
-//   const pieChartData = [
-//     { name: "Approved", value: stats.approved },
-//     { name: "Rejected", value: stats.rejected },
-//     { name: "Pending", value: stats.pending },
-//   ];
-
-//   return (
-//     <div className="space-y-6 p-4">
-//       <div>
-//         <h1 className="text-2xl font-bold">Abstract Support</h1>
-//         <p className="text-sm text-gray-500 mt-1">
-//           Manage abstract submissions, reviews, and approval statuses.
-//         </p>
-//       </div>
-
-//       {/* Stats */}
-//       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-//         <StatCard icon={icons.total} title="Total Abstracts" value={stats.total} />
-//         <StatCard icon={icons.approved} title="Approved" value={stats.approved} />
-//         <StatCard icon={icons.rejected} title="Rejected" value={stats.rejected} />
-//         <StatCard icon={icons.pending} title="Pending Review" value={stats.pending} />
-//       </div>
-
-//       {/* Charts */}
-//       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-//         <StatusSnapshotChart stats={stats} />
-//         <AbstractStatusPie data={pieChartData} />
-//       </div>
-
-//       {/* Trend Chart */}
-//       <AbstractTrendChart data={trend} />
-
-//       {/* Table Section */}
-//       <div className="bg-white rounded-2xl shadow border overflow-hidden">
-//         {/* Toolbar (Search & Filter) */}
-//         <div className="flex flex-col md:flex-row items-center justify-between gap-3 p-4 border-b bg-gray-50">
-//           <div className="flex items-center gap-3 w-full md:w-auto">
-//             <div className="flex items-center border rounded-lg overflow-hidden bg-white w-full md:w-72">
-//               <Search className="w-5 h-5 ml-3 text-gray-400" />
-//               <input
-//                 type="text"
-//                 placeholder="Search by ID, name, email, or title..."
-//                 value={searchTerm}
-//                 onChange={(e) => setSearchTerm(e.target.value)}
-//                 className="px-3 py-2 outline-none text-sm w-full"
-//               />
-//               <button
-//                 onClick={() => setSearchTerm("")}
-//                 className="px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"
-//               >
-//                 Clear
-//               </button>
-//             </div>
-
-//             <select
-//               value={statusFilter}
-//               onChange={(e) => setStatusFilter(e.target.value)}
-//               className="border rounded-lg p-2 text-sm w-full md:w-auto"
-//             >
-//               <option value="All">All Statuses</option>
-//               <option value="approved">Approved</option>
-//               <option value="rejected">Rejected</option>
-//               <option value="under review">Under Review</option>
-//               <option value="submitted">Submitted</option>
-//               <option value="pending">Pending</option>
-//             </select>
-//           </div>
-
-//           <div className="flex items-center gap-2 w-full md:w-auto">
-//             <button
-//               onClick={fetchAbstracts}
-//               className="px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 w-full md:w-auto"
-//               disabled={loading}
-//             >
-//               {loading ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : 'Refresh Data'}
-//             </button>
-//             <button
-//               onClick={handleExportExcel}
-//               className="px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 flex items-center gap-2 w-full md:w-auto"
-//             >
-//               <Download className="w-4 h-4" /> Export Excel
-//             </button>
-//           </div>
-//         </div>
-
-//         {/* Table */}
-//         {loading ? (
-//           <div className="flex items-center justify-center p-10">
-//             <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
-//           </div>
-//         ) : filteredAndSearchedAbstracts.length === 0 ? (
-//           <div className="p-8 text-center text-gray-600">
-//             No records match the current filters.
-//           </div>
-//         ) : (
-//           <div className="overflow-x-auto">
-//             <table className="min-w-full text-sm divide-y divide-gray-200">
-//               <thead className="bg-gray-50 text-xs uppercase text-gray-700">
-//                 <tr>
-//                   <th className="p-3">User ID</th>
-//                   <th className="p-3">Author Name</th>
-//                   <th className="p-3">Email</th>
-//                   <th className="p-3">Title</th>
-//                   <th className="p-3">Track</th>
-//                   <th className="p-3 text-center">Status</th>
-//                   <th className="p-3 text-center">Team</th>
-//                   <th className="p-3 text-center">Actions</th>
-//                 </tr>
-//               </thead>
-//               <tbody className="divide-y divide-gray-100">
-//                 {filteredAndSearchedAbstracts.map((abs) => (
-//                   <tr key={abs.id} className="hover:bg-gray-50">
-//                     <td className="p-3 font-mono text-xs text-gray-600">
-//                       {abs.userId}
-//                     </td>
-//                     <td className="p-3 font-medium">{abs.authorName}</td>
-//                     <td className="p-3 text-gray-600">{abs.email}</td>
-//                     <td className="p-3 text-gray-600 max-w-xs truncate">{abs.title}</td>
-//                     <td className="p-3 text-gray-600">{abs.track}</td>
-//                     <td className="p-3 text-center">
-//                       <span
-//                         className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusBadgeClass(
-//                           abs.status
-//                         )}`}
-//                       >
-//                         {abs.status.toUpperCase()}
-//                       </span>
-//                     </td>
-//                     <td className="p-3 text-center">
-//                       {Array.isArray(abs.team) && abs.team.length ? (
-//                         <button
-//                           onClick={() => setTeamModalData(abs)}
-//                           className="text-blue-500 hover:underline flex items-center justify-center gap-1 mx-auto text-xs"
-//                         >
-//                           <Users className="w-4 h-4" /> View
-//                         </button>
-//                       ) : (
-//                         "-"
-//                       )}
-//                     </td>
-//                     <td className="p-3 text-center">
-//                       <button
-//                         onClick={() => setAbstractModalData(abs)}
-//                         className="px-3 py-1 bg-indigo-600 text-white rounded text-xs hover:bg-indigo-700"
-//                       >
-//                         Review
-//                       </button>
-//                     </td>
-//                   </tr>
-//                 ))}
-//               </tbody>
-//             </table>
-//           </div>
-//         )}
-//       </div>
-
-//       {/* Team Modal */}
-//       {teamModalData && (
-//         <Modal onClose={() => setTeamModalData(null)} size="lg">
-//           <h3 className="text-xl font-bold mb-4">
-//             Team Members for "{teamModalData.title}"
-//           </h3>
-//           {Array.isArray(teamModalData.team) && teamModalData.team.length ? (
-//             <div className="overflow-x-auto max-h-[70vh]">
-//               <table className="min-w-full divide-y divide-gray-200 text-sm">
-//                 <thead className="bg-gray-100 sticky top-0">
-//                   <tr>
-//                     <th className="p-2 text-left">Name</th>
-//                     <th className="p-2 text-left">Email</th>
-//                     <th className="p-2 text-left">Phone</th>
-//                     <th className="p-2 text-left">Designation</th>
-//                     <th className="p-2 text-left">Organisation</th>
-//                     <th className="p-2 text-left">Gender</th>
-//                     <th className="p-2 text-left">Proof</th>
-//                   </tr>
-//                 </thead>
-//                 <tbody className="divide-y divide-gray-200">
-//                   {teamModalData.team.map((member, i) => (
-//                     <tr key={i}>
-//                       <td className="p-2">{member.name || "Unnamed"}</td>
-//                       <td className="p-2">{member.email || "-"}</td>
-//                       <td className="p-2">{member.phone || "-"}</td>
-//                       <td className="p-2">{member.designation || "-"}</td>
-//                       <td className="p-2">{member.organisation || "-"}</td>
-//                       <td className="p-2">{member.gender || "-"}</td>
-//                       <td className="p-2">
-//                         {/* *** FIX IS HERE ***
-//                           member.proofUrl is now guaranteed to be the fully formatted URL
-//                           because it was run through formatProofUrl in formatAbstract
-//                         */}
-//                         {member.proofUrl ? (
-//                           <button
-//                             onClick={() => handleViewProof(member.proofUrl)}
-//                             className="text-blue-500 hover:underline text-xs flex items-center gap-1"
-//                           >
-//                             <Eye className="w-3 h-3" /> View Proof
-//                           </button>
-//                         ) : (
-//                           "-"
-//                         )}
-//                       </td>
-//                     </tr>
-//                   ))}
-//                 </tbody>
-//               </table>
-//             </div>
-//           ) : (
-//             <p>No team members available.</p>
-//           )}
-//         </Modal>
-//       )}
-
-//       {/* Abstract Review Modal */}
-//       {abstractModalData && (
-//         <Modal onClose={() => setAbstractModalData(null)} size="lg">
-//           <h2 className="text-xl font-bold mb-2">
-//             Abstract Review: {abstractModalData.authorName}
-//           </h2>
-//           <p className="text-gray-600 mb-4">
-//             Title: {abstractModalData.title}
-//           </p>
-
-//           <div className="space-y-4">
-//             <div className="flex justify-between items-center bg-blue-50 p-3 rounded-lg">
-//               <span className="font-semibold">Current Status:</span>
-//               <span className={`px-2 py-1 rounded-full text-sm font-bold ${getStatusBadgeClass(abstractModalData.status)}`}>
-//                 {abstractModalData.status.toUpperCase()}
-//               </span>
-//             </div>
-
-//             <div className="p-3 border rounded-lg">
-//               <h4 className="font-bold mb-2">Abstract Details</h4>
-//               <div className="space-y-2 text-sm">
-//                 <p><strong>Track:</strong> {abstractModalData.track}</p>
-//                 <p><strong>Presentation Mode:</strong> {abstractModalData.presentationMode}</p>
-//                 <p><strong>Email:</strong> {abstractModalData.email}</p>
-//                 <p><strong>Mobile:</strong> {abstractModalData.mobile}</p>
-//                 <p><strong>Country:</strong> {abstractModalData.country}</p>
-//               </div>
-//             </div>
-
-//             <div className="p-3 border rounded-lg max-h-60 overflow-y-auto">
-//               <h4 className="font-bold mb-2">Abstract Content</h4>
-//               <p className="text-sm text-gray-700 whitespace-pre-wrap">
-//                 {abstractModalData.content}
-//               </p>
-//             </div>
-
-//             <div className="flex justify-end gap-3 pt-4 border-t">
-//               <button
-//                 onClick={() => {
-//                   setRejectionModalData(abstractModalData);
-//                   setRejectionReason("");
-//                 }}
-//                 className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 flex items-center gap-2"
-//                 disabled={actionLoading}
-//               >
-//                 <XCircle className="w-4 h-4" /> Reject
-//               </button>
-              
-//               <button
-//                 onClick={() => handleAbstractStatusUpdate("approved")}
-//                 disabled={actionLoading}
-//                 className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
-//               >
-//                 <CheckCircle className="w-4 h-4" /> 
-//                 {actionLoading ? "Processing..." : "Approve"}
-//               </button>
-
-//               <button
-//                 onClick={() => handleAbstractStatusUpdate("under review")}
-//                 disabled={actionLoading}
-//                 className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 flex items-center gap-2"
-//               >
-//                 <Clock className="w-4 h-4" />
-//                 {actionLoading ? "Processing..." : "Mark Under Review"}
-//               </button>
-//             </div>
-//           </div>
-//         </Modal>
-//       )}
-
-//       {/* Rejection Modal */}
-//       {rejectionModalData && (
-//         <Modal onClose={() => setRejectionModalData(null)} size="md">
-//           <div className="text-center p-4">
-//             <div className="mx-auto w-fit bg-orange-100 rounded-full p-4 mb-4">
-//               <FileText className="w-8 h-8 text-orange-500" />
-//             </div>
-//             <h3 className="text-2xl font-bold my-2">Provide Rejection Reason</h3>
-//             <p className="text-gray-500 mb-4">
-//               Please provide a reason for rejecting this abstract.
-//             </p>
-//             <textarea
-//               rows="4"
-//               className="w-full border rounded-lg p-3 mb-4 focus:ring-2 focus:ring-orange-400 outline-none"
-//               placeholder="Write rejection reason here..."
-//               value={rejectionReason}
-//               onChange={(e) => setRejectionReason(e.target.value)}
-//             ></textarea>
-//             <div className="flex gap-3">
-//               <button
-//                 onClick={() => setRejectionModalData(null)}
-//                 className="flex-1 px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
-//                 disabled={actionLoading}
-//               >
-//                 Cancel
-//               </button>
-//               <button
-//                 onClick={handleRejectionSubmit}
-//                 disabled={actionLoading || !rejectionReason.trim()}
-//                 className="flex-1 bg-red-600 text-white font-semibold py-2 rounded-lg hover:bg-red-700 disabled:opacity-50 flex items-center justify-center gap-2"
-//               >
-//                 {actionLoading ? (
-//                   <Loader2 className="h-4 w-4 animate-spin" />
-//                 ) : (
-//                   <XCircle className="w-4 h-4" />
-//                 )}
-//                 Reject Abstract
-//               </button>
-//             </div>
-//           </div>
-//         </Modal>
-//       )}
-
-//       {/* Image Preview Modal */}
-//       {imagePreviewUrl && (
-//         <ImagePreviewModal 
-//           imageUrl={imagePreviewUrl} 
-//           onClose={() => setImagePreviewUrl(null)} 
-//         />
-//       )}
-//     </div>
-//   );
-// };
-
-// export default AbstractSupport;
-
-
-// import React, { useState, useCallback, useEffect, useMemo } from "react";
-// import axios from "axios";
-// import * as XLSX from "xlsx";
-// import {
-//   BarChart,
-//   Bar,
-//   PieChart,
-//   Pie,
-//   Cell,
-//   ResponsiveContainer,
-//   CartesianGrid,
-//   XAxis,
-//   YAxis,
-//   Tooltip,
-//   Legend,
-//   LineChart,
-//   Line,
-// } from "recharts";
-// import {
-//   Loader2,
-//   Download,
-//   X,
-//   Users,
-//   Search,
-//   FileText,
-//   CheckCircle,
-//   XCircle,
-//   Clock,
-//   Eye,
-// } from "lucide-react";
-
-// /* ----------------------------- Small Components & Utils ----------------------------- */
-
-// // Icon map
-// const icons = {
-//   total: (
-//     <svg className="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7h18M3 12h18M3 17h18"></path>
-//     </svg>
-//   ),
-//   approved: (
-//     <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-//     </svg>
-//   ),
-//   rejected: (
-//     <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-//     </svg>
-//   ),
-//   pending: (
-//     <svg className="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//       <circle cx="12" cy="12" r="10" strokeWidth="2"></circle>
-//       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6l4 2"></path>
-//     </svg>
-//   ),
-// };
-
-// // Reusable Modal Component
-// const Modal = ({ children, onClose, size = "md" }) => {
-//   const sizeClasses = { sm: "max-w-sm", md: "max-w-2xl", lg: "max-w-4xl" };
-//   return (
-//     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-//       <div className={`bg-white w-full ${sizeClasses[size]} rounded-2xl shadow-xl p-6 relative`}>
-//         <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-3xl">
-//           <X className="w-6 h-6" />
-//         </button>
-//         {children}
-//       </div>
-//     </div>
-//   );
-// };
-
-// // Image Preview Modal
-// const ImagePreviewModal = ({ imageUrl, onClose }) => {
-//   return (
-//     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
-//       <div className="bg-white rounded-2xl shadow-xl max-w-4xl max-h-[90vh] w-full relative">
-//         <button 
-//           onClick={onClose} 
-//           className="absolute -top-12 right-0 text-white hover:text-gray-300 text-3xl z-10"
-//         >
-//           <X className="w-8 h-8" />
-//         </button>
-//         <div className="p-4 border-b">
-//           <h3 className="text-lg font-semibold">Proof Document Preview</h3>
-//         </div>
-//         <div className="p-4 max-h-[70vh] overflow-auto">
-//           {imageUrl ? (
-//             <img 
-//               src={imageUrl} 
-//               alt="Proof Document" 
-//               className="w-full h-auto rounded-lg shadow-md"
-//               onError={(e) => {
-//                 e.target.style.display = 'none';
-//                 const errorDiv = e.target.parentNode.querySelector('.image-error');
-//                 if (errorDiv) errorDiv.style.display = 'block';
-//               }}
-//             />
-//           ) : (
-//             <div className="text-center text-gray-500 py-8">
-//               No image available
-//             </div>
-//           )}
-//           <div className="image-error text-center text-red-500 py-4" style={{ display: 'none' }}>
-//             <p>Failed to load image.</p>
-//             <p className="text-sm text-gray-600 break-all mt-2">{imageUrl}</p>
-//           </div>
-//         </div>
-//         <div className="p-4 border-t flex justify-between items-center">
-//           <span className="text-sm text-gray-500 break-all flex-1 mr-4">
-//             {imageUrl}
-//           </span>
-//           <button 
-//             onClick={() => window.open(imageUrl, '_blank')}
-//             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
-//           >
-//             <Eye className="w-4 h-4" />
-//             Open in New Tab
-//           </button>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// // Stat Card
-// const StatCard = ({ icon, title, value, hint }) => (
-//   <div className="bg-white border border-gray-100 rounded-2xl shadow p-4 hover:shadow-md transition">
-//     <div className="flex items-start justify-between">
-//       <div>
-//         <div className="text-sm text-gray-500 font-medium">{title}</div>
-//         <div className="mt-2 text-2xl font-bold text-gray-800">{value}</div>
-//         {hint && <div className="text-xs text-gray-400 mt-1">{hint}</div>}
-//       </div>
-//       <div className="p-2 bg-gray-50 rounded-full">{icon}</div>
-//     </div>
-//   </div>
-// );
-
-// // Abstract Status Pie Chart Component
-// const AbstractStatusPie = ({ data }) => {
-//   const COLORS = ["#10B981", "#EF4444", "#F59E0B", "#6B7280"];
-  
-//   return (
-//     <div className="bg-white p-4 rounded-2xl shadow">
-//       <h3 className="text-lg font-semibold mb-3">Abstract Status Distribution</h3>
-//       <ResponsiveContainer width="100%" height={260}>
-//         <PieChart>
-//           <Pie
-//             data={data}
-//             cx="50%"
-//             cy="50%"
-//             outerRadius={80}
-//             fill="#8884d8"
-//             dataKey="value"
-//             label={({ name, value }) => `${name}: ${value}`}
-//           >
-//             {data.map((entry, index) => (
-//               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-//             ))}
-//           </Pie>
-//           <Tooltip />
-//           <Legend />
-//         </PieChart>
-//       </ResponsiveContainer>
-//     </div>
-//   );
-// };
-
-// // Abstract Trend Chart Component
-// const AbstractTrendChart = ({ data }) => (
-//   <div className="bg-white p-4 rounded-2xl shadow">
-//     <h3 className="text-lg font-semibold mb-3">Abstract Submission Trend</h3>
-//     <ResponsiveContainer width="100%" height={260}>
-//       <LineChart data={data}>
-//         <CartesianGrid strokeDasharray="3 3" />
-//         <XAxis dataKey="date" />
-//         <YAxis allowDecimals={false} />
-//         <Tooltip />
-//         <Line
-//           type="monotone"
-//           dataKey="count"
-//           name="Abstracts"
-//           stroke="#3B82F6"
-//           strokeWidth={2}
-//         />
-//       </LineChart>
-//     </ResponsiveContainer>
-//   </div>
-// );
-
-// // Status Snapshot Chart Component
-// const StatusSnapshotChart = ({ stats }) => (
-//   <div className="bg-white p-4 rounded-2xl shadow">
-//     <h3 className="text-lg font-semibold mb-3">Abstract Status Snapshot</h3>
-//     <ResponsiveContainer width="100%" height={260}>
-//       <BarChart
-//         data={[
-//           {
-//             name: "Abstracts",
-//             approved: stats.approved,
-//             pending: stats.pending,
-//             rejected: stats.rejected,
-//           },
-//         ]}
-//       >
-//         <CartesianGrid strokeDasharray="3 3" />
-//         <XAxis dataKey="name" hide />
-//         <YAxis allowDecimals={false} />
-//         <Tooltip />
-//         <Legend />
-//         <Bar dataKey="approved" name="Approved" fill="#10B981" />
-//         <Bar dataKey="pending" name="Pending" fill="#F59E0B" />
-//         <Bar dataKey="rejected" name="Rejected" fill="#EF4444" />
-//       </BarChart>
-//     </ResponsiveContainer>
-//   </div>
-// );
-
-// /* ----------------------------- Main Component ----------------------------- */
-
-// const AbstractSupport = () => {
-//   const [abstracts, setAbstracts] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [stats, setStats] = useState({
-//     total: 0,
-//     approved: 0,
-//     rejected: 0,
-//     pending: 0,
-//   });
-//   const [trend, setTrend] = useState([]);
-//   const [searchTerm, setSearchTerm] = useState("");
-//   const [statusFilter, setStatusFilter] = useState("All");
-//   const [teamModalData, setTeamModalData] = useState(null);
-//   const [abstractModalData, setAbstractModalData] = useState(null);
-//   const [rejectionModalData, setRejectionModalData] = useState(null);
-//   const [rejectionReason, setRejectionReason] = useState("");
-//   const [actionLoading, setActionLoading] = useState(false);
-//   const [refreshTrigger, setRefreshTrigger] = useState(false);
-//   const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
-
-//   /**
-//    * Computes statistics for the dashboard cards.
-//    */
-//   const computeStats = useCallback((data) => {
-//     setStats({
-//       total: data.length,
-//       approved: data.filter((d) => d.status.toLowerCase() === "approved").length,
-//       rejected: data.filter((d) => d.status.toLowerCase() === "rejected").length,
-//       pending: data.filter((d) => 
-//         d.status.toLowerCase() === "submitted" || 
-//         d.status.toLowerCase() === "under review" ||
-//         d.status.toLowerCase() === "pending"
-//       ).length,
-//     });
-//   }, []);
-
-//   /**
-//    * Computes the submission trend based on the creation date.
-//    */
-//   const computeTrend = useCallback((data) => {
-//     const groups = {};
-//     data.forEach((d) => {
-//       const date = new Date(d.createdAt).toISOString().split("T")[0];
-//       groups[date] = (groups[date] || 0) + 1;
-//     });
-//     const arr = Object.entries(groups)
-//       .map(([date, count]) => ({ date, count }))
-//       .sort((a, b) => new Date(a.date) - new Date(b.date));
-//     setTrend(arr);
-//   }, []);
-
-//   /**
-//    * Formats proof URL to ensure it's a complete, valid URL
-//    */
-//   const formatProofUrl = (url) => {
-//     if (!url) return null;
-    
-//     // If it's already a full URL, return as is
-//     if (url.startsWith('http://') || url.startsWith('https://')) {
-//       return url;
-//     }
-    
-//     // If it's a relative path starting with /uploads, prepend the base URL
-//     if (url.startsWith('/uploads/')) {
-//       return `https://s3conference.ksrce.ac.in${url}`;
-//     }
-    
-//     // If it's just a filename, construct the full path
-//     if (url.includes('proof_')) {
-//       return `https://s3conference.ksrce.ac.in/uploads/proofs/${url}`;
-//     }
-    
-//     // Handle cases where it might already have the full path but missing protocol
-//     if (url.includes('s3conference.ksrce.ac.in') && !url.startsWith('http')) {
-//       return `https://${url.replace(/^\/+/, '')}`;
-//     }
-    
-//     return url;
-//   };
-
-//   // Format each abstract
-//   const formatAbstract = (item) => {
-//     const teamMembers = item.registration?.participants?.length
-//       ? item.registration.participants.map((p) => ({
-//           name: p.name || "Unknown",
-//           email: p.email || "-",
-//           phone: p.phone || "-",
-//           designation: p.designation || "-",
-//           organisation: p.organisation || "-",
-//           gender: p.gender || "-",
-//           proofUrl: formatProofUrl(p.proofUrl),
-//         }))
-//       : [];
-
-//     return {
-//       id: item._id,
-//       userId: item.userId || "N/A",
-//       authorName: item.name || "Unknown",
-//       email: item.registration?.participants?.[0]?.email || "-",
-//       mobile: item.registration?.participants?.[0]?.phone || "-",
-//       uniqueId: item.registration?.uniqueId || "-",
-//       track: item.registration?.track || "-",
-//       presentationMode: item.registration?.presentationMode || "-",
-//       title: item.registration?.abstractTitle || "No Title",
-//       content: item.registration?.abstractContent || "No content available",
-//       team: teamMembers,
-//       country: item.registration?.country || "-",
-//       proofUrl: formatProofUrl(item.registration?.proofUrl),
-//       status: (item.workflow?.abstractStatus || "pending").toLowerCase(),
-//       createdAt: item.workflow?.createdAt || new Date().toISOString(),
-//     };
-//   };
-
-//   // Fetch abstracts
-//   const fetchAbstracts = useCallback(async () => {
-//     setLoading(true);
-//     try {
-//       const token = localStorage.getItem("token");
-//       const { data } = await axios.get(
-//         "https://s3conference.ksrce.ac.in/api/admin/users",
-//         { headers: { Authorization: `Bearer ${token}` } }
-//       );
-
-//       const formatted = (Array.isArray(data) ? data : []).map(formatAbstract);
-//       console.log("this is the data", formatted);
-//       // Filter only abstracts with actual content
-//       const filteredData = formatted.filter(
-//         (item) =>
-//           item.content &&
-//           item.content.trim() !== "" &&
-//           item.content !== "No content available"
-//       );
-
-//       setAbstracts(filteredData);
-//       computeStats(filteredData);
-//       computeTrend(filteredData);
-//     } catch (err) {
-//       console.error("Error fetching abstracts:", err);
-//       setAbstracts([]);
-//       setStats({ total: 0, approved: 0, rejected: 0, pending: 0 });
-//       setTrend([]);
-//     } finally {
-//       setLoading(false);
-//     }
-//   }, [computeStats, computeTrend]);
-
-//   useEffect(() => {
-//     fetchAbstracts();
-//   }, [fetchAbstracts, refreshTrigger]);
-
-//   // Update local state after successful API call
-//   const updateAbstractLocal = useCallback((id, newStatus) => {
-//     setAbstracts((prevAbstracts) => {
-//       const updatedAbstracts = prevAbstracts.map((abs) => {
-//         if (abs.id === id) {
-//           return { ...abs, status: newStatus.toLowerCase() };
-//         }
-//         return abs;
-//       });
-      
-//       computeStats(updatedAbstracts);
-//       computeTrend(updatedAbstracts);
-//       return updatedAbstracts;
-//     });
-//   }, [computeStats, computeTrend]);
-
-//   // Search & Filter (Memoized)
-//   const filteredAndSearchedAbstracts = useMemo(() => {
-//     const q = searchTerm.trim().toLowerCase();
-//     const isAllStatus = statusFilter.toLowerCase() === "all";
-
-//     return abstracts.filter((abs) => {
-//       const matchesSearch =
-//         abs.authorName.toLowerCase().includes(q) ||
-//         abs.email.toLowerCase().includes(q) ||
-//         abs.uniqueId.toLowerCase().includes(q) ||
-//         abs.title.toLowerCase().includes(q) ||
-//         abs.userId.toLowerCase().includes(q) ||
-//         abs.track.toLowerCase().includes(q);
-
-//       const matchesFilter =
-//         isAllStatus || abs.status.toLowerCase() === statusFilter.toLowerCase();
-
-//       return matchesSearch && matchesFilter;
-//     });
-//   }, [abstracts, searchTerm, statusFilter]);
-
-//   // Badge Styling
-//   const getStatusBadgeClass = (status) => {
-//     switch (status?.toLowerCase()) {
-//       case "approved":
-//         return "bg-green-100 text-green-700";
-//       case "rejected":
-//         return "bg-red-100 text-red-700";
-//       case "under review":
-//         return "bg-orange-100 text-orange-700";
-//       case "submitted":
-//         return "bg-blue-100 text-blue-700";
-//       case "pending":
-//         return "bg-gray-100 text-gray-700";
-//       default:
-//         return "bg-gray-100 text-gray-700";
-//     }
-//   };
-
-//   // Handle Export to Excel
-//   const handleExportExcel = () => {
-//     if (!filteredAndSearchedAbstracts.length) return alert("No data to export!");
-
-//     const exportData = filteredAndSearchedAbstracts.map((abs) => ({
-//       "Unique ID": abs.uniqueId,
-//       "User ID": abs.userId,
-//       "Author Name": abs.authorName,
-//       Email: abs.email,
-//       "Mobile": abs.mobile,
-//       Title: abs.title,
-//       Track: abs.track,
-//       "Presentation Mode": abs.presentationMode,
-//       "Abstract Status": abs.status,
-//       "Country": abs.country,
-//       "Registration Date": new Date(abs.createdAt).toLocaleDateString(),
-//     }));
-
-//     const ws = XLSX.utils.json_to_sheet(exportData);
-//     const wb = XLSX.utils.book_new();
-//     XLSX.utils.book_append_sheet(wb, ws, "Abstracts");
-//     XLSX.writeFile(wb, `abstracts_${new Date().toISOString().split('T')[0]}.xlsx`);
-//   };
-
-//   // Handle Abstract Status Update
-//   const handleAbstractStatusUpdate = async (newStatus, reason = "") => {
-//     if (!abstractModalData) return;
-
-//     setActionLoading(true);
-//     try {
-//       const token = localStorage.getItem("token");
-//       const payload = {
-//         abstractStatus: newStatus.toLowerCase(),
-//       };
-
-//       if (newStatus.toLowerCase() === "rejected" && reason) {
-//         payload.abstractrejectedReason = reason;
-//       }
-
-//       const API_URL = `https://s3conference.ksrce.ac.in/api/admin/update/${abstractModalData.id}`;
-
-//       const response = await axios.put(API_URL, payload, {
-//         headers: {
-//           Authorization: `Bearer ${token}`,
-//           "Content-Type": "application/json",
-//         },
-//       });
-
-//       if (response.data?.success) {
-//         alert(`✅ Abstract status updated to "${newStatus}"`);
-//         updateAbstractLocal(abstractModalData.id, newStatus);
-//         setAbstractModalData(null);
-//         setRejectionModalData(null);
-//         setRejectionReason("");
-//         setRefreshTrigger(prev => !prev);
-//       } else {
-//         alert(response.data?.message || "Unexpected server response.");
-//       }
-//     } catch (err) {
-//       console.error("❌ Error updating abstract status:", err.response?.data || err.message);
-//       alert(err.response?.data?.message || "Failed to update abstract status.");
-//     } finally {
-//       setActionLoading(false);
-//     }
-//   };
-
-//   // Handle Rejection Submit
-//   const handleRejectionSubmit = () => {
-//     if (!rejectionReason.trim()) {
-//       alert("Please provide a reason for rejection.");
-//       return;
-//     }
-//     handleAbstractStatusUpdate("rejected", rejectionReason.trim());
-//   };
-
-//   // Handle View Proof - Updated function with better error handling
-//   const handleViewProof = async (proofUrl) => {
-//     if (!proofUrl) {
-//       alert("No proof available for this team member.");
-//       return;
-//     }
-
-//     // First, check if the URL is properly formatted
-//     let finalUrl = proofUrl;
-    
-//     // If it's a relative URL, prepend the base URL
-//     if (proofUrl.startsWith('/')) {
-//       finalUrl = `https://s3conference.ksrce.ac.in${proofUrl}`;
-//     }
-    
-//     // If it's just a filename without path, construct the full URL
-//     if (proofUrl.includes('proof_') && !proofUrl.includes('/')) {
-//       finalUrl = `https://s3conference.ksrce.ac.in/uploads/proofs/${proofUrl}`;
-//     }
-
-//     console.log("Attempting to load proof from:", finalUrl);
-
-//     // Test if the URL is accessible
-//     try {
-//       const response = await fetch(finalUrl, { method: 'HEAD' });
-//       if (response.ok) {
-//         // Image is accessible, open preview
-//         setImagePreviewUrl(finalUrl);
-//       } else {
-//         throw new Error(`HTTP ${response.status}`);
-//       }
-//     } catch (error) {
-//       console.error("Failed to load proof image:", error);
-//       // Try the original URL as fallback
-//       setImagePreviewUrl(finalUrl);
-      
-//       // Show a more informative error message
-//       setTimeout(() => {
-//         const errorDiv = document.querySelector('.image-error');
-//         if (errorDiv && errorDiv.style.display === 'block') {
-//           alert(`Unable to load the proof image. The server may be experiencing issues or the file may not exist.\n\nURL: ${finalUrl}\n\nPlease check:\n1. If the file exists on the server\n2. Your internet connection\n3. Server accessibility`);
-//         }
-//       }, 500);
-//     }
-//   };
-
-//   // Pie Chart Data
-//   const pieChartData = [
-//     { name: "Approved", value: stats.approved },
-//     { name: "Rejected", value: stats.rejected },
-//     { name: "Pending", value: stats.pending },
-//   ];
-
-//   return (
-//     <div className="space-y-6 p-4">
-//       <div>
-//         <h1 className="text-2xl font-bold">Abstract Support</h1>
-//         <p className="text-sm text-gray-500 mt-1">
-//           Manage abstract submissions, reviews, and approval statuses.
-//         </p>
-//       </div>
-
-//       {/* Stats */}
-//       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-//         <StatCard icon={icons.total} title="Total Abstracts" value={stats.total} />
-//         <StatCard icon={icons.approved} title="Approved" value={stats.approved} />
-//         <StatCard icon={icons.rejected} title="Rejected" value={stats.rejected} />
-//         <StatCard icon={icons.pending} title="Pending Review" value={stats.pending} />
-//       </div>
-
-//       {/* Charts */}
-//       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-//         <StatusSnapshotChart stats={stats} />
-//         <AbstractStatusPie data={pieChartData} />
-//       </div>
-
-//       {/* Trend Chart */}
-//       <AbstractTrendChart data={trend} />
-
-//       {/* Table Section */}
-//       <div className="bg-white rounded-2xl shadow border overflow-hidden">
-//         {/* Toolbar (Search & Filter) */}
-//         <div className="flex flex-col md:flex-row items-center justify-between gap-3 p-4 border-b bg-gray-50">
-//           <div className="flex items-center gap-3 w-full md:w-auto">
-//             <div className="flex items-center border rounded-lg overflow-hidden bg-white w-full md:w-72">
-//               <Search className="w-5 h-5 ml-3 text-gray-400" />
-//               <input
-//                 type="text"
-//                 placeholder="Search by ID, name, email, or title..."
-//                 value={searchTerm}
-//                 onChange={(e) => setSearchTerm(e.target.value)}
-//                 className="px-3 py-2 outline-none text-sm w-full"
-//               />
-//               <button
-//                 onClick={() => setSearchTerm("")}
-//                 className="px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"
-//               >
-//                 Clear
-//               </button>
-//             </div>
-
-//             <select
-//               value={statusFilter}
-//               onChange={(e) => setStatusFilter(e.target.value)}
-//               className="border rounded-lg p-2 text-sm w-full md:w-auto"
-//             >
-//               <option value="All">All Statuses</option>
-//               <option value="approved">Approved</option>
-//               <option value="rejected">Rejected</option>
-//               <option value="under review">Under Review</option>
-//               <option value="submitted">Submitted</option>
-//               <option value="pending">Pending</option>
-//             </select>
-//           </div>
-
-//           <div className="flex items-center gap-2 w-full md:w-auto">
-//             <button
-//               onClick={fetchAbstracts}
-//               className="px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 w-full md:w-auto"
-//               disabled={loading}
-//             >
-//               {loading ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : 'Refresh Data'}
-//             </button>
-//             <button
-//               onClick={handleExportExcel}
-//               className="px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 flex items-center gap-2 w-full md:w-auto"
-//             >
-//               <Download className="w-4 h-4" /> Export Excel
-//             </button>
-//           </div>
-//         </div>
-
-//         {/* Table */}
-//         {loading ? (
-//           <div className="flex items-center justify-center p-10">
-//             <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
-//           </div>
-//         ) : filteredAndSearchedAbstracts.length === 0 ? (
-//           <div className="p-8 text-center text-gray-600">
-//             No records match the current filters.
-//           </div>
-//         ) : (
-//           <div className="overflow-x-auto">
-//             <table className="min-w-full text-sm divide-y divide-gray-200">
-//               <thead className="bg-gray-50 text-xs uppercase text-gray-700">
-//                 <tr>
-//                   <th className="p-3">User ID</th>
-//                   <th className="p-3">Author Name</th>
-//                   <th className="p-3">Email</th>
-//                   <th className="p-3">Title</th>
-//                   <th className="p-3">Track</th>
-//                   <th className="p-3 text-center">Status</th>
-//                   <th className="p-3 text-center">Team</th>
-//                   <th className="p-3 text-center">Actions</th>
-//                 </tr>
-//               </thead>
-//               <tbody className="divide-y divide-gray-100">
-//                 {filteredAndSearchedAbstracts.map((abs) => (
-//                   <tr key={abs.id} className="hover:bg-gray-50">
-//                     <td className="p-3 font-mono text-xs text-gray-600">
-//                       {abs.userId}
-//                     </td>
-//                     <td className="p-3 font-medium">{abs.authorName}</td>
-//                     <td className="p-3 text-gray-600">{abs.email}</td>
-//                     <td className="p-3 text-gray-600 max-w-xs truncate">{abs.title}</td>
-//                     <td className="p-3 text-gray-600">{abs.track}</td>
-//                     <td className="p-3 text-center">
-//                       <span
-//                         className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusBadgeClass(
-//                           abs.status
-//                         )}`}
-//                       >
-//                         {abs.status.toUpperCase()}
-//                       </span>
-//                     </td>
-//                     <td className="p-3 text-center">
-//                       {Array.isArray(abs.team) && abs.team.length ? (
-//                         <button
-//                           onClick={() => setTeamModalData(abs)}
-//                           className="text-blue-500 hover:underline flex items-center justify-center gap-1 mx-auto text-xs"
-//                         >
-//                           <Users className="w-4 h-4" /> View
-//                         </button>
-//                       ) : (
-//                         "-"
-//                       )}
-//                     </td>
-//                     <td className="p-3 text-center">
-//                       <button
-//                         onClick={() => setAbstractModalData(abs)}
-//                         className="px-3 py-1 bg-indigo-600 text-white rounded text-xs hover:bg-indigo-700"
-//                       >
-//                         Review
-//                       </button>
-//                     </td>
-//                   </tr>
-//                 ))}
-//               </tbody>
-//             </table>
-//           </div>
-//         )}
-//       </div>
-
-//       {/* Team Modal */}
-//       {teamModalData && (
-//         <Modal onClose={() => setTeamModalData(null)} size="lg">
-//           <h3 className="text-xl font-bold mb-4">
-//             Team Members for "{teamModalData.title}"
-//           </h3>
-//           {Array.isArray(teamModalData.team) && teamModalData.team.length ? (
-//             <div className="overflow-x-auto max-h-[70vh]">
-//               <table className="min-w-full divide-y divide-gray-200 text-sm">
-//                 <thead className="bg-gray-100 sticky top-0">
-//                   <tr>
-//                     <th className="p-2 text-left">Name</th>
-//                     <th className="p-2 text-left">Email</th>
-//                     <th className="p-2 text-left">Phone</th>
-//                     <th className="p-2 text-left">Designation</th>
-//                     <th className="p-2 text-left">Organisation</th>
-//                     <th className="p-2 text-left">Gender</th>
-//                     <th className="p-2 text-left">Proof</th>
-//                   </tr>
-//                 </thead>
-//                 <tbody className="divide-y divide-gray-200">
-//                   {teamModalData.team.map((member, i) => (
-//                     <tr key={i}>
-//                       <td className="p-2">{member.name || "Unnamed"}</td>
-//                       <td className="p-2">{member.email || "-"}</td>
-//                       <td className="p-2">{member.phone || "-"}</td>
-//                       <td className="p-2">{member.designation || "-"}</td>
-//                       <td className="p-2">{member.organisation || "-"}</td>
-//                       <td className="p-2">{member.gender || "-"}</td>
-//                       <td className="p-2">
-//                         {member.proofUrl ? (
-//                           <button
-//                             onClick={() => handleViewProof(member.proofUrl)}
-//                             className="text-blue-500 hover:underline text-xs flex items-center gap-1"
-//                           >
-//                             <Eye className="w-3 h-3" /> View Proof
-//                           </button>
-//                         ) : (
-//                           "-"
-//                         )}
-//                       </td>
-//                     </tr>
-//                   ))}
-//                 </tbody>
-//               </table>
-//             </div>
-//           ) : (
-//             <p>No team members available.</p>
-//           )}
-//         </Modal>
-//       )}
-
-//       {/* Abstract Review Modal */}
-//       {abstractModalData && (
-//         <Modal onClose={() => setAbstractModalData(null)} size="lg">
-//           <h2 className="text-xl font-bold mb-2">
-//             Abstract Review: {abstractModalData.authorName}
-//           </h2>
-//           <p className="text-gray-600 mb-4">
-//             Title: {abstractModalData.title}
-//           </p>
-
-//           <div className="space-y-4">
-//             <div className="flex justify-between items-center bg-blue-50 p-3 rounded-lg">
-//               <span className="font-semibold">Current Status:</span>
-//               <span className={`px-2 py-1 rounded-full text-sm font-bold ${getStatusBadgeClass(abstractModalData.status)}`}>
-//                 {abstractModalData.status.toUpperCase()}
-//               </span>
-//             </div>
-
-//             <div className="p-3 border rounded-lg">
-//               <h4 className="font-bold mb-2">Abstract Details</h4>
-//               <div className="space-y-2 text-sm">
-//                 <p><strong>Track:</strong> {abstractModalData.track}</p>
-//                 <p><strong>Presentation Mode:</strong> {abstractModalData.presentationMode}</p>
-//                 <p><strong>Email:</strong> {abstractModalData.email}</p>
-//                 <p><strong>Mobile:</strong> {abstractModalData.mobile}</p>
-//                 <p><strong>Country:</strong> {abstractModalData.country}</p>
-//               </div>
-//             </div>
-
-//             <div className="p-3 border rounded-lg max-h-60 overflow-y-auto">
-//               <h4 className="font-bold mb-2">Abstract Content</h4>
-//               <p className="text-sm text-gray-700 whitespace-pre-wrap">
-//                 {abstractModalData.content}
-//               </p>
-//             </div>
-
-//             <div className="flex justify-end gap-3 pt-4 border-t">
-//               <button
-//                 onClick={() => {
-//                   setRejectionModalData(abstractModalData);
-//                   setRejectionReason("");
-//                 }}
-//                 className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 flex items-center gap-2"
-//                 disabled={actionLoading}
-//               >
-//                 <XCircle className="w-4 h-4" /> Reject
-//               </button>
-              
-//               <button
-//                 onClick={() => handleAbstractStatusUpdate("approved")}
-//                 disabled={actionLoading}
-//                 className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
-//               >
-//                 <CheckCircle className="w-4 h-4" /> 
-//                 {actionLoading ? "Processing..." : "Approve"}
-//               </button>
-
-//               <button
-//                 onClick={() => handleAbstractStatusUpdate("under review")}
-//                 disabled={actionLoading}
-//                 className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 flex items-center gap-2"
-//               >
-//                 <Clock className="w-4 h-4" />
-//                 {actionLoading ? "Processing..." : "Mark Under Review"}
-//               </button>
-//             </div>
-//           </div>
-//         </Modal>
-//       )}
-
-//       {/* Rejection Modal */}
-//       {rejectionModalData && (
-//         <Modal onClose={() => setRejectionModalData(null)} size="md">
-//           <div className="text-center p-4">
-//             <div className="mx-auto w-fit bg-orange-100 rounded-full p-4 mb-4">
-//               <FileText className="w-8 h-8 text-orange-500" />
-//             </div>
-//             <h3 className="text-2xl font-bold my-2">Provide Rejection Reason</h3>
-//             <p className="text-gray-500 mb-4">
-//               Please provide a reason for rejecting this abstract.
-//             </p>
-//             <textarea
-//               rows="4"
-//               className="w-full border rounded-lg p-3 mb-4 focus:ring-2 focus:ring-orange-400 outline-none"
-//               placeholder="Write rejection reason here..."
-//               value={rejectionReason}
-//               onChange={(e) => setRejectionReason(e.target.value)}
-//             ></textarea>
-//             <div className="flex gap-3">
-//               <button
-//                 onClick={() => setRejectionModalData(null)}
-//                 className="flex-1 px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
-//                 disabled={actionLoading}
-//               >
-//                 Cancel
-//               </button>
-//               <button
-//                 onClick={handleRejectionSubmit}
-//                 disabled={actionLoading || !rejectionReason.trim()}
-//                 className="flex-1 bg-red-600 text-white font-semibold py-2 rounded-lg hover:bg-red-700 disabled:opacity-50 flex items-center justify-center gap-2"
-//               >
-//                 {actionLoading ? (
-//                   <Loader2 className="h-4 w-4 animate-spin" />
-//                 ) : (
-//                   <XCircle className="w-4 h-4" />
-//                 )}
-//                 Reject Abstract
-//               </button>
-//             </div>
-//           </div>
-//         </Modal>
-//       )}
-
-//       {/* Image Preview Modal */}
-//       {imagePreviewUrl && (
-//         <ImagePreviewModal 
-//           imageUrl={imagePreviewUrl} 
-//           onClose={() => setImagePreviewUrl(null)} 
-//         />
-//       )}
-//     </div>
-//   );
-// };
-
-// export default AbstractSupport;
-
 import React, { useState, useCallback, useEffect, useMemo } from "react";
 import axios from "axios";
-import * as XLSX from "xlsx";
+import * as XLSX from "https://cdn.sheetjs.com/xlsx-0.20.1/package/xlsx.mjs";
 import {
   BarChart,
   Bar,
@@ -4079,51 +31,1218 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
+  Filter,
+  RefreshCw,
+  BarChart3,
+  MoreVertical,
+  Edit,
+  Trash2,
+  ArrowUpDown,
+  ChevronDown,
+  ChevronUp,
+  ChevronRight as ChevronRightIcon,
 } from "lucide-react";
 
-/* ----------------------------- Small Components & Utils ----------------------------- */
+/* ----------------------------- Updated Styles ----------------------------- */
+const abstractStyles = `
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-// Icon map
-const icons = {
-  total: (
-    <svg className="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7h18M3 12h18M3 17h18"></path>
-    </svg>
-  ),
-  approved: (
-    <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-    </svg>
-  ),
-  rejected: (
-    <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-    </svg>
-  ),
-  pending: (
-    <svg className="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <circle cx="12" cy="12" r="10" strokeWidth="2"></circle>
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6l4 2"></path>
-    </svg>
-  ),
-};
+  * {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
 
-// Reusable Modal Component
+  :root {
+    --brand-orange: #F57C00;
+    --brand-orange-dark: #E65100;
+    --brand-blue-dark: #0D47A1;
+    --brand-blue-primary: #1976D2;
+    --brand-blue-light: #E3F2FD;
+    --brand-red: #D32F2F;
+    --text-primary: #111318;
+    --text-secondary: #6c757d;
+    --surface-light: #f8f9fa;
+    --surface-dark: #e9ecef;
+    --white: #FFFFFF;
+    --border-light: #e2e8f0;
+  }
+
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .glass-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .glass-card:hover {
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+  }
+
+  .stat-card {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent-color) 0%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .stat-card:hover::before {
+    opacity: 1;
+  }
+
+  .stat-icon-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--accent-color), var(--accent-color-dark));
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  .stat-icon-wrapper::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--accent-color), var(--accent-color-dark));
+    opacity: 0.2;
+    filter: blur(8px);
+  }
+
+  .metric-value {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #111318 0%, #4a5568 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .chart-container {
+    background: white;
+    border-radius: 24px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+    transition: all 0.4s ease;
+  }
+
+  .chart-container:hover {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+  }
+
+  .chart-header {
+    padding: 24px 28px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    background: linear-gradient(180deg, #fafbfc 0%, #ffffff 100%);
+  }
+
+  .chart-body {
+    padding: 28px;
+  }
+
+  .btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+  }
+
+  .btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .btn:hover::before {
+    opacity: 1;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #F57C00 0%, #E65100 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(245, 124, 0, 0.3);
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    box-shadow: 0 8px 20px rgba(245, 124, 0, 0.4);
+    transform: translateY(-2px);
+  }
+
+  .btn-secondary {
+    background: linear-gradient(135deg, #1976D2 0%, #0D47A1 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    box-shadow: 0 8px 20px rgba(25, 118, 210, 0.4);
+    transform: translateY(-2px);
+  }
+
+  .btn-success {
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  }
+
+  .btn-success:hover:not(:disabled) {
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+    transform: translateY(-2px);
+  }
+
+  .btn-outline {
+    background: transparent;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: #111318;
+    box-shadow: none;
+  }
+
+  .btn-outline:hover:not(:disabled) {
+    background: rgba(0, 0, 0, 0.02);
+    border-color: rgba(0, 0, 0, 0.2);
+    transform: translateY(-1px);
+  }
+
+  .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .btn-sm {
+    padding: 8px 16px;
+    font-size: 0.875rem;
+  }
+
+  .header-gradient {
+    background: linear-gradient(135deg, #0D47A1 0%, #1976D2 50%, #F57C00 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Enhanced Table Styles */
+  .table-container {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid var(--border-light);
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+  }
+
+  .table-modern {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: white;
+  }
+
+  .table-modern thead {
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .table-modern th {
+    padding: 16px 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    border-bottom: 2px solid #e2e8f0;
+    background: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+  }
+
+  .table-modern th:hover {
+    background: rgba(241, 245, 249, 0.8);
+  }
+
+  .table-modern th.sortable {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .table-modern th .sort-icon {
+    opacity: 0.4;
+    transition: opacity 0.2s ease;
+  }
+
+  .table-modern th:hover .sort-icon {
+    opacity: 0.7;
+  }
+
+  .table-modern th.sorted .sort-icon {
+    opacity: 1;
+    color: var(--brand-blue-primary);
+  }
+
+  .table-modern th .sortable {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* REMOVED HOVER EFFECTS FROM TABLE ROWS */
+  .table-modern tbody tr {
+    border-bottom: 1px solid #f1f5f9;
+    position: relative;
+  }
+
+  .table-modern tbody tr:last-child {
+    border-bottom: none;
+  }
+
+  /* Remove hover effects completely */
+  .table-modern tbody tr:hover {
+    background: inherit;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .table-modern tbody tr:hover::before {
+    display: none;
+  }
+
+  .table-modern td {
+    padding: 18px 20px;
+    color: #334155;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-bottom: 1px solid #f8fafc;
+  }
+
+  .table-modern tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  /* REMOVED .badge and .badge-* rules.
+    They are replaced by .status-indicator and .status-indicator-* rules below.
+  */
+
+  .action-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .action-menu {
+    position: relative;
+    display: inline-block;
+  }
+
+  .action-dropdown {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    margin-top: 8px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--border-light);
+    padding: 8px;
+    min-width: 160px;
+    z-index: 20;
+    animation: slideDown 0.2s ease;
+  }
+
+  .action-dropdown button {
+    width: 100%;
+    justify-content: flex-start;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    border: none;
+    background: transparent;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .action-dropdown button:hover {
+    background: #f8fafc;
+  }
+
+  .action-dropdown button.danger {
+    color: #ef4444;
+  }
+
+  .action-dropdown button.danger:hover {
+    background: #fef2f2;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .table-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    background: white;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .table-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+  }
+
+  .table-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: white;
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    padding: 8px 16px;
+    transition: all 0.3s ease;
+    min-width: 300px;
+  }
+
+  .search-box:focus-within {
+    border-color: var(--brand-blue-primary);
+    box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+  }
+
+  .search-box input {
+    border: none;
+    outline: none;
+    padding: 8px;
+    width: 100%;
+    font-size: 0.875rem;
+    background: transparent;
+  }
+
+  .filter-select {
+    padding: 10px 16px;
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    font-size: 0.875rem;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 150px;
+  }
+
+  .filter-select:focus {
+    border-color: var(--brand-blue-primary);
+    box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+  }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+  }
+
+  .empty-state-icon {
+    width: 80px;
+    height: 80px;
+    background: #f8fafc;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+  }
+
+  .loading-spinner {
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  /* Improved Modal Styles */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease;
+    padding: 20px;
+  }
+
+  .modal-content {
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 32px 96px rgba(0, 0, 0, 0.25);
+    animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  /* Chart specific styles */
+  .recharts-wrapper {
+    font-family: 'Inter', sans-serif;
+  }
+
+  .recharts-legend-wrapper {
+    padding-top: 20px !important;
+  }
+
+  .recharts-legend-item-text {
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    color: #111318 !important;
+  }
+
+  .recharts-tooltip-wrapper {
+    z-index: 1000;
+  }
+
+  .custom-tooltip {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 12px 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+
+  .custom-tooltip p {
+    margin: 4px 0;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  /* --- NEW: Redesigned Status Indicator Styles --- */
+  .status-indicator {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 9999px; /* pill shape */
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: capitalize;
+    /* Default/fallback style */
+    background-color: #E5E7EB; /* Tailwind gray-200 */
+    color: #374151; /* Tailwind gray-700 */
+    cursor: default;
+    pointer-events: none;
+  }
+
+  .status-indicator-approved {
+    background-color: #D1FAE5; /* Tailwind green-100 */
+    color: #065F46; /* Tailwind green-800 */
+  }
+  
+  .status-indicator-rejected {
+    background-color: #FEE2E2; /* Tailwind red-100 */
+    color: #991B1B; /* Tailwind red-800 */
+  }
+  
+  .status-indicator-pending {
+    background-color: #FEF3C7; /* Tailwind yellow-100 */
+    color: #92400E; /* Tailwind yellow-800 */
+  }
+  
+  .status-indicator-under-review {
+    background-color: #DBEAFE; /* Tailwind blue-100 */
+    color: #1E40AF; /* Tailwind blue-800 */
+  }
+  /* --- END: Redesigned Status Indicator Styles --- */
+
+  /* UPDATED: New button colors for View Team and Review buttons */
+  .team-button {
+    background: linear-gradient(135deg, #10B981, #059669);
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+  }
+
+  .team-button:hover {
+    background: linear-gradient(135deg, #059669, #047857);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+  }
+
+  .review-button {
+    background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+  }
+
+  .review-button:hover {
+    background: linear-gradient(135deg, #7C3AED, #6D28D9);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+  }
+
+  /* Date Filter Styles */
+  .filter-dropdown {
+    position: relative;
+    display: inline-block;
+  }
+
+  /* FIXED: Updated Date Filter Styles to prevent hiding */
+  .filter-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 8px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--border-light);
+    padding: 16px;
+    min-width: 280px;
+    max-height: 400px;
+    overflow-y: auto;
+    z-index: 1000; /* Increased z-index to ensure it appears above other elements */
+    animation: slideDown 0.2s ease;
+  }
+
+  .filter-menu::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .filter-menu::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+  }
+
+  .filter-menu::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+  }
+
+  .filter-menu::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+
+  .quick-ranges-section {
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 16px;
+  }
+
+  .quick-ranges-section::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .quick-ranges-section::-webkit-scrollbar-track {
+    background: #f8fafc;
+    border-radius: 2px;
+  }
+
+  .quick-ranges-section::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 2px;
+  }
+
+  /* Ensure the filter dropdown stays within viewport */
+  .filter-dropdown {
+    position: relative;
+    display: inline-block;
+  }
+
+  @media (max-height: 600px) {
+    .filter-menu {
+      max-height: 300px;
+    }
+    
+    .quick-ranges-section {
+      max-height: 150px;
+    }
+  }
+
+  .date-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+  }
+
+  .date-input:focus {
+    outline: none;
+    border-color: var(--brand-blue-primary);
+    box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+  }
+
+  .filter-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .chart-header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  .chart-title-section {
+    flex: 1;
+  }
+
+  .chart-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  /* NEW: Proof view styles */
+  .proof-view-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border-light);
+    background: linear-gradient(180deg, #fafbfc 0%, #ffffff 100%);
+  }
+
+  .proof-view-content {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .proof-image {
+    max-width: 100%;
+    max-height: 60vh;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .proof-url {
+    word-break: break-all;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+  }
+
+  /* NEW: Donut Chart Styles */
+  .donut-chart-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .donut-chart-wrapper {
+    position: relative;
+    width: 200px;
+    height: 200px;
+  }
+
+  .donut-center-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+
+  .donut-total {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #111318;
+    line-height: 1;
+  }
+
+  .donut-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-top: 4px;
+  }
+
+  .donut-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .donut-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #f8fafc;
+    border-radius: 12px;
+    border-left: 4px solid;
+  }
+
+  .donut-legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+  }
+
+  .donut-legend-content {
+    flex: 1;
+  }
+
+  .donut-legend-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #111318;
+    line-height: 1;
+  }
+
+  .donut-legend-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-top: 2px;
+  }
+
+  .donut-legend-percentage {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #111318;
+  }
+
+  /* Custom Donut Chart Tooltip */
+  .donut-tooltip {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .donut-tooltip-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .donut-tooltip-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+  }
+
+  .donut-tooltip-text {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #111318;
+  }
+
+  /* Improved Table Styles for Modal */
+  .modal-content table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .modal-content thead {
+    position: sticky;
+    top: 0;
+    background: #f9fafb;
+    z-index: 10;
+  }
+
+  .modal-content th {
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6b7280;
+    border-bottom: 2px solid #e5e7eb;
+    white-space: nowrap;
+  }
+
+  .modal-content td {
+    padding: 12px 16px;
+    font-size: 0.875rem;
+    border-bottom: 1px solid #f3f4f6;
+    white-space: nowrap;
+  }
+
+  .modal-content tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  /* Ensure the modal content area is scrollable but without visible scrollbars */
+  .modal-content > div:last-child {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .modal-content .overflow-visible {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Custom scrollbar hiding for modal content */
+  .modal-content ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .modal-content ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .modal-content ::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 3px;
+  }
+
+  .modal-content:hover ::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+  }
+
+  .modal-content ::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+
+  /* Improved responsive design */
+  @media (max-width: 1024px) {
+    .modal-content {
+      margin: 10px;
+      max-height: 95vh;
+    }
+    
+    .modal-content table {
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    
+    .modal-content thead,
+    .modal-content tbody,
+    .modal-content th,
+    .modal-content td,
+    .modal-content tr {
+      display: block;
+    }
+    
+    .modal-content thead tr {
+      position: absolute;
+      top: -9999px;
+      left: -9999px;
+    }
+    
+    .modal-content tr {
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      padding: 8px;
+    }
+    
+    .modal-content td {
+      border: none;
+      border-bottom: 1px solid #f3f4f6;
+      position: relative;
+      padding-left: 50%;
+      white-space: normal;
+    }
+    
+    .modal-content td:before {
+      content: attr(data-label);
+      position: absolute;
+      left: 12px;
+      width: 45%;
+      padding-right: 12px;
+      white-space: nowrap;
+      font-weight: 600;
+      color: #374151;
+    }
+  }
+`;
+
+/* ----------------------------- Small Components ----------------------------- */
+
 const Modal = ({ children, onClose, size = "md" }) => {
-  const sizeClasses = { sm: "max-w-sm", md: "max-w-2xl", lg: "max-w-4xl" };
+  const sizeClasses = { 
+    sm: "max-w-md", 
+    md: "max-w-2xl", 
+    lg: "max-w-4xl", 
+    xl: "max-w-6xl",
+    full: "max-w-7xl" 
+  };
+  
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className={`bg-white w-full ${sizeClasses[size]} rounded-2xl shadow-xl p-6 relative`}>
-        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-3xl">
-          <X className="w-6 h-6" />
+    <div className="modal-backdrop" onClick={onClose}>
+      <div 
+        className={`modal-content w-full ${sizeClasses[size]} mx-4 my-6 max-h-[90vh] flex flex-col`} 
+        onClick={e => e.stopPropagation()}
+      >
+        <button 
+          onClick={onClose} 
+          className="absolute top-4 right-4 z-50 flex items-center justify-center w-8 h-8 rounded-full bg-white shadow-lg hover:bg-gray-100 text-gray-600 hover:text-gray-900 transition-colors"
+        >
+          <X className="w-5 h-5" />
         </button>
-        {children}
+        <div className="flex-1 overflow-hidden rounded-2xl bg-white">
+          {children}
+        </div>
       </div>
     </div>
   );
 };
 
-// Image Preview Modal
+// Team Modal with improved design and no scroll bars
+const TeamModal = ({ teamData, onClose, onViewProof }) => {
+  const [currentView, setCurrentView] = useState('team'); // 'team' or 'proof'
+  const [currentProof, setCurrentProof] = useState(null);
+  const [proofMember, setProofMember] = useState(null);
+
+  const handleViewProof = (proofUrl, member) => {
+    setCurrentProof(proofUrl);
+    setProofMember(member);
+    setCurrentView('proof');
+  };
+
+  const handleBackToTeam = () => {
+    setCurrentView('team');
+    setCurrentProof(null);
+    setProofMember(null);
+  };
+
+  if (currentView === 'proof') {
+    return (
+      <Modal onClose={onClose} size="xl">
+        <div className="proof-view-header">
+          <button
+            onClick={handleBackToTeam}
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <ChevronLeft className="w-5 h-5" />
+            Back to Team
+          </button>
+          <h3 className="text-lg font-semibold flex-1 text-center">
+            Proof Document - {proofMember?.name}
+          </h3>
+          <div className="w-9"></div> {/* Spacer for balance */}
+        </div>
+        
+        <div className="proof-view-content">
+          {currentProof ? (
+            <>
+              <img 
+                src={currentProof} 
+                alt="Proof Document" 
+                className="proof-image"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  const errorDiv = e.target.parentNode.querySelector('.image-error');
+                  if (errorDiv) errorDiv.style.display = 'block';
+                }}
+              />
+              <div className="image-error text-center text-red-500 py-4" style={{ display: 'none' }}>
+                <p>Failed to load image.</p>
+                <p className="text-sm text-gray-600 break-all mt-2">{currentProof}</p>
+              </div>
+              <div className="proof-url">
+                <p className="text-sm text-gray-500">Proof URL:</p>
+                <p className="text-xs break-all">{currentProof}</p>
+              </div>
+              <button 
+                onClick={() => window.open(currentProof, '_blank')}
+                className="btn btn-primary mt-4"
+              >
+                <Eye className="w-4 h-4" />
+                Open in New Tab
+              </button>
+            </>
+          ) : (
+            <div className="text-center text-gray-500 py-8">
+              <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+              <p>No proof document available</p>
+            </div>
+          )}
+        </div>
+      </Modal>
+    );
+  }
+
+  return (
+    <Modal onClose={onClose} size="xl"> {/* Changed from lg to xl for more space */}
+      <div className="p-6 border-b border-gray-200">
+        <h3 className="text-xl font-bold text-gray-900">
+          Team Members for "{teamData.title}"
+        </h3>
+        <p className="text-sm text-gray-600 mt-1">
+          {Array.isArray(teamData.team) ? `${teamData.team.length} team members` : 'No team members'}
+        </p>
+      </div>
+      
+      {Array.isArray(teamData.team) && teamData.team.length ? (
+        <div className="p-1"> {/* Reduced padding to maximize space */}
+          <div className="overflow-visible"> {/* Changed from overflow-x-auto to overflow-visible */}
+            <table className="w-full table-auto">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Designation</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Organisation</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gender</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Proof</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {teamData.team.map((member, i) => (
+                  <tr key={i} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {member.name || "Unnamed"}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                      {member.email || "-"}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                      {member.phone || "-"}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                      {member.designation || "-"}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                      {member.organisation || "-"}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                      {member.gender || "-"}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                      {member.proofUrl ? (
+                        <button
+                          onClick={() => handleViewProof(member.proofUrl, member)}
+                          className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                        >
+                          <Eye className="w-3 h-3 mr-1" />
+                          View Proof
+                        </button>
+                      ) : (
+                        <span className="text-gray-400">-</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : (
+        <div className="p-8 text-center text-gray-500">
+          <Users className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+          <p className="text-lg font-medium mb-2">No team members available</p>
+          <p className="text-sm">This abstract doesn't have any team members associated with it.</p>
+        </div>
+      )}
+    </Modal>
+  );
+};
+
 const ImagePreviewModal = ({ imageUrl, onClose }) => {
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
@@ -4165,7 +1284,7 @@ const ImagePreviewModal = ({ imageUrl, onClose }) => {
           </span>
           <button 
             onClick={() => window.open(imageUrl, '_blank')}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
+            className="btn btn-primary"
           >
             <Eye className="w-4 h-4" />
             Open in New Tab
@@ -4176,101 +1295,49 @@ const ImagePreviewModal = ({ imageUrl, onClose }) => {
   );
 };
 
-// Stat Card
-const StatCard = ({ icon, title, value, hint }) => (
-  <div className="bg-white border border-gray-100 rounded-2xl shadow p-4 hover:shadow-md transition">
-    <div className="flex items-start justify-between">
-      <div>
-        <div className="text-sm text-gray-500 font-medium">{title}</div>
-        <div className="mt-2 text-2xl font-bold text-gray-800">{value}</div>
-        {hint && <div className="text-xs text-gray-400 mt-1">{hint}</div>}
+const StatCard = ({ icon, title, value, hint, color, colorDark }) => (
+  <div 
+    className="stat-card glass-card rounded-2xl p-6"
+    style={{ '--accent-color': color, '--accent-color-dark': colorDark }}
+  >
+    <div className="flex items-start justify-between mb-4">
+      <div className="flex-1">
+        <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: '#6c757d' }}>
+          {title}
+        </p>
+        <div className="metric-value">{value}</div>
       </div>
-      <div className="p-2 bg-gray-50 rounded-full">{icon}</div>
+      <div className="stat-icon-wrapper">
+        <div style={{ color: 'white', position: 'relative', zIndex: 1 }}>
+          {icon}
+        </div>
+      </div>
+    </div>
+    <p className="text-xs" style={{ color: '#6c757d' }}>{hint}</p>
+  </div>
+);
+
+const ChartCard = ({ title, subtitle, children, controls }) => (
+  <div className="chart-container">
+    <div className="chart-header">
+      <div className="chart-header-actions">
+        <div className="chart-title-section">
+          <h3 className="text-lg font-bold mb-1" style={{ color: '#111318' }}>{title}</h3>
+          {subtitle && <p className="text-xs" style={{ color: '#6c757d' }}>{subtitle}</p>}
+        </div>
+        {controls && (
+          <div className="chart-controls">
+            {controls}
+          </div>
+        )}
+      </div>
+    </div>
+    <div className="chart-body">
+      {children}
     </div>
   </div>
 );
 
-// Abstract Status Pie Chart Component
-const AbstractStatusPie = ({ data }) => {
-  const COLORS = ["#10B981", "#EF4444", "#F59E0B", "#6B7280"];
-  
-  return (
-    <div className="bg-white p-4 rounded-2xl shadow">
-      <h3 className="text-lg font-semibold mb-3">Abstract Status Distribution</h3>
-      <ResponsiveContainer width="100%" height={260}>
-        <PieChart>
-          <Pie
-            data={data}
-            cx="50%"
-            cy="50%"
-            outerRadius={80}
-            fill="#8884d8"
-            dataKey="value"
-            label={({ name, value }) => `${name}: ${value}`}
-          >
-            {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-            ))}
-          </Pie>
-          <Tooltip />
-          <Legend />
-        </PieChart>
-      </ResponsiveContainer>
-    </div>
-  );
-};
-
-// Abstract Trend Chart Component
-const AbstractTrendChart = ({ data }) => (
-  <div className="bg-white p-4 rounded-2xl shadow">
-    <h3 className="text-lg font-semibold mb-3">Abstract Submission Trend</h3>
-    <ResponsiveContainer width="100%" height={260}>
-      <LineChart data={data}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="date" />
-        <YAxis allowDecimals={false} />
-        <Tooltip />
-        <Line
-          type="monotone"
-          dataKey="count"
-          name="Abstracts"
-          stroke="#3B82F6"
-          strokeWidth={2}
-        />
-      </LineChart>
-    </ResponsiveContainer>
-  </div>
-);
-
-// Status Snapshot Chart Component
-const StatusSnapshotChart = ({ stats }) => (
-  <div className="bg-white p-4 rounded-2xl shadow">
-    <h3 className="text-lg font-semibold mb-3">Abstract Status Snapshot</h3>
-    <ResponsiveContainer width="100%" height={260}>
-      <BarChart
-        data={[
-          {
-            name: "Abstracts",
-            approved: stats.approved,
-            pending: stats.pending,
-            rejected: stats.rejected,
-          },
-        ]}
-      >
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="name" hide />
-        <YAxis allowDecimals={false} />
-        <Tooltip />
-        <Legend />
-        <Bar dataKey="approved" name="Approved" fill="#10B981" />
-        <Bar dataKey="pending" name="Pending" fill="#F59E0B" />
-        <Bar dataKey="rejected" name="Rejected" fill="#EF4444" />
-      </BarChart>
-    </ResponsiveContainer>
-  </div>
-);
-
-// Pagination Component
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   const pages = [];
   const maxVisiblePages = 5;
@@ -4287,22 +1354,22 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   }
 
   return (
-    <div className="flex items-center justify-between px-4 py-3 border-t bg-white">
-      <div className="text-sm text-gray-700">
+    <div className="flex items-center justify-between px-6 py-4 border-t bg-white">
+      <div className="text-sm" style={{ color: '#6c757d' }}>
         Showing page {currentPage} of {totalPages}
       </div>
       <div className="flex items-center space-x-2">
         <button
           onClick={() => onPageChange(1)}
           disabled={currentPage === 1}
-          className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="btn btn-outline btn-sm"
         >
           <ChevronsLeft className="w-4 h-4" />
         </button>
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="btn btn-outline btn-sm"
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
@@ -4311,10 +1378,10 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
           <button
             key={page}
             onClick={() => onPageChange(page)}
-            className={`px-3 py-1 rounded-lg border ${
+            className={`btn btn-sm ${
               currentPage === page
-                ? 'bg-blue-600 text-white border-blue-600'
-                : 'border-gray-300 hover:bg-gray-50'
+                ? 'btn-primary'
+                : 'btn-outline'
             }`}
           >
             {page}
@@ -4324,18 +1391,313 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="btn btn-outline btn-sm"
         >
           <ChevronRight className="w-4 h-4" />
         </button>
         <button
           onClick={() => onPageChange(totalPages)}
           disabled={currentPage === totalPages}
-          className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="btn btn-outline btn-sm"
         >
           <ChevronsRight className="w-4 h-4" />
         </button>
       </div>
+    </div>
+  );
+};
+
+// Custom Tooltip Component
+const CustomTooltip = ({ active, payload, label }) => {
+  if (!active || !payload || !payload.length) return null;
+  
+  return (
+    <div style={{
+      background: 'white',
+      border: '1px solid rgba(0,0,0,0.1)',
+      borderRadius: '12px',
+      padding: '12px 16px',
+      boxshadow: '0 8px 24px rgba(0,0,0,0.12)'
+    }}>
+      <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>{label}</p>
+      {payload.map((entry, index) => (
+        <p key={index} style={{ fontSize: '0.875rem', fontWeight: 600, color: entry.color, margin: '4px 0' }}>
+          {entry.name}: {entry.value}
+        </p>
+      ))}
+    </div>
+  );
+};
+
+// Sortable Table Header Component
+const SortableHeader = ({ children, field, sortConfig, onSort }) => {
+  const isSorted = sortConfig.key === field;
+  const isAscending = sortConfig.direction === 'asc';
+
+  const handleClick = () => {
+    onSort(field);
+  };
+
+  return (
+    <th 
+      className={isSorted ? 'sorted' : ''}
+      onClick={handleClick}
+      style={{ cursor: 'pointer' }}
+    >
+      <div className="sortable">
+        {children}
+        <span className="sort-icon">
+          {isSorted ? (
+            isAscending ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />
+          ) : (
+            <ArrowUpDown className="w-4 h-4" />
+          )}
+        </span>
+      </div>
+    </th>
+  );
+};
+
+// Donut Chart Component
+const DonutChart = ({ data, title, subtitle }) => {
+  const total = data.reduce((sum, item) => sum + item.value, 0);
+  
+  const COLORS = {
+    approved: '#10B981',
+    rejected: '#EF4444',
+    pending: '#F59E0B'
+  };
+
+  const CustomTooltip = ({ active, payload }) => {
+    if (!active || !payload || !payload.length) return null;
+    
+    const data = payload[0].payload;
+    return (
+      <div className="donut-tooltip">
+        <div className="donut-tooltip-item">
+          <div 
+            className="donut-tooltip-color" 
+            style={{ backgroundColor: data.color }}
+          />
+          <span className="donut-tooltip-text">
+            {data.name}: {data.value} ({((data.value / total) * 100).toFixed(1)}%)
+          </span>
+        </div>
+      </div>
+    );
+  };
+
+  const renderLegend = () => (
+    <div className="donut-legend">
+      {data.map((entry, index) => (
+        <div 
+          key={entry.name}
+          className="donut-legend-item"
+          style={{ borderLeftColor: entry.color }}
+        >
+          <div 
+            className="donut-legend-color"
+            style={{ backgroundColor: entry.color }}
+          />
+          <div className="donut-legend-content">
+            <div className="donut-legend-value">{entry.value}</div>
+            <div className="donut-legend-label">{entry.name}</div>
+          </div>
+          <div className="donut-legend-percentage">
+            {((entry.value / total) * 100).toFixed(1)}%
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
+  return (
+    <ChartCard title={title} subtitle={subtitle}>
+      <div className="donut-chart-container">
+        <div className="donut-chart-wrapper">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={data}
+                cx="50%"
+                cy="50%"
+                innerRadius={70}
+                outerRadius={90}
+                paddingAngle={2}
+                dataKey="value"
+                startAngle={90}
+                endAngle={450}
+              >
+                {data.map((entry, index) => (
+                  <Cell 
+                    key={`cell-${index}`} 
+                    fill={entry.color}
+                    stroke="white"
+                    strokeWidth={2}
+                  />
+                ))}
+              </Pie>
+              <Tooltip content={<CustomTooltip />} />
+            </PieChart>
+          </ResponsiveContainer>
+          <div className="donut-center-text">
+            <div className="donut-total">{total}</div>
+            <div className="donut-label">Total</div>
+          </div>
+        </div>
+        {renderLegend()}
+      </div>
+    </ChartCard>
+  );
+};
+
+// Date Filter Component
+const DateFilter = ({ onDateRangeChange, currentRange }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
+  const quickRanges = [
+    { label: "Last 7 days", days: 7 },
+    { label: "Last 30 days", days: 30 },
+    { label: "Last 90 days", days: 90 },
+    { label: "Last 6 months", days: 180 },
+    { label: "Last year", days: 365 },
+    { label: "Year to date", days: new Date().getDate() + (new Date().getMonth() * 30) },
+    { label: "This month", days: new Date().getDate() },
+    { label: "Previous month", days: 30 },
+    { label: "Previous quarter", days: 90 },
+    { label: "All time", days: null }
+  ];
+
+  const handleQuickRange = (days) => {
+    if (days === null) {
+      // Show all data
+      setStartDate("");
+      setEndDate("");
+      onDateRangeChange(null, null);
+    } else {
+      const end = new Date();
+      const start = new Date();
+      start.setDate(start.getDate() - days);
+      
+      setStartDate(start.toISOString().split('T')[0]);
+      setEndDate(end.toISOString().split('T')[0]);
+      onDateRangeChange(start.toISOString().split('T')[0], end.toISOString().split('T')[0]);
+    }
+    setIsOpen(false);
+  };
+
+  const handleCustomRange = () => {
+    if (startDate && endDate) {
+      onDateRangeChange(startDate, endDate);
+      setIsOpen(false);
+    }
+  };
+
+  const handleClearFilter = () => {
+    setStartDate("");
+    setEndDate("");
+    onDateRangeChange(null, null);
+    setIsOpen(false);
+  };
+
+  const formatDateRange = () => {
+    if (!currentRange.startDate || !currentRange.endDate) return "All Time";
+    
+    const start = new Date(currentRange.startDate);
+    const end = new Date(currentRange.endDate);
+    
+    // Format for display - show abbreviated version if same month
+    if (start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()) {
+      return `${start.getDate()} - ${end.getDate()} ${start.toLocaleDateString('en', { month: 'short' })}`;
+    }
+    
+    return `${start.toLocaleDateString('en', { day: 'numeric', month: 'short' })} - ${end.toLocaleDateString('en', { day: 'numeric', month: 'short' })}`;
+  };
+
+  return (
+    <div className="filter-dropdown">
+      <button
+        className="btn btn-outline btn-sm"
+        onClick={() => setIsOpen(!isOpen)}
+        style={{ whiteSpace: 'nowrap' }}
+      >
+        <Filter className="w-4 h-4" />
+        <span className="truncate max-w-[120px]">{formatDateRange()}</span>
+        <ChevronRightIcon className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-90' : ''}`} />
+      </button>
+
+      {isOpen && (
+        <div className="filter-menu">
+          <div className="mb-4">
+            <h4 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>
+              Quick Ranges
+            </h4>
+            <div className="quick-ranges-section">
+              <div className="space-y-1">
+                {quickRanges.map((range) => (
+                  <button
+                    key={range.label}
+                    className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-sm border border-transparent hover:border-gray-200"
+                    onClick={() => handleQuickRange(range.days)}
+                  >
+                    {range.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t pt-4">
+            <h4 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>
+              Custom Range
+            </h4>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
+                  Start Date
+                </label>
+                <input
+                  type="date"
+                  className="date-input"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  max={endDate || new Date().toISOString().split('T')[0]}
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
+                  End Date
+                </label>
+                <input
+                  type="date"
+                  className="date-input"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  min={startDate}
+                  max={new Date().toISOString().split('T')[0]}
+                />
+              </div>
+            </div>
+            <div className="filter-actions">
+              <button
+                className="btn btn-primary btn-sm flex-1"
+                onClick={handleCustomRange}
+                disabled={!startDate || !endDate}
+              >
+                Apply
+              </button>
+              <button
+                className="btn btn-outline btn-sm flex-1"
+                onClick={handleClearFilter}
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -4361,72 +1723,131 @@ const AbstractSupport = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(false);
   const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
+  const [actionMenuOpen, setActionMenuOpen] = useState(null);
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
 
-  /**
-   * Computes statistics for the dashboard cards.
-   */
+  // Sorting state
+  const [sortConfig, setSortConfig] = useState({ key: 'createdAt', direction: 'desc' });
+
+  // Date filter state for trend chart
+  const [dateRange, setDateRange] = useState({ startDate: null, endDate: null });
+
   const computeStats = useCallback((data) => {
+    const total = data.length;
+    const approved = data.filter((d) => 
+      d.status.toLowerCase() === "approved" || 
+      d.abstractStatus?.toLowerCase() === "approved"
+    ).length;
+    const rejected = data.filter((d) => 
+      d.status.toLowerCase() === "rejected" || 
+      d.abstractStatus?.toLowerCase() === "rejected"
+    ).length;
+    const pending = data.filter((d) => 
+      d.status.toLowerCase() === "pending" || 
+      d.status.toLowerCase() === "submitted" || 
+      d.status.toLowerCase() === "under review" ||
+      d.abstractStatus?.toLowerCase() === "pending" ||
+      d.abstractStatus?.toLowerCase() === "submitted" ||
+      d.abstractStatus?.toLowerCase() === "under review" ||
+      !d.status
+    ).length;
+
     setStats({
-      total: data.length,
-      approved: data.filter((d) => d.status.toLowerCase() === "approved").length,
-      rejected: data.filter((d) => d.status.toLowerCase() === "rejected").length,
-      pending: data.filter((d) => 
-        d.status.toLowerCase() === "submitted" || 
-        d.status.toLowerCase() === "under review" ||
-        d.status.toLowerCase() === "pending"
-      ).length,
+      total,
+      approved,
+      rejected,
+      pending,
     });
   }, []);
 
-  /**
-   * Computes the submission trend based on the creation date.
-   */
-  const computeTrend = useCallback((data) => {
+  const computeTrend = useCallback((data, dateFilter = null) => {
     const groups = {};
-    data.forEach((d) => {
-      const date = new Date(d.createdAt).toISOString().split("T")[0];
+    
+    data.forEach((item) => {
+      const dateStr = item.createdAt || item.workflow?.createdAt || item.registration?.createdAt || new Date().toISOString();
+      const date = new Date(dateStr).toISOString().split("T")[0];
+      
+      // Apply date filter if provided
+      if (dateFilter && dateFilter.startDate && dateFilter.endDate) {
+        const itemDate = new Date(date);
+        const startDate = new Date(dateFilter.startDate);
+        const endDate = new Date(dateFilter.endDate);
+        endDate.setHours(23, 59, 59, 999); // Include the entire end date
+        
+        if (itemDate < startDate || itemDate > endDate) {
+          return; // Skip items outside the date range
+        }
+      }
+      
       groups[date] = (groups[date] || 0) + 1;
     });
-    const arr = Object.entries(groups)
+
+    let arr = Object.entries(groups)
       .map(([date, count]) => ({ date, count }))
       .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    // If no data after filtering, show empty chart
+    if (arr.length === 0) {
+      setTrend([]);
+      return;
+    }
+
+    // If we have a date filter, ensure we show all dates in the range (even zero counts)
+    if (dateFilter && dateFilter.startDate && dateFilter.endDate) {
+      const start = new Date(dateFilter.startDate);
+      const end = new Date(dateFilter.endDate);
+      const allDates = [];
+      
+      // Create a map of existing data for easy lookup
+      const existingDataMap = {};
+      arr.forEach(item => {
+        existingDataMap[item.date] = item.count;
+      });
+      
+      // Generate all dates in the range
+      const currentDate = new Date(start);
+      while (currentDate <= end) {
+        const dateStr = currentDate.toISOString().split('T')[0];
+        allDates.push({
+          date: dateStr,
+          count: existingDataMap[dateStr] || 0
+        });
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+      
+      arr = allDates;
+    }
+
     setTrend(arr);
   }, []);
 
-  /**
-   * Formats proof URL to ensure it's a complete, valid URL
-   */
+  const handleDateRangeChange = useCallback((startDate, endDate) => {
+    const newDateRange = { startDate, endDate };
+    setDateRange(newDateRange);
+    computeTrend(abstracts, newDateRange);
+  }, [abstracts, computeTrend]);
+
   const formatProofUrl = (url) => {
     if (!url) return null;
     
-    // If it's already a full URL, return as is
     if (url.startsWith('http://') || url.startsWith('https://')) {
       return url;
     }
     
-    // If it's a relative path starting with /uploads, prepend the base URL
     if (url.startsWith('/uploads/')) {
       return `https://s3conference.ksrce.ac.in${url}`;
     }
     
-    // If it's just a filename, construct the full path
-    if (url.includes('proof_')) {
+    if (url.includes('proof_') && !url.includes('/')) {
       return `https://s3conference.ksrce.ac.in/uploads/proofs/${url}`;
-    }
-    
-    // Handle cases where it might already have the full path but missing protocol
-    if (url.includes('s3conference.ksrce.ac.in') && !url.startsWith('http')) {
-      return `https://${url.replace(/^\/+/, '')}`;
     }
     
     return url;
   };
 
-  // Format each abstract
   const formatAbstract = (item) => {
     const teamMembers = item.registration?.participants?.length
       ? item.registration.participants.map((p) => ({
@@ -4440,38 +1861,58 @@ const AbstractSupport = () => {
         }))
       : [];
 
-    return {
-      id: item._id,
+    const abstractData = {
+      id: item._id || item.id,
       userId: item.userId || "N/A",
-      authorName: item.name || "Unknown",
-      email: item.registration?.participants?.[0]?.email || "-",
-      mobile: item.registration?.participants?.[0]?.phone || "-",
-      uniqueId: item.registration?.uniqueId || "-",
-      track: item.registration?.track || "-",
-      presentationMode: item.registration?.presentationMode || "-",
-      title: item.registration?.abstractTitle || "No Title",
-      content: item.registration?.abstractContent || "No content available",
+      authorName: item.name || item.registration?.participants?.[0]?.name || "Unknown",
+      email: item.registration?.participants?.[0]?.email || item.email || "-",
+      mobile: item.registration?.participants?.[0]?.phone || item.phone || "-",
+      uniqueId: item.registration?.uniqueId || item.uniqueId || "-",
+      track: item.registration?.track || item.track || "-",
+      presentationMode: item.registration?.presentationMode || item.presentationMode || "-",
+      title: item.registration?.abstractTitle || item.abstractTitle || item.title || "No Title",
+      content: item.registration?.abstractContent || item.abstractContent || item.content || "No content available",
       team: teamMembers,
-      country: item.registration?.country || "-",
-      proofUrl: formatProofUrl(item.registration?.proofUrl),
-      status: (item.workflow?.abstractStatus || "pending").toLowerCase(),
-      createdAt: item.workflow?.createdAt || new Date().toISOString(),
+      country: item.registration?.country || item.country || "-",
+      proofUrl: formatProofUrl(item.registration?.proofUrl || item.proofUrl),
+      status: (item.workflow?.abstractStatus || item.abstractStatus || item.status || "pending").toLowerCase(),
+      createdAt: item.workflow?.createdAt || item.createdAt || item.registration?.createdAt || new Date().toISOString(),
     };
+
+    return abstractData;
   };
 
-  // Fetch abstracts
   const fetchAbstracts = useCallback(async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("No authentication token found");
+      }
+
       const { data } = await axios.get(
         "https://s3conference.ksrce.ac.in/api/admin/users",
-        { headers: { Authorization: `Bearer ${token}` } }
+        { 
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+          } 
+        }
       );
 
-      const formatted = (Array.isArray(data) ? data : []).map(formatAbstract);
-      console.log("this is the data", formatted);
-      // Filter only abstracts with actual content
+      let usersData = [];
+      if (Array.isArray(data)) {
+        usersData = data;
+      } else if (data && Array.isArray(data.users)) {
+        usersData = data.users;
+      } else if (data && Array.isArray(data.data)) {
+        usersData = data.data;
+      } else {
+        usersData = [];
+      }
+
+      const formatted = usersData.map(formatAbstract);
+      
       const filteredData = formatted.filter(
         (item) =>
           item.content &&
@@ -4481,8 +1922,9 @@ const AbstractSupport = () => {
 
       setAbstracts(filteredData);
       computeStats(filteredData);
-      computeTrend(filteredData);
-      setCurrentPage(1); // Reset to first page when data changes
+      computeTrend(filteredData, dateRange);
+      setCurrentPage(1);
+      
     } catch (err) {
       console.error("Error fetching abstracts:", err);
       setAbstracts([]);
@@ -4491,34 +1933,27 @@ const AbstractSupport = () => {
     } finally {
       setLoading(false);
     }
-  }, [computeStats, computeTrend]);
+  }, [computeStats, computeTrend, dateRange]);
 
   useEffect(() => {
     fetchAbstracts();
   }, [fetchAbstracts, refreshTrigger]);
 
-  // Update local state after successful API call
-  const updateAbstractLocal = useCallback((id, newStatus) => {
-    setAbstracts((prevAbstracts) => {
-      const updatedAbstracts = prevAbstracts.map((abs) => {
-        if (abs.id === id) {
-          return { ...abs, status: newStatus.toLowerCase() };
-        }
-        return abs;
-      });
-      
-      computeStats(updatedAbstracts);
-      computeTrend(updatedAbstracts);
-      return updatedAbstracts;
-    });
-  }, [computeStats, computeTrend]);
+  // Sorting function
+  const handleSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
 
-  // Search & Filter (Memoized)
+  // Sort and filter abstracts
   const filteredAndSearchedAbstracts = useMemo(() => {
     const q = searchTerm.trim().toLowerCase();
     const isAllStatus = statusFilter.toLowerCase() === "all";
 
-    return abstracts.filter((abs) => {
+    let filtered = abstracts.filter((abs) => {
       const matchesSearch =
         abs.authorName.toLowerCase().includes(q) ||
         abs.email.toLowerCase().includes(q) ||
@@ -4532,9 +1967,34 @@ const AbstractSupport = () => {
 
       return matchesSearch && matchesFilter;
     });
-  }, [abstracts, searchTerm, statusFilter]);
 
-  // Pagination logic
+    // Apply sorting
+    if (sortConfig.key) {
+      filtered.sort((a, b) => {
+        let aValue = a[sortConfig.key];
+        let bValue = b[sortConfig.key];
+
+        if (sortConfig.key === 'createdAt') {
+          aValue = new Date(aValue);
+          bValue = new Date(bValue);
+        } else {
+          aValue = String(aValue || '').toLowerCase();
+          bValue = String(bValue || '').toLowerCase();
+        }
+
+        if (aValue < bValue) {
+          return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (aValue > bValue) {
+          return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+
+    return filtered;
+  }, [abstracts, searchTerm, statusFilter, sortConfig]);
+
   const paginatedAbstracts = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     return filteredAndSearchedAbstracts.slice(startIndex, startIndex + itemsPerPage);
@@ -4542,60 +2002,62 @@ const AbstractSupport = () => {
 
   const totalPages = Math.ceil(filteredAndSearchedAbstracts.length / itemsPerPage);
 
-  // Handle page change
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
 
-  // Badge Styling
-  const getStatusBadgeClass = (status) => {
-    switch (status?.toLowerCase()) {
-      case "approved":
-        return "bg-green-100 text-green-700";
-      case "rejected":
-        return "bg-red-100 text-red-700";
-      case "under review":
-        return "bg-orange-100 text-orange-700";
-      case "submitted":
-        return "bg-blue-100 text-blue-700";
-      case "pending":
-        return "bg-gray-100 text-gray-700";
-      default:
-        return "bg-gray-100 text-gray-700";
-    }
+  const getStatusBadge = (status) => {
+    const statusMap = {
+      approved: { class: "status-indicator-approved", label: "Approved" },
+      rejected: { class: "status-indicator-rejected", label: "Rejected" },
+      pending: { class: "status-indicator-pending", label: "Pending" },
+      "under review": { class: "status-indicator-under-review", label: "Under Review" },
+      submitted: { class: "status-indicator-under-review", label: "Submitted" },
+    };
+    
+    const statusInfo = statusMap[status.toLowerCase()] || { class: "", label: status };
+    return <span className={`status-indicator ${statusInfo.class}`}>{statusInfo.label}</span>;
   };
 
-  // Handle Export to Excel
   const handleExportExcel = () => {
-    if (!filteredAndSearchedAbstracts.length) return alert("No data to export!");
+    if (!filteredAndSearchedAbstracts.length) {
+      alert("No data to export!");
+      return;
+    }
 
     const exportData = filteredAndSearchedAbstracts.map((abs) => ({
       "Unique ID": abs.uniqueId,
       "User ID": abs.userId,
       "Author Name": abs.authorName,
-      Email: abs.email,
+      "Email": abs.email,
       "Mobile": abs.mobile,
-      Title: abs.title,
-      Track: abs.track,
+      "Title": abs.title,
+      "Track": abs.track,
       "Presentation Mode": abs.presentationMode,
       "Abstract Status": abs.status,
       "Country": abs.country,
       "Registration Date": new Date(abs.createdAt).toLocaleDateString(),
+      "Team Size": abs.team?.length || 0,
     }));
 
     const ws = XLSX.utils.json_to_sheet(exportData);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Abstracts");
-    XLSX.writeFile(wb, `abstracts_${new Date().toISOString().split('T')[0]}.xlsx`);
+    
+    const fileName = `abstracts_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(wb, fileName);
   };
 
-  // Handle Abstract Status Update
   const handleAbstractStatusUpdate = async (newStatus, reason = "") => {
     if (!abstractModalData) return;
 
     setActionLoading(true);
     try {
       const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("No authentication token found");
+      }
+
       const payload = {
         abstractStatus: newStatus.toLowerCase(),
       };
@@ -4613,7 +2075,7 @@ const AbstractSupport = () => {
         },
       });
 
-      if (response.data?.success) {
+      if (response.data?.success || response.data?.message) {
         alert(`✅ Abstract status updated to "${newStatus}"`);
         updateAbstractLocal(abstractModalData.id, newStatus);
         setAbstractModalData(null);
@@ -4621,17 +2083,36 @@ const AbstractSupport = () => {
         setRejectionReason("");
         setRefreshTrigger(prev => !prev);
       } else {
-        alert(response.data?.message || "Unexpected server response.");
+        alert(response.data?.message || "Abstract status updated successfully");
+        updateAbstractLocal(abstractModalData.id, newStatus);
+        setAbstractModalData(null);
+        setRejectionModalData(null);
+        setRejectionReason("");
+        setRefreshTrigger(prev => !prev);
       }
     } catch (err) {
-      console.error("❌ Error updating abstract status:", err.response?.data || err.message);
-      alert(err.response?.data?.message || "Failed to update abstract status.");
+      console.error("❌ Error updating abstract status:", err);
+      alert("Failed to update abstract status");
     } finally {
       setActionLoading(false);
     }
   };
 
-  // Handle Rejection Submit
+  const updateAbstractLocal = useCallback((id, newStatus) => {
+    setAbstracts((prevAbstracts) => {
+      const updatedAbstracts = prevAbstracts.map((abs) => {
+        if (abs.id === id) {
+          return { ...abs, status: newStatus.toLowerCase() };
+        }
+        return abs;
+      });
+      
+      computeStats(updatedAbstracts);
+      computeTrend(updatedAbstracts, dateRange);
+      return updatedAbstracts;
+    });
+  }, [computeStats, computeTrend, dateRange]);
+
   const handleRejectionSubmit = () => {
     if (!rejectionReason.trim()) {
       alert("Please provide a reason for rejection.");
@@ -4640,343 +2121,423 @@ const AbstractSupport = () => {
     handleAbstractStatusUpdate("rejected", rejectionReason.trim());
   };
 
-  // Handle View Proof - Updated function with better error handling
   const handleViewProof = async (proofUrl) => {
     if (!proofUrl) {
       alert("No proof available for this team member.");
       return;
     }
 
-    // First, check if the URL is properly formatted
     let finalUrl = proofUrl;
     
-    // If it's a relative URL, prepend the base URL
     if (proofUrl.startsWith('/')) {
       finalUrl = `https://s3conference.ksrce.ac.in${proofUrl}`;
     }
     
-    // If it's just a filename without path, construct the full URL
     if (proofUrl.includes('proof_') && !proofUrl.includes('/')) {
       finalUrl = `https://s3conference.ksrce.ac.in/uploads/proofs/${proofUrl}`;
     }
 
-    console.log("Attempting to load proof from:", finalUrl);
-
-    // Test if the URL is accessible
     try {
       const response = await fetch(finalUrl, { method: 'HEAD' });
       if (response.ok) {
-        // Image is accessible, open preview
         setImagePreviewUrl(finalUrl);
       } else {
         throw new Error(`HTTP ${response.status}`);
       }
     } catch (error) {
       console.error("Failed to load proof image:", error);
-      // Try the original URL as fallback
       setImagePreviewUrl(finalUrl);
-      
-      // Show a more informative error message
-      setTimeout(() => {
-        const errorDiv = document.querySelector('.image-error');
-        if (errorDiv && errorDiv.style.display === 'block') {
-          alert(`Unable to load the proof image. The server may be experiencing issues or the file may not exist.\n\nURL: ${finalUrl}\n\nPlease check:\n1. If the file exists on the server\n2. Your internet connection\n3. Server accessibility`);
-        }
-      }, 500);
     }
   };
 
-  // Pie Chart Data
-  const pieChartData = [
-    { name: "Approved", value: stats.approved },
-    { name: "Rejected", value: stats.rejected },
-    { name: "Pending", value: stats.pending },
-  ];
+  // Chart data for donut chart
+  const donutChartData = [
+    { name: "Approved", value: stats.approved, color: "#10B981" },
+    { name: "Rejected", value: stats.rejected, color: "#EF4444" },
+    { name: "Pending", value: stats.pending, color: "#F59E0B" },
+  ].filter(item => item.value > 0);
+
+  // Date filter controls for trend chart
+  const trendChartControls = (
+    <DateFilter 
+      onDateRangeChange={handleDateRangeChange}
+      currentRange={dateRange}
+    />
+  );
 
   return (
-    <div className="space-y-6 p-4">
-      <div>
-        <h1 className="text-2xl font-bold">Abstract Support</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          Manage abstract submissions, reviews, and approval statuses.
-        </p>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard icon={icons.total} title="Total Abstracts" value={stats.total} />
-        <StatCard icon={icons.approved} title="Approved" value={stats.approved} />
-        <StatCard icon={icons.rejected} title="Rejected" value={stats.rejected} />
-        <StatCard icon={icons.pending} title="Pending Review" value={stats.pending} />
-      </div>
-
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <StatusSnapshotChart stats={stats} />
-        <AbstractStatusPie data={pieChartData} />
-      </div>
-
-      {/* Trend Chart */}
-      <AbstractTrendChart data={trend} />
-
-      {/* Table Section */}
-      <div className="bg-white rounded-2xl shadow border overflow-hidden">
-        {/* Toolbar (Search & Filter) */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-3 p-4 border-b bg-gray-50">
-          <div className="flex items-center gap-3 w-full md:w-auto">
-            <div className="flex items-center border rounded-lg overflow-hidden bg-white w-full md:w-72">
-              <Search className="w-5 h-5 ml-3 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search by ID, name, email, or title..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="px-3 py-2 outline-none text-sm w-full"
-              />
-              <button
-                onClick={() => setSearchTerm("")}
-                className="px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"
-              >
-                Clear
-              </button>
+    <>
+      <style>{abstractStyles}</style>
+      <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)', padding: '32px' }}>
+        <div className="max-w-7xl mx-auto space-y-8">
+          
+          {/* Header */}
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
+            <div>
+              <h1 className="text-4xl font-bold mb-3 header-gradient leading-tight">
+                Abstract Management
+              </h1>
+              <p className="text-base flex items-center gap-2" style={{ color: '#6c757d' }}>
+                <BarChart3 className="w-4 w-4" />
+                Review and manage abstract submissions with comprehensive analytics
+              </p>
             </div>
-
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="border rounded-lg p-2 text-sm w-full md:w-auto"
-            >
-              <option value="All">All Statuses</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
-              <option value="under review">Under Review</option>
-              <option value="submitted">Submitted</option>
-              <option value="pending">Pending</option>
-            </select>
-          </div>
-
-          <div className="flex items-center gap-2 w-full md:w-auto">
             <button
               onClick={fetchAbstracts}
-              className="px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 w-full md:w-auto"
+              className="btn btn-secondary"
               disabled={loading}
+              style={{ flexShrink: 0 }}
             >
-              {loading ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : 'Refresh Data'}
-            </button>
-            <button
-              onClick={handleExportExcel}
-              className="px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 flex items-center gap-2 w-full md:w-auto"
-            >
-              <Download className="w-4 h-4" /> Export Excel
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+              Refresh Data
             </button>
           </div>
-        </div>
 
-        {/* Table */}
-        {loading ? (
-          <div className="flex items-center justify-center p-10">
-            <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <StatCard 
+              icon={<FileText className="w-6 h-6" />}
+              title="Total Abstracts" 
+              value={stats.total.toLocaleString()}
+              hint="All submitted abstracts"
+              color="#1976D2"
+              colorDark="#0D47A1"
+            />
+            <StatCard 
+              icon={<CheckCircle className="w-6 h-6" />}
+              title="Approved" 
+              value={stats.approved.toLocaleString()}
+              hint="Accepted for presentation"
+              color="#10B981"
+              colorDark="#059669"
+            />
+            <StatCard 
+              icon={<XCircle className="w-6 h-6" />}
+              title="Rejected" 
+              value={stats.rejected.toLocaleString()}
+              hint="Not accepted"
+              color="#EF4444"
+              colorDark="#DC2626"
+            />
+            <StatCard 
+              icon={<Clock className="w-6 h-6" />}
+              title="Pending Review" 
+              value={stats.pending.toLocaleString()}
+              hint="Awaiting decision"
+              color="#F59E0B"
+              colorDark="#D97706"
+            />
           </div>
-        ) : filteredAndSearchedAbstracts.length === 0 ? (
-          <div className="p-8 text-center text-gray-600">
-            No records match the current filters.
+
+          {/* Charts */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* UPDATED: Donut Chart */}
+            <DonutChart 
+              title="Paper Submission Status"
+              subtitle="Breakdown of paper submission reviews"
+              data={donutChartData}
+            />
+
+            <ChartCard 
+              title="Submission Trend"
+              subtitle="Daily abstract submission pattern"
+              controls={trendChartControls}
+            >
+              {trend.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={trend} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+                    <XAxis 
+                      dataKey="date" 
+                      tick={{ fill: '#6c757d', fontSize: 12 }}
+                      axisLine={{ stroke: '#e2e8f0' }}
+                      tickLine={false}
+                    />
+                    <YAxis 
+                      allowDecimals={false}
+                      tick={{ fill: '#6c757d', fontSize: 12 }}
+                      axisLine={{ stroke: '#e2e8f0' }}
+                      tickLine={false}
+                    />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Line
+                      type="monotone"
+                      dataKey="count"
+                      name="Abstracts"
+                      stroke="#1976D2"
+                      strokeWidth={3}
+                      dot={{ r: 4, strokeWidth: 2, stroke: '#1976D2', fill: 'white' }}
+                      activeDot={{ r: 6, stroke: '#1976D2', strokeWidth: 2, fill: 'white' }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex items-center justify-center h-64">
+                  <p style={{ color: '#6c757d' }}>
+                    {dateRange.startDate && dateRange.endDate 
+                      ? 'No submissions in the selected date range' 
+                      : 'No trend data available'
+                    }
+                  </p>
+                </div>
+              )}
+            </ChartCard>
           </div>
-        ) : (
-          <>
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-sm divide-y divide-gray-200">
-                <thead className="bg-gray-50 text-xs uppercase text-gray-700">
-                  <tr>
-                    <th className="p-3">User ID</th>
-                    <th className="p-3">Author Name</th>
-                    <th className="p-3">Email</th>
-                    <th className="p-3">Title</th>
-                    <th className="p-3">Track</th>
-                    <th className="p-3 text-center">Status</th>
-                    <th className="p-3 text-center">Team</th>
-                    <th className="p-3 text-center">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {paginatedAbstracts.map((abs) => (
-                    <tr key={abs.id} className="hover:bg-gray-50">
-                      <td className="p-3 font-mono text-xs text-gray-600">
-                        {abs.userId}
-                      </td>
-                      <td className="p-3 font-medium">{abs.authorName}</td>
-                      <td className="p-3 text-gray-600">{abs.email}</td>
-                      <td className="p-3 text-gray-600 max-w-xs truncate">{abs.title}</td>
-                      <td className="p-3 text-gray-600">{abs.track}</td>
-                      <td className="p-3 text-center">
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusBadgeClass(
-                            abs.status
-                          )}`}
-                        >
-                          {abs.status.toUpperCase()}
-                        </span>
-                      </td>
-                      <td className="p-3 text-center">
-                        {Array.isArray(abs.team) && abs.team.length ? (
-                          <button
-                            onClick={() => setTeamModalData(abs)}
-                            className="text-blue-500 hover:underline flex items-center justify-center gap-1 mx-auto text-xs"
-                          >
-                            <Users className="w-4 h-4" /> View
-                          </button>
-                        ) : (
-                          "-"
-                        )}
-                      </td>
-                      <td className="p-3 text-center">
-                        <button
-                          onClick={() => setAbstractModalData(abs)}
-                          className="px-3 py-1 bg-indigo-600 text-white rounded text-xs hover:bg-indigo-700"
-                        >
-                          Review
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={handlePageChange}
-              />
-            )}
-          </>
-        )}
-      </div>
 
-      {/* Team Modal */}
-      {teamModalData && (
-        <Modal onClose={() => setTeamModalData(null)} size="lg">
-          <h3 className="text-xl font-bold mb-4">
-            Team Members for "{teamModalData.title}"
-          </h3>
-          {Array.isArray(teamModalData.team) && teamModalData.team.length ? (
-            <div className="overflow-x-auto max-h-[70vh]">
-              <table className="min-w-full divide-y divide-gray-200 text-sm">
-                <thead className="bg-gray-100 sticky top-0">
-                  <tr>
-                    <th className="p-2 text-left">Name</th>
-                    <th className="p-2 text-left">Email</th>
-                    <th className="p-2 text-left">Phone</th>
-                    <th className="p-2 text-left">Designation</th>
-                    <th className="p-2 text-left">Organisation</th>
-                    <th className="p-2 text-left">Gender</th>
-                    <th className="p-2 text-left">Proof</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {teamModalData.team.map((member, i) => (
-                    <tr key={i}>
-                      <td className="p-2">{member.name || "Unnamed"}</td>
-                      <td className="p-2">{member.email || "-"}</td>
-                      <td className="p-2">{member.phone || "-"}</td>
-                      <td className="p-2">{member.designation || "-"}</td>
-                      <td className="p-2">{member.organisation || "-"}</td>
-                      <td className="p-2">{member.gender || "-"}</td>
-                      <td className="p-2">
-                        {member.proofUrl ? (
-                          <button
-                            onClick={() => handleViewProof(member.proofUrl)}
-                            className="text-blue-500 hover:underline text-xs flex items-center gap-1"
-                          >
-                            <Eye className="w-3 h-3" /> View Proof
-                          </button>
-                        ) : (
-                          "-"
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <p>No team members available.</p>
-          )}
-        </Modal>
-      )}
-
-      {/* Abstract Review Modal */}
-      {abstractModalData && (
-        <Modal onClose={() => setAbstractModalData(null)} size="lg">
-          <h2 className="text-xl font-bold mb-2">
-            Abstract Review: {abstractModalData.authorName}
-          </h2>
-          <p className="text-gray-600 mb-4">
-            Title: {abstractModalData.title}
-          </p>
-
-          <div className="space-y-4">
-            <div className="flex justify-between items-center bg-blue-50 p-3 rounded-lg">
-              <span className="font-semibold">Current Status:</span>
-              <span className={`px-2 py-1 rounded-full text-sm font-bold ${getStatusBadgeClass(abstractModalData.status)}`}>
-                {abstractModalData.status.toUpperCase()}
-              </span>
-            </div>
-
-            <div className="p-3 border rounded-lg">
-              <h4 className="font-bold mb-2">Abstract Details</h4>
-              <div className="space-y-2 text-sm">
-                <p><strong>Track:</strong> {abstractModalData.track}</p>
-                <p><strong>Presentation Mode:</strong> {abstractModalData.presentationMode}</p>
-                <p><strong>Email:</strong> {abstractModalData.email}</p>
-                <p><strong>Mobile:</strong> {abstractModalData.mobile}</p>
-                <p><strong>Country:</strong> {abstractModalData.country}</p>
+          {/* Enhanced Table Section */}
+          <div className="table-container">
+            {/* Table Header */}
+            <div className="table-toolbar">
+              <div className="table-info">
+                <h3 className="text-lg font-bold" style={{ color: '#111318' }}>
+                  Abstract Submissions
+                </h3>
+                <span style={{ color: '#6c757d' }}>
+                  {filteredAndSearchedAbstracts.length} records found
+                </span>
+              </div>
+              <div className="table-actions">
+                <div className="search-box">
+                  <Search className="w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search abstracts..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="filter-select"
+                >
+                  <option value="All">All Status</option>
+                  <option value="approved">Approved</option>
+                  <option value="rejected">Rejected</option>
+                  <option value="pending">Pending</option>
+                  <option value="under review">Under Review</option>
+                </select>
+                <button
+                  onClick={handleExportExcel}
+                  className="btn btn-success btn-sm"
+                  disabled={filteredAndSearchedAbstracts.length === 0}
+                >
+                  <Download className="w-4 h-4" />
+                  Export
+                </button>
               </div>
             </div>
 
-            <div className="p-3 border rounded-lg max-h-60 overflow-y-auto">
-              <h4 className="font-bold mb-2">Abstract Content</h4>
-              <p className="text-sm text-gray-700 whitespace-pre-wrap">
-                {abstractModalData.content}
-              </p>
-            </div>
+            {/* Table Content */}
+            {loading ? (
+              <div className="loading-state">
+                <Loader2 className="h-8 w-8 animate-spin" style={{ color: '#1976D2' }} />
+                <span className="mt-3" style={{ color: '#6c757d' }}>Loading abstracts...</span>
+              </div>
+            ) : filteredAndSearchedAbstracts.length === 0 ? (
+              <div className="empty-state">
+                <div className="empty-state-icon">
+                  <FileText className="w-8 h-8 text-gray-400" />
+                </div>
+                <h4 style={{ color: '#111318', marginBottom: '8px' }}>
+                  {abstracts.length === 0 ? 'No abstracts found' : 'No matching abstracts'}
+                </h4>
+                <p style={{ color: '#6c757d', marginBottom: '20px' }}>
+                  {abstracts.length === 0 
+                    ? 'There are no abstract submissions yet.' 
+                    : 'Try adjusting your search or filter criteria.'
+                  }
+                </p>
+                {abstracts.length === 0 && (
+                  <button 
+                    onClick={fetchAbstracts}
+                    className="btn btn-primary"
+                  >
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Refresh Data
+                  </button>
+                )}
+              </div>
+            ) : (
+              <>
+                {/* Removed overflow-x-auto wrapper to prevent scrolling */}
+                <table className="table-modern">
+                  <thead>
+                      <tr>
+                        <SortableHeader field="authorName" sortConfig={sortConfig} onSort={handleSort}>
+                          Author
+                        </SortableHeader>
+                        <th>Email</th>
+                        <SortableHeader field="title" sortConfig={sortConfig} onSort={handleSort}>
+                          Title
+                        </SortableHeader>
+                        <SortableHeader field="track" sortConfig={sortConfig} onSort={handleSort}>
+                          Track
+                        </SortableHeader>
+                        <SortableHeader field="status" sortConfig={sortConfig} onSort={handleSort}>
+                          Status
+                        </SortableHeader>
+                        <th>Team</th>
+                        <th style={{ textAlign: 'center' }}>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {paginatedAbstracts.map((abs) => (
+                        <tr key={abs.id}>
+                          <td>
+                            <div>
+                              <div className="font-semibold" style={{ color: '#111318', fontSize: '0.85rem' }}>
+                                {abs.authorName}
+                              </div>
+                              <div className="text-xs" style={{ color: '#6c757d' }}>
+                                {abs.userId}
+                              </div>
+                            </div>
+                          </td>
+                          <td>
+                            <div className="text-sm" style={{ color: '#475569' }}>
+                              {abs.email}
+                            </div>
+                          </td>
+                          <td>
+                            <div 
+                              className="font-medium"
+                              title={abs.title}
+                              style={{ color: '#111318', wordBreak: 'break-word', maxWidth: '250px' }}
+                            >
+                              {abs.title}
+                            </div>
+                          </td>
+                          <td>
+                            <span style={{ color: '#475569', fontSize: '0.875rem' }}>
+                              {abs.track}
+                            </span>
+                          </td>
+                          <td style={{ textAlign: 'center' }}>
+                            {getStatusBadge(abs.status)}
+                          </td>
+                          <td style={{ textAlign: 'center' }}>
+                            {Array.isArray(abs.team) && abs.team.length ? (
+                              <button
+                                onClick={() => setTeamModalData(abs)}
+                                className="team-button"
+                              >
+                                <Eye className="w-4 h-4" />
+                                View Team ({abs.team.length})
+                              </button>
+                            ) : (
+                              <span style={{ color: '#6c757d', fontSize: '0.875rem' }}>-</span>
+                            )}
+                          </td>
+                          <td style={{ textAlign: 'center' }}>
+                            <div className="action-buttons">
+                              <button
+                                onClick={() => setAbstractModalData(abs)}
+                                className="review-button"
+                              >
+                                <FileText className="w-4 h-4" />
+                                Review
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                  />
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      </div>
 
-            <div className="flex justify-end gap-3 pt-4 border-t">
-              <button
-                onClick={() => {
-                  setRejectionModalData(abstractModalData);
-                  setRejectionReason("");
-                }}
-                className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 flex items-center gap-2"
-                disabled={actionLoading}
-              >
-                <XCircle className="w-4 h-4" /> Reject
-              </button>
-              
-              <button
-                onClick={() => handleAbstractStatusUpdate("approved")}
-                disabled={actionLoading}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
-              >
-                <CheckCircle className="w-4 h-4" /> 
-                {actionLoading ? "Processing..." : "Approve"}
-              </button>
+      {/* UPDATED: Use the new TeamModal component */}
+      {teamModalData && (
+        <TeamModal 
+          teamData={teamModalData} 
+          onClose={() => setTeamModalData(null)}
+        />
+      )}
 
-              <button
-                onClick={() => handleAbstractStatusUpdate("under review")}
-                disabled={actionLoading}
-                className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 flex items-center gap-2"
-              >
-                <Clock className="w-4 h-4" />
-                {actionLoading ? "Processing..." : "Mark Under Review"}
-              </button>
+      {abstractModalData && (
+        <Modal onClose={() => setAbstractModalData(null)} size="lg">
+          <div className="p-6">
+            <h2 className="text-xl font-bold mb-2">
+              Abstract Review: {abstractModalData.authorName}
+            </h2>
+            <p className="text-gray-600 mb-4">
+              Title: {abstractModalData.title}
+            </p>
+
+            <div className="space-y-4">
+              <div className="flex justify-between items-center bg-blue-50 p-4 rounded-xl">
+                <span className="font-semibold">Current Status:</span>
+                {getStatusBadge(abstractModalData.status)}
+              </div>
+
+              <div className="p-4 border rounded-xl">
+                <h4 className="font-bold mb-2">Abstract Details</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div><strong>Track:</strong> {abstractModalData.track}</div>
+                  <div><strong>Presentation Mode:</strong> {abstractModalData.presentationMode}</div>
+                  <div><strong>Email:</strong> {abstractModalData.email}</div>
+                  <div><strong>Mobile:</strong> {abstractModalData.mobile}</div>
+                  <div><strong>Country:</strong> {abstractModalData.country}</div>
+                  <div><strong>Unique ID:</strong> {abstractModalData.uniqueId}</div>
+                  <div><strong>Team Size:</strong> {abstractModalData.team?.length || 0}</div>
+                </div>
+              </div>
+
+              <div className="p-4 border rounded-xl max-h-60 overflow-y-auto">
+                <h4 className="font-bold mb-2">Abstract Content</h4>
+                <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                  {abstractModalData.content}
+                </p>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t">
+                <button
+                  onClick={() => {
+                    setRejectionModalData(abstractModalData);
+                    setRejectionReason("");
+                  }}
+                  className="btn btn-outline"
+                  disabled={actionLoading}
+                >
+                  <XCircle className="w-4 h-4" /> Reject
+                </button>
+                
+                <button
+                  onClick={() => handleAbstractStatusUpdate("under review")}
+                  disabled={actionLoading}
+                  className="btn btn-outline"
+                >
+                  <Clock className="w-4 h-4" />
+                  {actionLoading ? "Processing..." : "Under Review"}
+                </button>
+
+                <button
+                  onClick={() => handleAbstractStatusUpdate("approved")}
+                  disabled={actionLoading}
+                  className="btn btn-success"
+                >
+                  <CheckCircle className="w-4 h-4" /> 
+                  {actionLoading ? "Processing..." : "Approve"}
+                </button>
+              </div>
             </div>
           </div>
         </Modal>
       )}
 
-      {/* Rejection Modal */}
       {rejectionModalData && (
         <Modal onClose={() => setRejectionModalData(null)} size="md">
           <div className="text-center p-4">
@@ -4989,7 +2550,7 @@ const AbstractSupport = () => {
             </p>
             <textarea
               rows="4"
-              className="w-full border rounded-lg p-3 mb-4 focus:ring-2 focus:ring-orange-400 outline-none"
+              className="w-full border rounded-xl p-4 mb-4 focus:ring-2 focus:ring-orange-400 outline-none"
               placeholder="Write rejection reason here..."
               value={rejectionReason}
               onChange={(e) => setRejectionReason(e.target.value)}
@@ -4997,7 +2558,7 @@ const AbstractSupport = () => {
             <div className="flex gap-3">
               <button
                 onClick={() => setRejectionModalData(null)}
-                className="flex-1 px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
+                className="btn btn-outline flex-1"
                 disabled={actionLoading}
               >
                 Cancel
@@ -5005,7 +2566,7 @@ const AbstractSupport = () => {
               <button
                 onClick={handleRejectionSubmit}
                 disabled={actionLoading || !rejectionReason.trim()}
-                className="flex-1 bg-red-600 text-white font-semibold py-2 rounded-lg hover:bg-red-700 disabled:opacity-50 flex items-center justify-center gap-2"
+                className="btn btn-primary flex-1"
               >
                 {actionLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -5019,14 +2580,13 @@ const AbstractSupport = () => {
         </Modal>
       )}
 
-      {/* Image Preview Modal */}
       {imagePreviewUrl && (
         <ImagePreviewModal 
           imageUrl={imagePreviewUrl} 
           onClose={() => setImagePreviewUrl(null)} 
         />
       )}
-    </div>
+    </>
   );
 };
 
