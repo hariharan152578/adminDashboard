@@ -8638,7 +8638,7 @@ const FinalPaperSupport = () => {
       createdAt: item.workflow?.createdAt || new Date().toISOString(),
       team: formattedTeam,
       finalPaperUrl: finalPaperLink,
-      country: item.registration?.country || "-",
+      country: item.country || "-",
       correctioncontent: item.workflow?.correctioncontent || "",
     };
   };

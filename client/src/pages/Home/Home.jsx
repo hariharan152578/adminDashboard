@@ -2119,14 +2119,14 @@ const MainDashboard = () => {
               color="#D32F2F"
               colorDark="#B71C1C"
             />
-            <StatCard 
+            {/* <StatCard 
               icon={<DollarSign />}
               title="Revenue" 
               value={`₹${stats.revenue.toLocaleString()}`}
               hint="Paid amount"
               color="#F57C00"
               colorDark="#E65100"
-            />
+            /> */}
             <StatCard 
               icon={<Globe />}
               title="Countries" 
