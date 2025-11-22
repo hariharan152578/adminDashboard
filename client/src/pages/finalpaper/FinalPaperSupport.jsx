@@ -8476,9 +8476,9 @@ const StatusSnapshotChart = ({ stats }) => (
         <Tooltip content={<CustomTooltip />} />
         <Legend wrapperStyle={{ fontSize: '12px' }} />
         <Bar dataKey="approvedPaper" name="Approved" fill="#10B981" radius={[4, 4, 0, 0]} />
+        <Bar dataKey="noPaper" name="No Paper" fill="#6B7280" radius={[4, 4, 0, 0]} />
         <Bar dataKey="pending" name="Pending" fill="#F59E0B" radius={[4, 4, 0, 0]} />
         <Bar dataKey="rejected" name="Rejected" fill="#EF4444" radius={[4, 4, 0, 0]} />
-        <Bar dataKey="noPaper" name="No Paper" fill="#6B7280" radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   </ChartCard>
