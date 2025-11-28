@@ -301,7 +301,7 @@ const SideNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
 
   // Get user email from auth context
   const userEmail = auth?.user?.email;
-  const isAuthorizedUser = userEmail === 'hariharan152578@gmail.com';
+  const isAuthorizedUser = userEmail === 'conferencesupport@ksrce.ac.in';
 
   // Navigation links - Payment only shown to authorized user
   const navLinks = [
