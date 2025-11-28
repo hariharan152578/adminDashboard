@@ -61,7 +61,7 @@ const ProtectedPaymentRoute = ({ children }) => {
   
   // Extract email from auth context
   const userEmail = auth?.user?.email;
-  const authorizedEmail = 'hariharan152578@gmail.com';
+  const authorizedEmail = 'conferencesupport@ksrce.ac.in';
   
   console.log('Payment Route Access Check:', {
     userEmail,
