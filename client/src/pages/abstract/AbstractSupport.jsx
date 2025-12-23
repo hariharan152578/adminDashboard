@@ -1838,11 +1838,11 @@
 //     }
     
 //     if (url.startsWith('/uploads/')) {
-//       return `https://s3conference.ksrce.ac.in${url}`;
+//       return `http://localhost:5000${url}`;
 //     }
     
 //     if (url.includes('proof_') && !url.includes('/')) {
-//       return `https://s3conference.ksrce.ac.in/uploads/proofs/${url}`;
+//       return `http://localhost:5000/uploads/proofs/${url}`;
 //     }
     
 //     return url;
@@ -1891,7 +1891,7 @@
 //       }
 
 //       const { data } = await axios.get(
-//         "https://s3conference.ksrce.ac.in/api/admin/users",
+//         "http://localhost:5000/api/admin/users",
 //         { 
 //           headers: { 
 //             Authorization: `Bearer ${token}`,
@@ -2066,7 +2066,7 @@
 //         payload.abstractrejectedReason = reason;
 //       }
 
-//       const API_URL = `https://s3conference.ksrce.ac.in/api/admin/update/${abstractModalData.id}`;
+//       const API_URL = `http://localhost:5000/api/admin/update/${abstractModalData.id}`;
 
 //       const response = await axios.put(API_URL, payload, {
 //         headers: {
@@ -2130,11 +2130,11 @@
 //     let finalUrl = proofUrl;
     
 //     if (proofUrl.startsWith('/')) {
-//       finalUrl = `https://s3conference.ksrce.ac.in${proofUrl}`;
+//       finalUrl = `http://localhost:5000${proofUrl}`;
 //     }
     
 //     if (proofUrl.includes('proof_') && !proofUrl.includes('/')) {
-//       finalUrl = `https://s3conference.ksrce.ac.in/uploads/proofs/${proofUrl}`;
+//       finalUrl = `http://localhost:5000/uploads/proofs/${proofUrl}`;
 //     }
 
 //     try {
@@ -4416,11 +4416,11 @@ const AbstractSupport = () => {
     }
     
     if (url.startsWith('/uploads/')) {
-      return `https://s3conference.ksrce.ac.in${url}`;
+      return `http://localhost:5000${url}`;
     }
     
     if (url.includes('proof_') && !url.includes('/')) {
-      return `https://s3conference.ksrce.ac.in/uploads/proofs/${url}`;
+      return `http://localhost:5000/uploads/proofs/${url}`;
     }
     
     return url;
@@ -4469,7 +4469,7 @@ const AbstractSupport = () => {
       }
 
       const { data } = await axios.get(
-        "https://s3conference.ksrce.ac.in/api/admin/users",
+        "http://localhost:5000/api/admin/users",
         { 
           headers: { 
             Authorization: `Bearer ${token}`,
@@ -4644,7 +4644,7 @@ const AbstractSupport = () => {
         payload.abstractrejectedReason = reason;
       }
 
-      const API_URL = `https://s3conference.ksrce.ac.in/api/admin/update/${abstractModalData.id}`;
+      const API_URL = `http://localhost:5000/api/admin/update/${abstractModalData.id}`;
 
       const response = await axios.put(API_URL, payload, {
         headers: {

@@ -1305,7 +1305,7 @@
 //       cleanPath = cleanPath.substring(1);
 //     }
 
-//     const BASE_URL = "https://s3conference.ksrce.ac.in";
+//     const BASE_URL = "http://localhost:5000";
     
 //     // For debugging - log the formatted URL
 //     console.log(`Original: ${url}, Formatted: ${BASE_URL}/${cleanPath}`);
@@ -1399,7 +1399,7 @@
       
 //       // 1. Make the API Call
 //       const { data } = await axios.get(
-//         "https://s3conference.ksrce.ac.in/api/admin/users",
+//         "http://localhost:5000/api/admin/users",
 //         { headers: { Authorization: `Bearer ${token}` } }
 //       );
 
@@ -1575,7 +1575,7 @@
 //         feedback: status === "paid" ? "" : feedback 
 //       };
       
-//       const API_URL = `https://s3conference.ksrce.ac.in/api/admin/paymentprocess/verify/${mongoId}`;
+//       const API_URL = `http://localhost:5000/api/admin/paymentprocess/verify/${mongoId}`;
       
 //       const response = await axios.put(API_URL, body, {
 //         headers: { 
@@ -3332,7 +3332,7 @@ const PaymentSupport = () => {
       cleanPath = cleanPath.substring(1);
     }
 
-    const BASE_URL = "https://s3conference.ksrce.ac.in";
+    const BASE_URL = "http://localhost:5000";
     
     // For debugging - log the formatted URL
     console.log(`Original: ${url}, Formatted: ${BASE_URL}/${cleanPath}`);
@@ -3426,7 +3426,7 @@ const PaymentSupport = () => {
       
       // 1. Make the API Call
       const { data } = await axios.get(
-        "https://s3conference.ksrce.ac.in/api/admin/users",
+        "http://localhost:5000/api/admin/users",
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -3602,7 +3602,7 @@ const PaymentSupport = () => {
         feedback: status === "paid" ? "" : feedback 
       };
       
-      const API_URL = `https://s3conference.ksrce.ac.in/api/admin/paymentprocess/verify/${mongoId}`;
+      const API_URL = `http://localhost:5000/api/admin/paymentprocess/verify/${mongoId}`;
       
       const response = await axios.put(API_URL, body, {
         headers: { 

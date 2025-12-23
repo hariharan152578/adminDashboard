@@ -666,7 +666,7 @@
 // //       const token = localStorage.getItem("token");
 // //       if (!token) throw new Error("No token found");
 
-// //       const res = await fetch("https://s3conference.ksrce.ac.in/api/admin/users", {
+// //       const res = await fetch("http://localhost:5000/api/admin/users", {
 // //         headers: { Authorization: `Bearer ${token}` },
 // //       });
 
@@ -1923,7 +1923,7 @@
 //       const token = localStorage.getItem("token");
 //       if (!token) throw new Error("No token found");
 
-//       const res = await fetch("https://s3conference.ksrce.ac.in/api/admin/users", {
+//       const res = await fetch("http://localhost:5000/api/admin/users", {
 //         headers: { Authorization: `Bearer ${token}` },
 //       });
 
@@ -3102,7 +3102,7 @@ const MainDashboard = () => {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No token found");
 
-      const res = await fetch("https://s3conference.ksrce.ac.in/api/admin/users", {
+      const res = await fetch("http://localhost:5000/api/admin/users", {
         headers: { Authorization: `Bearer ${token}` },
       });
 

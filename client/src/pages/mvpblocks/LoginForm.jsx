@@ -31,7 +31,7 @@
 
 //     try {
 //       const response = await fetch(
-//         "https://s3conference.ksrce.ac.in/api/admin/login",
+//         "http://localhost:5000/api/admin/login",
 //         {
 //           method: "POST",
 //           headers: {
@@ -330,7 +330,7 @@
 
 //     try {
 //       const response = await fetch(
-//         "https://s3conference.ksrce.ac.in/api/admin/login",
+//         "http://localhost:5000/api/admin/login",
 //         {
 //           method: "POST",
 //           headers: {
@@ -628,7 +628,7 @@ export default function SignInPage() {
 
     try {
       const response = await fetch(
-        "https://s3conference.ksrce.ac.in/api/admin/login",
+        "http://localhost:5000/api/admin/login",
         {
           method: "POST",
           headers: {
