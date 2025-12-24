@@ -978,18 +978,18 @@ const TeamModal = ({ teamData, onClose }) => {
     }
     
     if (url.startsWith('/uploads/')) {
-      return `http://localhost:5000${url}`;
+      return `http://s3conference.ksrce.ac.in${url}`;
     }
     
     if (url.includes('proof_')) {
-      return `http://localhost:5000/uploads/proofs/${url}`;
+      return `http://s3conference.ksrce.ac.in/uploads/proofs/${url}`;
     }
     
     if (url.includes('s3conference.ksrce.ac.in') && !url.startsWith('http')) {
       return `https://${url.replace(/^\/+/, '')}`;
     }
     
-    return `http://localhost:5000/${url.replace(/^\/+/, '')}`;
+    return `http://s3conference.ksrce.ac.in/${url.replace(/^\/+/, '')}`;
   };
 
   const handleClose = () => {
@@ -1610,18 +1610,18 @@ const FinalPaperSupport = () => {
     }
     
     if (url.startsWith('/uploads/')) {
-      return `http://localhost:5000${url}`;
+      return `http://s3conference.ksrce.ac.in${url}`;
     }
     
     if (url.includes('proof_')) {
-      return `http://localhost:5000/uploads/proofs/${url}`;
+      return `http://s3conference.ksrce.ac.in/uploads/proofs/${url}`;
     }
     
     if (url.includes('s3conference.ksrce.ac.in') && !url.startsWith('http')) {
       return `https://${url.replace(/^\/+/, '')}`;
     }
     
-    return `http://localhost:5000/${url.replace(/^\/+/, '')}`;
+    return `http://s3conference.ksrce.ac.in/${url.replace(/^\/+/, '')}`;
   };
 
   const computeStats = useCallback((data) => {
@@ -1703,7 +1703,7 @@ const FinalPaperSupport = () => {
       const token = localStorage.getItem("token");
       
       const { data } = await axios.get(
-        "http://localhost:5000/api/admin/users",
+        "http://s3conference.ksrce.ac.in/api/admin/users",
         { headers: { Authorization: `Bearer ${token}` } }
       );
       
@@ -1866,110 +1866,109 @@ const FinalPaperSupport = () => {
     XLSX.writeFile(wb, `final_papers_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
-  const handleForceDownload = async (fileUrl, userId) => {
-    if (!fileUrl) {
-      alert("No file found to download.");
-      return;
+const handleForceDownload = async (fileUrl, uniqueId) => {
+  if (!fileUrl) {
+    alert("No file found to download.");
+    return;
+  }
+
+  try {
+    setDownloading(true);
+
+    let fullUrl = fileUrl;
+    if (!fileUrl.startsWith("http")) {
+      fullUrl = `http://s3conference.ksrce.ac.in/${fileUrl.replace(/^\/+/, "")}`;
     }
 
-    try {
-      setDownloading(true);
-      
-      let fullUrl = fileUrl;
-      if (!fileUrl.startsWith('http')) {
-        fullUrl = `http://localhost:5000/${fileUrl.replace(/^\/+/, '')}`;
-      }
-      
-      console.log("⬇️ Downloading from:", fullUrl);
-      
-      const token = localStorage.getItem("token");
-      const response = await fetch(fullUrl, {
-        method: 'GET',
-        headers: {
-          'Accept': '*/*',
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache',
-          ...(token && { Authorization: `Bearer ${token}` })
-        },
-        credentials: 'omit',
-        mode: 'cors',
-        redirect: 'follow'
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Server error: ${response.status} ${response.statusText}`);
-      }
-      
-      const contentType = response.headers.get('content-type') || '';
-      const contentLength = response.headers.get('content-length');
-      
-      const arrayBuffer = await response.arrayBuffer();
-      console.log("📦 Downloaded size:", arrayBuffer.byteLength, "bytes");
-      
-      if (arrayBuffer.byteLength < 100) {
-        throw new Error("File is too small (likely an error page)");
-      }
-      
-      const blob = new Blob([arrayBuffer], { 
-        type: contentType 
-      });
-      
-      let filename = `paper_${userId}`;
-      const contentDisposition = response.headers.get('content-disposition') || '';
-      
-      if (contentDisposition) {
-        const filenameMatch = contentDisposition.match(/filename\*?=["']?([^"';]+)["']?/i);
-        if (filenameMatch && filenameMatch[1]) {
-          filename = decodeURIComponent(filenameMatch[1]);
-        }
-      } else {
-        const urlParts = fullUrl.split('/');
-        const lastPart = urlParts[urlParts.length - 1];
-        if (lastPart && lastPart.includes('.')) {
-          filename = lastPart.split('?')[0];
-        }
-      }
-      
-      const blobUrl = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = blobUrl;
-      link.download = filename;
-      link.style.display = 'none';
-      
-      document.body.appendChild(link);
-      link.click();
-      
-      setTimeout(() => {
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(blobUrl);
-      }, 100);
-      
-      console.log("✅ Download successful:", filename);
-      
-    } catch (error) {
-      console.error("❌ Download failed:", error);
-      
-      let directUrl = fileUrl;
-      if (!fileUrl.startsWith('http')) {
-        directUrl = `http://localhost:5000/${fileUrl.replace(/^\/+/, '')}`;
-      }
-      
-      const link = document.createElement('a');
-      link.href = directUrl;
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-      link.download = `paper_${userId}`;
-      
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      console.log("🔄 Opened in new tab as fallback");
-      
-    } finally {
-      setDownloading(false);
+    console.log("⬇️ Downloading from:", fullUrl);
+
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(fullUrl, {
+      method: "GET",
+      headers: {
+        Accept: "*/*",
+        "Cache-Control": "no-cache",
+        Pragma: "no-cache",
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+      credentials: "omit",
+      mode: "cors",
+      redirect: "follow",
+    });
+
+    if (!response.ok) {
+      throw new Error(`Server error: ${response.status}`);
     }
-  };
+
+    const contentType = response.headers.get("content-type") || "";
+    const contentDisposition =
+      response.headers.get("content-disposition") || "";
+
+    const arrayBuffer = await response.arrayBuffer();
+
+    if (arrayBuffer.byteLength < 100) {
+      throw new Error("Downloaded file is too small");
+    }
+
+    const blob = new Blob([arrayBuffer], { type: contentType });
+
+    /* ---------------- FILE NAME FIX (UNIQUE ID) ---------------- */
+
+    let filename = uniqueId ? `paper_${uniqueId}` : "final_paper";
+
+    // 1️⃣ If server sends filename → use it
+    if (contentDisposition) {
+      const match = contentDisposition.match(
+        /filename\*?=["']?([^"';]+)["']?/i
+      );
+      if (match && match[1]) {
+        filename = decodeURIComponent(match[1]);
+      }
+    } 
+    // 2️⃣ Otherwise extract extension from URL
+    else {
+      const urlParts = fullUrl.split("/");
+      const lastPart = urlParts[urlParts.length - 1];
+      const extension = lastPart.includes(".")
+        ? lastPart.split(".").pop().split("?")[0]
+        : "pdf";
+
+      filename = `${filename}.${extension}`;
+    }
+
+    /* ----------------------------------------------------------- */
+
+    const blobUrl = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = blobUrl;
+    link.download = filename;
+    link.style.display = "none";
+
+    document.body.appendChild(link);
+    link.click();
+
+    setTimeout(() => {
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    }, 100);
+
+    console.log("✅ Downloaded as:", filename);
+  } catch (error) {
+    console.error("❌ Download failed:", error);
+
+    // 🔁 FINAL FALLBACK → open in new tab
+    let directUrl = fileUrl;
+    if (!fileUrl.startsWith("http")) {
+      directUrl = `http://s3conference.ksrce.ac.in/${fileUrl.replace(/^\/+/, "")}`;
+    }
+
+    window.open(directUrl, "_blank", "noopener,noreferrer");
+  } finally {
+    setDownloading(false);
+  }
+};
+
 
   const handlePaperStatusUpdate = async (newStatus, reason = "", feedback = "", discountBoolean = null, files = []) => {
     if (!paperModalData) return;
@@ -2004,7 +2003,7 @@ const FinalPaperSupport = () => {
         });
       }
 
-      const API_URL = `http://localhost:5000/api/admin/update/${paperModalData.id}`;
+      const API_URL = `http://s3conference.ksrce.ac.in/api/admin/update/${paperModalData.id}`;
       
       const response = await axios.put(API_URL, formData, {
         headers: {
