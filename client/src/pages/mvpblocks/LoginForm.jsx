@@ -31,7 +31,7 @@ export default function SignInPage() {
 
     try {
       const response = await fetch(
-        "http://s3conference.ksrce.ac.in/api/admin/login",
+        "https://s3conference.ksrce.ac.in/api/admin/login",
         {
           method: "POST",
           headers: {
