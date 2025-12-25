@@ -978,18 +978,18 @@ const TeamModal = ({ teamData, onClose }) => {
     }
     
     if (url.startsWith('/uploads/')) {
-      return `http://s3conference.ksrce.ac.in${url}`;
+      return `https://s3conference.ksrce.ac.in${url}`;
     }
     
     if (url.includes('proof_')) {
-      return `http://s3conference.ksrce.ac.in/uploads/proofs/${url}`;
+      return `https://s3conference.ksrce.ac.in/uploads/proofs/${url}`;
     }
     
     if (url.includes('s3conference.ksrce.ac.in') && !url.startsWith('http')) {
       return `https://${url.replace(/^\/+/, '')}`;
     }
     
-    return `http://s3conference.ksrce.ac.in/${url.replace(/^\/+/, '')}`;
+    return `https://s3conference.ksrce.ac.in/${url.replace(/^\/+/, '')}`;
   };
 
   const handleClose = () => {
@@ -1610,18 +1610,18 @@ const FinalPaperSupport = () => {
     }
     
     if (url.startsWith('/uploads/')) {
-      return `http://s3conference.ksrce.ac.in${url}`;
+      return `https://s3conference.ksrce.ac.in${url}`;
     }
     
     if (url.includes('proof_')) {
-      return `http://s3conference.ksrce.ac.in/uploads/proofs/${url}`;
+      return `https://s3conference.ksrce.ac.in/uploads/proofs/${url}`;
     }
     
     if (url.includes('s3conference.ksrce.ac.in') && !url.startsWith('http')) {
       return `https://${url.replace(/^\/+/, '')}`;
     }
     
-    return `http://s3conference.ksrce.ac.in/${url.replace(/^\/+/, '')}`;
+    return `https://s3conference.ksrce.ac.in/${url.replace(/^\/+/, '')}`;
   };
 
   const computeStats = useCallback((data) => {
@@ -1703,7 +1703,7 @@ const FinalPaperSupport = () => {
       const token = localStorage.getItem("token");
       
       const { data } = await axios.get(
-        "http://s3conference.ksrce.ac.in/api/admin/users",
+        "https://s3conference.ksrce.ac.in/api/admin/users",
         { headers: { Authorization: `Bearer ${token}` } }
       );
       
@@ -1877,7 +1877,7 @@ const handleForceDownload = async (fileUrl, uniqueId) => {
 
     let fullUrl = fileUrl;
     if (!fileUrl.startsWith("http")) {
-      fullUrl = `http://s3conference.ksrce.ac.in/${fileUrl.replace(/^\/+/, "")}`;
+      fullUrl = `https://s3conference.ksrce.ac.in/${fileUrl.replace(/^\/+/, "")}`;
     }
 
     console.log("⬇️ Downloading from:", fullUrl);
@@ -1960,7 +1960,7 @@ const handleForceDownload = async (fileUrl, uniqueId) => {
     // 🔁 FINAL FALLBACK → open in new tab
     let directUrl = fileUrl;
     if (!fileUrl.startsWith("http")) {
-      directUrl = `http://s3conference.ksrce.ac.in/${fileUrl.replace(/^\/+/, "")}`;
+      directUrl = `https://s3conference.ksrce.ac.in/${fileUrl.replace(/^\/+/, "")}`;
     }
 
     window.open(directUrl, "_blank", "noopener,noreferrer");
@@ -2003,7 +2003,7 @@ const handleForceDownload = async (fileUrl, uniqueId) => {
         });
       }
 
-      const API_URL = `http://s3conference.ksrce.ac.in/api/admin/update/${paperModalData.id}`;
+      const API_URL = `https://s3conference.ksrce.ac.in/api/admin/update/${paperModalData.id}`;
       
       const response = await axios.put(API_URL, formData, {
         headers: {

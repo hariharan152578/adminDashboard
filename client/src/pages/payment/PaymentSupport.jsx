@@ -1399,7 +1399,7 @@ const PaymentSupport = () => {
       
       // 1. Make the API Call
       const { data } = await axios.get(
-        "http://s3conference.ksrce.ac.in/api/admin/users",
+        "https://s3conference.ksrce.ac.in/api/admin/users",
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -1575,7 +1575,7 @@ const PaymentSupport = () => {
         feedback: status === "paid" ? "" : feedback 
       };
       
-      const API_URL = `http://s3conference.ksrce.ac.in/api/admin/paymentprocess/verify/${mongoId}`;
+      const API_URL = `https://s3conference.ksrce.ac.in/api/admin/paymentprocess/verify/${mongoId}`;
       
       const response = await axios.put(API_URL, body, {
         headers: { 
