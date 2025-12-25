@@ -1305,7 +1305,7 @@ const PaymentSupport = () => {
       cleanPath = cleanPath.substring(1);
     }
 
-    const BASE_URL = "http://s3conference.ksrce.ac.in";
+    const BASE_URL = "https://s3conference.ksrce.ac.in";
     
     // For debugging - log the formatted URL
     console.log(`Original: ${url}, Formatted: ${BASE_URL}/${cleanPath}`);
