@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import axios from "axios";
 import * as XLSX from "https://cdn.sheetjs.com/xlsx-0.20.1/package/xlsx.mjs";
@@ -734,6 +732,120 @@ const finalPaperStyles = `
     color: #111318;
   }
 
+  /* UPDATED FILE UPLOAD STYLES */
+  .file-upload-area {
+    border: 2px dashed #d1d5db;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+    background-color: #f9fafb;
+    margin-bottom: 16px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .file-upload-area:hover {
+    border-color: #3b82f6;
+    background-color: #eff6ff;
+  }
+
+  .file-upload-area.drag-over {
+    border-color: #3b82f6;
+    background-color: #dbeafe;
+  }
+
+  .file-list-container {
+    max-height: 200px;
+    overflow-y: auto;
+    width: 100%;
+  }
+
+  .file-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .file-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background-color: #f3f4f6;
+    border-radius: 6px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .file-item-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 0; /* Allows text truncation */
+  }
+
+  .file-item-name {
+    font-size: 13px;
+    color: #374151;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+  }
+
+  .file-item-size {
+    font-size: 11px;
+    color: #6b7280;
+    white-space: nowrap;
+    margin-left: 8px;
+  }
+
+  .file-item-remove {
+    color: #ef4444;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+    flex-shrink: 0;
+  }
+
+  .file-item-remove:hover {
+    background-color: #fee2e2;
+  }
+
+  .upload-info {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 8px;
+  }
+
+  .modal-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .modal-scrollbar::-webkit-scrollbar-track {
+    background: #f3f4f6;
+    border-radius: 3px;
+  }
+
+  .modal-scrollbar::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+  }
+
+  .modal-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+  }
+
+  .modal-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #d1d5db #f3f4f6;
+  }
+
+  /* Responsive adjustments for modals */
   @media (max-width: 768px) {
     .table-toolbar {
       flex-direction: column;
@@ -763,96 +875,31 @@ const finalPaperStyles = `
     .table-modern td {
       padding: 12px 8px;
     }
-  }
 
-  .file-upload-area {
-    border: 2px dashed #d1d5db;
-    border-radius: 8px;
-    padding: 20px;
-    text-align: center;
-    transition: all 0.3s ease;
-    background-color: #f9fafb;
-  }
+    .modal-content {
+      margin: 0;
+      max-height: 95vh;
+    }
 
-  .file-upload-area:hover {
-    border-color: #3b82f6;
-    background-color: #eff6ff;
-  }
+    .file-upload-area {
+      padding: 12px;
+    }
 
-  .file-upload-area.drag-over {
-    border-color: #3b82f6;
-    background-color: #dbeafe;
-  }
+    .file-item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
 
-  .file-list {
-    margin-top: 16px;
-    max-height: 200px;
-    overflow-y: auto;
-  }
+    .file-item-info {
+      width: 100%;
+    }
 
-  .file-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 12px;
-    background-color: #f3f4f6;
-    border-radius: 6px;
-    margin-bottom: 8px;
-  }
-
-  .file-item-info {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex: 1;
-  }
-
-  .file-item-name {
-    font-size: 14px;
-    color: #374151;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .file-item-size {
-    font-size: 12px;
-    color: #6b7280;
-  }
-
-  .file-item-remove {
-    color: #ef4444;
-    cursor: pointer;
-    padding: 4px;
-    border-radius: 4px;
-    transition: background-color 0.2s;
-  }
-
-  .file-item-remove:hover {
-    background-color: #fee2e2;
-  }
-
-  .modal-scrollbar::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  .modal-scrollbar::-webkit-scrollbar-track {
-    background: #f3f4f6;
-    border-radius: 3px;
-  }
-
-  .modal-scrollbar::-webkit-scrollbar-thumb {
-    background: #d1d5db;
-    border-radius: 3px;
-  }
-
-  .modal-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #9ca3af;
-  }
-
-  .modal-scrollbar {
-    scrollbar-width: thin;
-    scrollbar-color: #d1d5db #f3f4f6;
+    .file-item-actions {
+      width: 100%;
+      display: flex;
+      justify-content: flex-end;
+    }
   }
 `;
 
@@ -1471,12 +1518,14 @@ const StatusSnapshotChart = ({ stats }) => (
   </ChartCard>
 );
 
-const FileUploadComponent = ({ files, setFiles, accept = ".pdf,.doc,.docx", multiple = true }) => {
+// UPDATED FileUploadComponent with better responsive design
+const FileUploadComponent = ({ files, setFiles, accept = ".pdf,.doc,.docx", multiple = true, maxFiles = 10, maxSizeMB = 10 }) => {
   const [dragOver, setDragOver] = useState(false);
+  const [error, setError] = useState("");
 
   const handleFileChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
-    setFiles([...files, ...selectedFiles]);
+    validateAndAddFiles(selectedFiles);
   };
 
   const handleDragOver = (e) => {
@@ -1493,13 +1542,48 @@ const FileUploadComponent = ({ files, setFiles, accept = ".pdf,.doc,.docx", mult
     e.preventDefault();
     setDragOver(false);
     const droppedFiles = Array.from(e.dataTransfer.files);
-    setFiles([...files, ...droppedFiles]);
+    validateAndAddFiles(droppedFiles);
+  };
+
+  const validateAndAddFiles = (newFiles) => {
+    setError("");
+    
+    // Check max files limit
+    if (files.length + newFiles.length > maxFiles) {
+      setError(`Maximum ${maxFiles} files allowed. You can add ${maxFiles - files.length} more files.`);
+      return;
+    }
+
+    // Validate each file
+    const validFiles = [];
+    for (const file of newFiles) {
+      // Check file size
+      if (file.size > maxSizeMB * 1024 * 1024) {
+        setError(`File "${file.name}" exceeds ${maxSizeMB}MB limit`);
+        continue;
+      }
+      
+      // Check file type
+      const fileExtension = file.name.split('.').pop().toLowerCase();
+      const allowedExtensions = accept.replace(/\./g, '').split(',');
+      if (!allowedExtensions.includes(fileExtension)) {
+        setError(`File "${file.name}" has unsupported format. Allowed: ${accept}`);
+        continue;
+      }
+      
+      validFiles.push(file);
+    }
+
+    if (validFiles.length > 0) {
+      setFiles([...files, ...validFiles]);
+    }
   };
 
   const removeFile = (index) => {
     const newFiles = [...files];
     newFiles.splice(index, 1);
     setFiles(newFiles);
+    setError("");
   };
 
   const formatFileSize = (bytes) => {
@@ -1511,14 +1595,14 @@ const FileUploadComponent = ({ files, setFiles, accept = ".pdf,.doc,.docx", mult
   };
 
   return (
-    <div className="space-y-4">
+    <div className="w-full">
       <div
         className={`file-upload-area ${dragOver ? 'drag-over' : ''}`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
-        <Upload className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+        <Upload className="w-8 h-8 mx-auto mb-3 text-gray-400" />
         <input
           type="file"
           id="file-upload"
@@ -1531,33 +1615,46 @@ const FileUploadComponent = ({ files, setFiles, accept = ".pdf,.doc,.docx", mult
           <div className="text-sm font-medium text-gray-700">
             Drag & drop files here or click to browse
           </div>
-          <div className="text-xs text-gray-500 mt-2">
-            Supported formats: PDF, DOC, DOCX (Max 10MB each)
+          <div className="upload-info">
+            Supported formats: {accept.replace(/\./g, '').toUpperCase()} (Max {maxSizeMB}MB each, up to {maxFiles} files)
           </div>
         </label>
       </div>
 
+      {error && (
+        <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-sm text-red-600 flex items-center gap-2">
+            <AlertCircle className="w-4 h-4" />
+            {error}
+          </p>
+        </div>
+      )}
+
       {files.length > 0 && (
-        <div className="file-list">
-          <h4 className="text-sm font-medium text-gray-700 mb-2">Selected Files ({files.length})</h4>
-          {files.map((file, index) => (
-            <div key={index} className="file-item">
-              <div className="file-item-info">
-                <File className="w-4 h-4 text-gray-500" />
-                <div>
-                  <div className="file-item-name">{file.name}</div>
-                  <div className="file-item-size">{formatFileSize(file.size)}</div>
+        <div className="file-list-container">
+          <h4 className="text-sm font-medium text-gray-700 mb-2">Selected Files ({files.length}/{maxFiles})</h4>
+          <div className="file-list">
+            {files.map((file, index) => (
+              <div key={index} className="file-item">
+                <div className="file-item-info">
+                  <File className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <div className="file-item-name">{file.name}</div>
+                    <div className="file-item-size">{formatFileSize(file.size)}</div>
+                  </div>
+                </div>
+                <div className="file-item-actions">
+                  <button
+                    type="button"
+                    onClick={() => removeFile(index)}
+                    className="file-item-remove"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={() => removeFile(index)}
-                className="file-item-remove"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
     </div>
@@ -1866,109 +1963,108 @@ const FinalPaperSupport = () => {
     XLSX.writeFile(wb, `final_papers_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
-const handleForceDownload = async (fileUrl, uniqueId) => {
-  if (!fileUrl) {
-    alert("No file found to download.");
-    return;
-  }
-
-  try {
-    setDownloading(true);
-
-    let fullUrl = fileUrl;
-    if (!fileUrl.startsWith("http")) {
-      fullUrl = `https://s3conference.ksrce.ac.in/${fileUrl.replace(/^\/+/, "")}`;
+  const handleForceDownload = async (fileUrl, uniqueId) => {
+    if (!fileUrl) {
+      alert("No file found to download.");
+      return;
     }
 
-    console.log("⬇️ Downloading from:", fullUrl);
+    try {
+      setDownloading(true);
 
-    const token = localStorage.getItem("token");
-
-    const response = await fetch(fullUrl, {
-      method: "GET",
-      headers: {
-        Accept: "*/*",
-        "Cache-Control": "no-cache",
-        Pragma: "no-cache",
-        ...(token && { Authorization: `Bearer ${token}` }),
-      },
-      credentials: "omit",
-      mode: "cors",
-      redirect: "follow",
-    });
-
-    if (!response.ok) {
-      throw new Error(`Server error: ${response.status}`);
-    }
-
-    const contentType = response.headers.get("content-type") || "";
-    const contentDisposition =
-      response.headers.get("content-disposition") || "";
-
-    const arrayBuffer = await response.arrayBuffer();
-
-    if (arrayBuffer.byteLength < 100) {
-      throw new Error("Downloaded file is too small");
-    }
-
-    const blob = new Blob([arrayBuffer], { type: contentType });
-
-    /* ---------------- FILE NAME FIX (UNIQUE ID) ---------------- */
-
-    let filename = uniqueId ? `paper_${uniqueId}` : "final_paper";
-
-    // 1️⃣ If server sends filename → use it
-    if (contentDisposition) {
-      const match = contentDisposition.match(
-        /filename\*?=["']?([^"';]+)["']?/i
-      );
-      if (match && match[1]) {
-        filename = decodeURIComponent(match[1]);
+      let fullUrl = fileUrl;
+      if (!fileUrl.startsWith("http")) {
+        fullUrl = `https://s3conference.ksrce.ac.in/${fileUrl.replace(/^\/+/, "")}`;
       }
-    } 
-    // 2️⃣ Otherwise extract extension from URL
-    else {
-      const urlParts = fullUrl.split("/");
-      const lastPart = urlParts[urlParts.length - 1];
-      const extension = lastPart.includes(".")
-        ? lastPart.split(".").pop().split("?")[0]
-        : "pdf";
 
-      filename = `${filename}.${extension}`;
+      console.log("⬇️ Downloading from:", fullUrl);
+
+      const token = localStorage.getItem("token");
+
+      const response = await fetch(fullUrl, {
+        method: "GET",
+        headers: {
+          Accept: "*/*",
+          "Cache-Control": "no-cache",
+          Pragma: "no-cache",
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+        credentials: "omit",
+        mode: "cors",
+        redirect: "follow",
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+      }
+
+      const contentType = response.headers.get("content-type") || "";
+      const contentDisposition =
+        response.headers.get("content-disposition") || "";
+
+      const arrayBuffer = await response.arrayBuffer();
+
+      if (arrayBuffer.byteLength < 100) {
+        throw new Error("Downloaded file is too small");
+      }
+
+      const blob = new Blob([arrayBuffer], { type: contentType });
+
+      /* ---------------- FILE NAME FIX (UNIQUE ID) ---------------- */
+
+      let filename = uniqueId ? `paper_${uniqueId}` : "final_paper";
+
+      // 1️⃣ If server sends filename → use it
+      if (contentDisposition) {
+        const match = contentDisposition.match(
+          /filename\*?=["']?([^"';]+)["']?/i
+        );
+        if (match && match[1]) {
+          filename = decodeURIComponent(match[1]);
+        }
+      } 
+      // 2️⃣ Otherwise extract extension from URL
+      else {
+        const urlParts = fullUrl.split("/");
+        const lastPart = urlParts[urlParts.length - 1];
+        const extension = lastPart.includes(".")
+          ? lastPart.split(".").pop().split("?")[0]
+          : "pdf";
+
+        filename = `${filename}.${extension}`;
+      }
+
+      /* ----------------------------------------------------------- */
+
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = filename;
+      link.style.display = "none";
+
+      document.body.appendChild(link);
+      link.click();
+
+      setTimeout(() => {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(blobUrl);
+      }, 100);
+
+      console.log("✅ Downloaded as:", filename);
+    } catch (error) {
+      console.error("❌ Download failed:", error);
+
+      // 🔁 FINAL FALLBACK → open in new tab
+      let directUrl = fileUrl;
+      if (!fileUrl.startsWith("http")) {
+        directUrl = `https://s3conference.ksrce.ac.in/${fileUrl.replace(/^\/+/, "")}`;
+      }
+
+      window.open(directUrl, "_blank", "noopener,noreferrer");
+    } finally {
+      setDownloading(false);
     }
-
-    /* ----------------------------------------------------------- */
-
-    const blobUrl = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = blobUrl;
-    link.download = filename;
-    link.style.display = "none";
-
-    document.body.appendChild(link);
-    link.click();
-
-    setTimeout(() => {
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(blobUrl);
-    }, 100);
-
-    console.log("✅ Downloaded as:", filename);
-  } catch (error) {
-    console.error("❌ Download failed:", error);
-
-    // 🔁 FINAL FALLBACK → open in new tab
-    let directUrl = fileUrl;
-    if (!fileUrl.startsWith("http")) {
-      directUrl = `https://s3conference.ksrce.ac.in/${fileUrl.replace(/^\/+/, "")}`;
-    }
-
-    window.open(directUrl, "_blank", "noopener,noreferrer");
-  } finally {
-    setDownloading(false);
-  }
-};
-
+  };
 
   const handlePaperStatusUpdate = async (newStatus, reason = "", feedback = "", discountBoolean = null, files = []) => {
     if (!paperModalData) return;
@@ -2381,425 +2477,499 @@ const handleForceDownload = async (fileUrl, uniqueId) => {
       )}
 
       {paperModalData && (
-        <Modal onClose={resetAllModals} size="lg">
-          <div className="p-4 border-b border-gray-200">
-            <h2 className="text-lg font-bold text-gray-900">
-              Paper Management: {paperModalData.authorName}
-            </h2>
-            <div className="text-xs text-gray-600 mt-1">
-              User ID: {paperModalData.userId} | Discount: {isDiscountApplied ? "Applied" : "Not Applied"}
+  <Modal onClose={resetAllModals} size="lg">
+    {/* Main Container - flex-col ensures we can fix header/footer */}
+    <div className="flex flex-col max-h-[90vh] w-full max-w-full overflow-hidden bg-white rounded-lg">
+      
+      {/* FIXED HEADER: flex-shrink-0 prevents it from squishing */}
+      <div className="p-4 border-b border-gray-200 flex-shrink-0 bg-white sticky top-0 z-10">
+        <h2 className="text-base md:text-lg font-bold text-gray-900 truncate">
+          Paper Management: {paperModalData.authorName}
+        </h2>
+        <div className="text-[10px] md:text-xs text-gray-600 mt-1 flex flex-wrap gap-x-2">
+          <span>User ID: {paperModalData.userId}</span>
+          <span className="hidden md:inline">|</span>
+          <span>Discount: <span className={isDiscountApplied ? "text-emerald-600 font-medium" : ""}>{isDiscountApplied ? "Applied" : "Not Applied"}</span></span>
+        </div>
+      </div>
+
+      {/* SCROLLABLE BODY: flex-1 takes remaining space */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 modal-scrollbar">
+        
+        {/* Status Highlight */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-blue-50 p-3 rounded-lg gap-2">
+          <span className="font-semibold text-sm text-blue-900">Current Paper Status:</span>
+          <div className="transform scale-90 sm:scale-100 origin-left">
+            {getStatusBadge(paperModalData.paperStatus)}
+          </div>
+        </div>
+
+        {/* Paper Details Grid */}
+        <div className="p-3 border border-gray-100 rounded-lg bg-gray-50/30">
+          <h4 className="font-bold mb-3 text-sm text-gray-900 border-b pb-1">Paper Details</h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3 text-xs md:text-sm">
+            <div className="break-words"><strong>Track:</strong> <span className="text-gray-600">{paperModalData.track}</span></div>
+            <div><strong>Mode:</strong> <span className="text-gray-600">{paperModalData.presentationMode}</span></div>
+            <div className="break-all"><strong>Email:</strong> <span className="text-gray-600">{paperModalData.email}</span></div>
+            <div><strong>Mobile:</strong> <span className="text-gray-600">{paperModalData.mobile}</span></div>
+            <div><strong>Country:</strong> <span className="text-gray-600">{paperModalData.country}</span></div>
+            <div className="flex items-center gap-2">
+              <strong>Abstract:</strong> 
+              <span className="scale-75 origin-left">{getStatusBadge(paperModalData.abstractStatus)}</span>
             </div>
           </div>
           
-          <div className="flex-1 overflow-y-auto max-h-96">
-            <div className="p-4 space-y-4">
-              <div className="flex justify-between items-center bg-blue-50 p-3 rounded-lg">
-                <span className="font-semibold text-sm">Current Paper Status:</span>
-                {getStatusBadge(paperModalData.paperStatus)}
+          {paperModalData.correctioncontent && (
+            <div className="mt-4 pt-3 border-t border-gray-100">
+              <strong className="text-xs">Previous Feedback:</strong>
+              <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-xs text-yellow-800 leading-relaxed">{paperModalData.correctioncontent}</p>
               </div>
-
-              <div className="p-3 border rounded-lg">
-                <h4 className="font-bold mb-3 text-sm text-gray-900">Paper Details</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                  <div><strong>Track:</strong> {paperModalData.track}</div>
-                  <div><strong>Mode:</strong> {paperModalData.presentationMode}</div>
-                  <div><strong>Email:</strong> {paperModalData.email}</div>
-                  <div><strong>Mobile:</strong> {paperModalData.mobile}</div>
-                  <div><strong>Country:</strong> {paperModalData.country}</div>
-                  <div className="flex items-center gap-2">
-                    <strong>Abstract:</strong> 
-                    {getStatusBadge(paperModalData.abstractStatus)}
-                  </div>
-                  <div><strong>Current Discount:</strong> 
-                    <span className={`ml-2 ${paperModalData.discountApplied ? "text-emerald-600 font-semibold" : "text-gray-400"}`}>
-                      {paperModalData.discountApplied ? "Applied" : "Not Applied"}
-                    </span>
-                  </div>
-                  {paperModalData.correctioncontent && (
-                    <div className="col-span-2">
-                      <strong>Previous Feedback:</strong>
-                      <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                        <p className="text-xs text-yellow-800">{paperModalData.correctioncontent}</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="p-3 border rounded-lg flex justify-between items-center">
-                <span className="font-medium text-gray-700 text-sm">Uploaded Paper:</span>
-                {paperModalData.finalPaperUrl ? (
-                  <button
-                    onClick={() => handleForceDownload(paperModalData.finalPaperUrl, paperModalData.uniqueId)}
-                    disabled={downloading}
-                    className="btn btn-primary btn-sm"
-                  >
-                    {downloading ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <>
-                        <Download className="w-4 h-4" /> Download
-                      </>
-                    )}
-                  </button>
-                ) : (
-                  <span className="text-red-500 text-sm">No Paper Uploaded</span>
-                )}
-              </div>
-
-              <div className="border p-3 rounded-lg">
-                <label className="text-sm font-semibold text-gray-700 block mb-3">
-                  Discount Status (Current: {isDiscountApplied ? "Applied" : "Not Applied"})
-                </label>
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="discountApplied"
-                    checked={isDiscountApplied}
-                    onChange={(e) => {
-                      console.log("🎯 Discount checkbox changed:", e.target.checked);
-                      setIsDiscountApplied(e.target.checked);
-                    }}
-                    className="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500"
-                  />
-                  <label htmlFor="discountApplied" className="ml-2 text-sm text-gray-900">
-                    Apply Discount (Only for Students)
-                  </label>
-                </div>
-                <p className="text-xs text-gray-500 mt-2">
-                  {isDiscountApplied ? 
-                    "Discount will be applied when you update status." : 
-                    "No discount will be applied."
-                  }
-                </p>
-              </div>
-
             </div>
+          )}
+        </div>
+
+        {/* Action Card: Uploaded Paper */}
+        <div className="p-3 border rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white shadow-sm">
+          <span className="font-medium text-gray-700 text-sm">Uploaded Paper:</span>
+          {paperModalData.finalPaperUrl ? (
+            <button
+              onClick={() => handleForceDownload(paperModalData.finalPaperUrl, paperModalData.uniqueId)}
+              disabled={downloading}
+              className="w-full sm:w-auto btn btn-primary btn-sm flex items-center justify-center gap-2"
+            >
+              {downloading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <>
+                  <Download className="w-4 h-4" /> Download
+                </>
+              )}
+            </button>
+          ) : (
+            <span className="text-red-500 text-sm font-medium">No Paper Uploaded</span>
+          )}
+        </div>
+
+        {/* Action Card: Discount Toggle */}
+        <div className="border p-3 rounded-lg bg-white shadow-sm">
+          <label className="text-sm font-semibold text-gray-700 block mb-2">
+            Discount Status (Current: {isDiscountApplied ? "Applied" : "Not Applied"})
+          </label>
+          <div className="flex items-start md:items-center gap-3 p-2 hover:bg-gray-50 rounded-md transition-colors">
+            <input
+              type="checkbox"
+              id="discountApplied"
+              checked={isDiscountApplied}
+              onChange={(e) => setIsDiscountApplied(e.target.checked)}
+              className="mt-1 md:mt-0 w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500"
+            />
+            <label htmlFor="discountApplied" className="text-sm text-gray-900 cursor-pointer">
+              Apply Discount (Only for Students)
+            </label>
           </div>
+          <p className="text-[11px] text-gray-500 mt-2 italic px-2">
+            {isDiscountApplied ? 
+              "• Discount will be applied when you update status." : 
+              "• No discount will be applied."
+            }
+          </p>
+        </div>
+      </div>
 
-          <div className="p-4 border-t bg-gray-50">
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => openActionModal('rejection')}
-                className="btn btn-outline btn-sm"
-                disabled={actionLoading}
-              >
-                <XCircle className="w-4 h-4" /> Reject
-              </button>
-              
-              <button
-                onClick={() => openActionModal('correction')}
-                disabled={actionLoading}
-                className="btn btn-outline btn-sm"
-              >
-                <MessageSquare className="w-4 h-4" /> 
-                Request Correction
-              </button>
+      {/* FIXED FOOTER: flex-shrink-0 and sticky to bottom */}
+      <div className="p-4 border-t bg-gray-50 flex-shrink-0 mt-auto">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+          <button
+            onClick={() => openActionModal('rejection')}
+            className="btn btn-outline btn-sm text-[11px] md:text-xs py-2"
+            disabled={actionLoading}
+          >
+            <XCircle className="w-3 h-3 md:w-4 md:h-4 mr-1" /> Reject
+          </button>
+          
+          <button
+            onClick={() => openActionModal('correction')}
+            disabled={actionLoading}
+            className="btn btn-outline btn-sm text-[11px] md:text-xs py-2"
+          >
+            <MessageSquare className="w-3 h-3 md:w-4 md:h-4 mr-1" /> 
+            Revise
+          </button>
 
-              <button
-                onClick={() => openActionModal('review')}
-                disabled={actionLoading}
-                className="btn btn-outline btn-sm"
-              >
-                <Eye className="w-4 h-4" /> 
-                Under Review
-              </button>
+          <button
+            onClick={() => openActionModal('review')}
+            disabled={actionLoading}
+            className="btn btn-outline btn-sm text-[11px] md:text-xs py-2"
+          >
+            <Eye className="w-3 h-3 md:w-4 md:h-4 mr-1" /> 
+            Review
+          </button>
 
-              <button
-                onClick={() => openActionModal('approval')}
-                disabled={actionLoading}
-                className="btn btn-success btn-sm"
-              >
-                <CheckCircle className="w-4 h-4" /> 
-                Approve
-              </button>
+          <button
+            onClick={() => openActionModal('approval')}
+            disabled={actionLoading}
+            className="btn btn-success btn-sm text-[11px] md:text-xs py-2 text-white"
+          >
+            <CheckCircle className="w-3 h-3 md:w-4 md:h-4 mr-1" /> 
+            Approve
+          </button>
+        </div>
+      </div>
+    </div>
+  </Modal>
+)}{correctionModalData && (
+  <Modal onClose={() => setCorrectionModalData(null)} size="lg">
+    {/* Main Container - Ensures modal fits within screen height */}
+    <div className="flex flex-col max-h-[90vh] md:max-h-[85vh] w-full overflow-hidden bg-white rounded-lg">
+      
+      {/* FIXED HEADER */}
+      <div className="p-4 border-b border-gray-200 flex-shrink-0">
+        <h3 className="text-lg font-bold text-gray-900">Request Correction</h3>
+      </div>
+      
+      {/* SCROLLABLE BODY */}
+      <div className="flex-1 overflow-y-auto p-4 modal-scrollbar">
+        <div className="space-y-6">
+          {/* Visual Indicator */}
+          <div className="text-center">
+            <div className="mx-auto w-fit bg-yellow-100 rounded-full p-3 mb-3">
+              <MessageSquare className="w-6 h-6 text-yellow-600" />
             </div>
-          </div>
-        </Modal>
-      )}
-
-      {correctionModalData && (
-        <Modal onClose={() => setCorrectionModalData(null)} size="lg">
-          <div className="p-4 border-b border-gray-200">
-            <h3 className="text-lg font-bold text-gray-900">Request Correction</h3>
+            <p className="text-gray-500 text-sm px-4">
+              Provide detailed feedback to the author and upload any reference or corrected files.
+            </p>
           </div>
           
-          <div className="p-4">
-            <div className="text-center mb-4">
-              <div className="mx-auto w-fit bg-yellow-100 rounded-full p-3 mb-3">
-                <MessageSquare className="w-6 h-6 text-yellow-600" />
-              </div>
-              <p className="text-gray-500 mb-4 text-sm">
-                Provide feedback and upload corrected files.
-              </p>
-            </div>
-            
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Correction Feedback
-              </label>
-              <textarea
-                rows="6"
-                className="w-full border rounded-xl p-3 focus:ring-2 focus:ring-yellow-400 outline-none resize-none text-sm"
-                placeholder="Provide detailed feedback..."
-                value={correctionFeedback}
-                onChange={(e) => setCorrectionFeedback(e.target.value)}
-              ></textarea>
-            </div>
+          {/* Feedback Input */}
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-gray-700">
+              Correction Feedback <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              rows="6"
+              className="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-yellow-400 focus:border-transparent outline-none resize-none text-sm shadow-sm transition-all"
+              placeholder="e.g., Please fix the formatting in section 2.1 and update the bibliography..."
+              value={correctionFeedback}
+              onChange={(e) => setCorrectionFeedback(e.target.value)}
+            ></textarea>
+          </div>
 
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Upload Corrected Files (Optional)
-              </label>
+          {/* File Upload Section */}
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-gray-700">
+              Upload Corrected Files (Optional)
+            </label>
+            <div className="min-h-[120px]">
               <FileUploadComponent 
                 files={correctionFiles}
                 setFiles={setCorrectionFiles}
                 accept=".pdf,.doc,.docx,.txt"
+                maxFiles={5}
+                maxSizeMB={10}
               />
             </div>
-            
-            <div className="flex gap-3">
-              <button
-                onClick={() => setCorrectionModalData(null)}
-                className="btn btn-outline flex-1"
-                disabled={actionLoading}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleCorrectionSubmit}
-                disabled={actionLoading || !correctionFeedback.trim()}
-                className="btn btn-primary flex-1"
-              >
-                {actionLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <MessageSquare className="w-4 h-4" />
-                )}
-                Submit Correction
-              </button>
-            </div>
+            <p className="text-[11px] text-gray-400 italic">
+              Supported formats: PDF, DOC, DOCX, TXT (Max 10MB)
+            </p>
           </div>
-        </Modal>
-      )}
-
+        </div>
+      </div>
+      
+      {/* FIXED FOOTER */}
+      <div className="p-4 border-t bg-gray-50 flex-shrink-0">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <button
+            onClick={() => setCorrectionModalData(null)}
+            className="btn btn-outline order-2 sm:order-1 flex-1 py-2.5 text-sm font-semibold"
+            disabled={actionLoading}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleCorrectionSubmit}
+            disabled={actionLoading || !correctionFeedback.trim()}
+            className="btn btn-primary order-1 sm:order-2 flex-1 py-2.5 flex items-center justify-center gap-2 text-sm font-semibold shadow-md"
+          >
+            {actionLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <MessageSquare className="w-4 h-4" />
+            )}
+            Submit Correction
+          </button>
+        </div>
+      </div>
+    </div>
+  </Modal>
+)}
       {underReviewModalData && (
-        <Modal onClose={() => setUnderReviewModalData(null)} size="lg">
-          <div className="p-4 border-b border-gray-200">
-            <h3 className="text-lg font-bold text-gray-900">Mark as Under Review</h3>
+  <Modal onClose={() => setUnderReviewModalData(null)} size="lg">
+    {/* Main Container - Ensures consistent modal height and layout */}
+    <div className="flex flex-col max-h-[90vh] md:max-h-[85vh] w-full overflow-hidden bg-white rounded-lg">
+      
+      {/* FIXED HEADER */}
+      <div className="p-4 border-b border-gray-200 flex-shrink-0 bg-white">
+        <h3 className="text-lg font-bold text-gray-900">Mark as Under Review</h3>
+      </div>
+      
+      {/* SCROLLABLE BODY */}
+      <div className="flex-1 overflow-y-auto p-4 modal-scrollbar">
+        <div className="space-y-6">
+          {/* Status Indicator */}
+          <div className="text-center">
+            <div className="mx-auto w-fit bg-purple-100 rounded-full p-3 mb-3">
+              <Eye className="w-6 h-6 text-purple-600" />
+            </div>
+            <p className="text-gray-500 text-sm px-4">
+              Update the internal status. These notes are for <strong>internal administrative use</strong> only.
+            </p>
           </div>
           
-          <div className="p-4">
-            <div className="text-center mb-4">
-              <div className="mx-auto w-fit bg-purple-100 rounded-full p-3 mb-3">
-                <Eye className="w-6 h-6 text-purple-600" />
-              </div>
-              <p className="text-gray-500 mb-4 text-sm">
-                Add internal review notes and upload files.
-              </p>
-            </div>
-            
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Review Notes (Internal)
-              </label>
-              <textarea
-                rows="6"
-                className="w-full border rounded-xl p-3 focus:ring-2 focus:ring-purple-400 outline-none resize-none text-sm"
-                placeholder="Enter internal review notes..."
-                value={underReviewNotes}
-                onChange={(e) => setUnderReviewNotes(e.target.value)}
-              ></textarea>
-            </div>
+          {/* Internal Notes */}
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-gray-700">
+              Review Notes (Internal)
+            </label>
+            <textarea
+              rows="6"
+              className="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none resize-none text-sm transition-all shadow-sm bg-gray-50/30"
+              placeholder="Add details about the current review stage or internal checklist items..."
+              value={underReviewNotes}
+              onChange={(e) => setUnderReviewNotes(e.target.value)}
+            ></textarea>
+          </div>
 
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Upload Files (Optional)
-              </label>
+          {/* File Upload Section */}
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-gray-700">
+              Upload Internal Documents (Optional)
+            </label>
+            <div className="min-h-[120px]">
               <FileUploadComponent 
                 files={underReviewFiles}
                 setFiles={setUnderReviewFiles}
                 accept=".pdf,.doc,.docx,.txt"
+                maxFiles={5}
+                maxSizeMB={10}
               />
             </div>
-            
-            <div className="flex gap-3">
-              <button
-                onClick={() => setUnderReviewModalData(null)}
-                className="btn btn-outline flex-1"
-                disabled={actionLoading}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleUnderReviewSubmit}
-                disabled={actionLoading}
-                className="btn btn-primary flex-1"
-              >
-                {actionLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Eye className="w-4 h-4" />
-                )}
-                Mark as Under Review
-              </button>
-            </div>
           </div>
-        </Modal>
-      )}
+        </div>
+      </div>
+      
+      {/* FIXED FOOTER */}
+      <div className="p-4 border-t bg-gray-50 flex-shrink-0">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <button
+            onClick={() => setUnderReviewModalData(null)}
+            className="btn btn-outline order-2 sm:order-1 flex-1 py-2.5 text-sm font-semibold"
+            disabled={actionLoading}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleUnderReviewSubmit}
+            disabled={actionLoading}
+            className="btn btn-primary order-1 sm:order-2 flex-1 py-2.5 flex items-center justify-center gap-2 text-sm font-semibold shadow-md bg-purple-600 hover:bg-purple-700 border-none text-white"
+          >
+            {actionLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Eye className="w-4 h-4" />
+            )}
+            Update Review Status
+          </button>
+        </div>
+      </div>
+    </div>
+  </Modal>
+)}
 
-      {approvalModalData && (
-        <Modal onClose={() => setApprovalModalData(null)} size="lg">
-          <div className="p-4 border-b border-gray-200">
-            <h3 className="text-lg font-bold text-gray-900">Approve Paper</h3>
-          </div>
-          
-          <div className="flex flex-col">
-            <div className="p-4">
-              <div className="text-center mb-4">
-                <div className="mx-auto w-fit bg-green-100 rounded-full p-3 mb-3">
-                  <CheckCircle className="w-6 h-6 text-green-600" />
-                </div>
-                <p className="text-gray-500 text-sm">
-                  Please provide approval notes for this paper.
-                </p>
-              </div>
-              
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Approval Notes (Optional)
-                </label>
-                <textarea
-                  rows="4"
-                  className="w-full border rounded-xl p-3 mb-4 focus:ring-2 focus:ring-green-400 outline-none resize-none text-sm"
-                  placeholder="Enter approval notes here..."
-                  value={approvalNotes}
-                  onChange={(e) => setApprovalNotes(e.target.value)}
-                ></textarea>
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Discount
-                </label>
-                <div className="flex items-center gap-2 mb-4">
-                  <input
-                    type="checkbox"
-                    id="approval-discount"
-                    checked={isDiscountApplied}
-                    onChange={(e) => setIsDiscountApplied(e.target.checked)}
-                    className="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500"
-                  />
-                  <label htmlFor="approval-discount" className="text-sm text-gray-900">
-                    Apply Student Discount
-                  </label>
-                </div>
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Upload Files (Optional)
-                </label>
-                <FileUploadComponent 
-                  files={approvalFiles}
-                  setFiles={setApprovalFiles}
-                  accept=".pdf,.doc,.docx,.txt"
-                />
-              </div>
+{approvalModalData && (
+  <Modal onClose={() => setApprovalModalData(null)} size="lg">
+    {/* Main Container - Sets a max height relative to the screen and handles internal flex */}
+    <div className="flex flex-col max-h-[90vh] md:max-h-[85vh] w-full overflow-hidden bg-white rounded-lg">
+      
+      {/* FIXED HEADER */}
+      <div className="p-4 border-b border-gray-200 flex-shrink-0">
+        <h3 className="text-lg font-bold text-gray-900">Approve Paper</h3>
+      </div>
+      
+      {/* SCROLLABLE BODY - flex-1 expands to fill space, overflow-y-auto enables scrolling */}
+      <div className="flex-1 overflow-y-auto p-4 modal-scrollbar">
+        <div className="space-y-6">
+          {/* Status Icon & Message */}
+          <div className="text-center">
+            <div className="mx-auto w-fit bg-green-100 rounded-full p-3 mb-3">
+              <CheckCircle className="w-6 h-6 text-green-600" />
             </div>
-            
-            <div className="px-4 pb-4">
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setApprovalModalData(null)}
-                  className="btn btn-outline flex-1"
-                  disabled={actionLoading}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleApprovalSubmit}
-                  disabled={actionLoading}
-                  className="btn btn-success flex-1"
-                >
-                  {actionLoading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <CheckCircle className="w-4 h-4" />
-                  )}
-                  Approve Paper
-                </button>
-              </div>
-            </div>
-          </div>
-        </Modal>
-      )}
-
-      {rejectionModalData && (
-        <Modal onClose={() => setRejectionModalData(null)} size="lg">
-          <div className="p-4 border-b border-gray-200">
-            <h3 className="text-lg font-bold text-gray-900">Reject Paper</h3>
+            <p className="text-gray-500 text-sm px-4">
+              Please provide approval notes for this paper.
+            </p>
           </div>
           
-          <div className="p-4">
-            <div className="text-center mb-4">
-              <div className="mx-auto w-fit bg-red-100 rounded-full p-3 mb-3">
-                <XCircle className="w-6 h-6 text-red-500" />
-              </div>
-              <p className="text-gray-500 text-sm">
-                Please provide a reason for rejecting this paper.
-              </p>
-            </div>
-            
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Rejection Reason
-              </label>
-              <textarea
-                rows="4"
-                className="w-full border rounded-xl p-3 mb-4 focus:ring-2 focus:ring-red-400 outline-none resize-none text-sm"
-                placeholder="Write rejection reason here..."
-                value={rejectionReason}
-                onChange={(e) => setRejectionReason(e.target.value)}
-              ></textarea>
-            </div>
+          {/* Notes Section */}
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-gray-700">
+              Approval Notes (Optional)
+            </label>
+            <textarea
+              rows="4"
+              className="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-green-400 focus:border-transparent outline-none resize-none text-sm transition-all shadow-sm"
+              placeholder="Enter approval notes here..."
+              value={approvalNotes}
+              onChange={(e) => setApprovalNotes(e.target.value)}
+            ></textarea>
+          </div>
 
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Upload Files (Optional)
+          {/* Discount Section */}
+          <div className="p-3 bg-gray-50 rounded-xl border border-gray-100">
+            <label className="block text-sm font-semibold text-gray-700 mb-3">
+              Billing Adjustments
+            </label>
+            <div className="flex items-center gap-3 cursor-pointer group">
+              <input
+                type="checkbox"
+                id="approval-discount"
+                checked={isDiscountApplied}
+                onChange={(e) => setIsDiscountApplied(e.target.checked)}
+                className="w-5 h-5 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500 cursor-pointer"
+              />
+              <label htmlFor="approval-discount" className="text-sm text-gray-900 font-medium cursor-pointer group-hover:text-emerald-700 transition-colors">
+                Apply Student Discount
               </label>
+            </div>
+          </div>
+
+          {/* File Upload Section */}
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-gray-700">
+              Upload Files (Optional)
+            </label>
+            {/* Added a min-height to ensure the dropzone is usable on mobile */}
+            <div className="min-h-[120px]">
+              <FileUploadComponent 
+                files={approvalFiles}
+                setFiles={setApprovalFiles}
+                accept=".pdf,.doc,.docx,.txt"
+                maxFiles={5}
+                maxSizeMB={10}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* FIXED FOOTER */}
+      <div className="p-4 border-t bg-gray-50 flex-shrink-0">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <button
+            onClick={() => setApprovalModalData(null)}
+            className="btn btn-outline order-2 sm:order-1 flex-1 py-2.5 text-sm font-semibold"
+            disabled={actionLoading}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleApprovalSubmit}
+            disabled={actionLoading}
+            className="btn btn-success order-1 sm:order-2 flex-1 py-2.5 flex items-center justify-center gap-2 text-sm font-semibold text-white"
+          >
+            {actionLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <CheckCircle className="w-4 h-4" />
+            )}
+            Approve Paper
+          </button>
+        </div>
+      </div>
+    </div>
+  </Modal>
+)}
+{rejectionModalData && (
+  <Modal onClose={() => setRejectionModalData(null)} size="lg">
+    {/* Main Container - Ensures modal stays within the viewport height */}
+    <div className="flex flex-col max-h-[90vh] md:max-h-[85vh] w-full overflow-hidden bg-white rounded-lg">
+      
+      {/* FIXED HEADER */}
+      <div className="p-4 border-b border-gray-200 flex-shrink-0">
+        <h3 className="text-lg font-bold text-gray-900">Reject Paper</h3>
+      </div>
+      
+      {/* SCROLLABLE BODY */}
+      <div className="flex-1 overflow-y-auto p-4 modal-scrollbar">
+        <div className="space-y-6">
+          {/* Visual Alert */}
+          <div className="text-center">
+            <div className="mx-auto w-fit bg-red-100 rounded-full p-3 mb-3">
+              <XCircle className="w-6 h-6 text-red-500" />
+            </div>
+            <p className="text-gray-500 text-sm px-4 italic">
+              Careful: This action will notify the author that their submission has been rejected.
+            </p>
+          </div>
+          
+          {/* Reason Input */}
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-gray-700">
+              Rejection Reason <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              rows="5"
+              className="w-full border border-gray-300 rounded-xl p-3 focus:ring-2 focus:ring-red-400 focus:border-transparent outline-none resize-none text-sm transition-all shadow-sm bg-red-50/10"
+              placeholder="Please provide specific reasons for rejection (e.g., out of scope, plagiarism, formatting issues)..."
+              value={rejectionReason}
+              onChange={(e) => setRejectionReason(e.target.value)}
+            ></textarea>
+          </div>
+
+          {/* File Upload Section */}
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-gray-700">
+              Supporting Evidence/Files (Optional)
+            </label>
+            <div className="min-h-[120px]">
               <FileUploadComponent 
                 files={rejectionFiles}
                 setFiles={setRejectionFiles}
                 accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
+                maxFiles={5}
+                maxSizeMB={10}
               />
             </div>
-            
-            <div className="flex gap-3">
-              <button
-                onClick={() => setRejectionModalData(null)}
-                className="btn btn-outline flex-1"
-                disabled={actionLoading}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleRejectionSubmit}
-                disabled={actionLoading || !rejectionReason.trim()}
-                className="btn btn-primary flex-1"
-              >
-                {actionLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <XCircle className="w-4 h-4" />
-                )}
-                Reject Paper
-              </button>
-            </div>
           </div>
-        </Modal>
-      )}
-
+        </div>
+      </div>
+      
+      {/* FIXED FOOTER */}
+      <div className="p-4 border-t bg-gray-50 flex-shrink-0">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <button
+            onClick={() => setRejectionModalData(null)}
+            className="btn btn-outline order-2 sm:order-1 flex-1 py-2.5 text-sm font-semibold hover:bg-gray-100"
+            disabled={actionLoading}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleRejectionSubmit}
+            disabled={actionLoading || !rejectionReason.trim()}
+            className="btn order-1 sm:order-2 flex-1 py-2.5 flex items-center justify-center gap-2 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 border-none disabled:bg-gray-300 transition-colors shadow-md"
+          >
+            {actionLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <XCircle className="w-4 h-4" />
+            )}
+            Confirm Rejection
+          </button>
+        </div>
+      </div>
+    </div>
+  </Modal>
+)}
       {imagePreviewUrl && (
         <Modal onClose={() => setImagePreviewUrl(null)} size="lg">
           <div className="p-4 border-b border-gray-200">
