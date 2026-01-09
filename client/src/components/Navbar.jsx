@@ -35,7 +35,7 @@
 
 //   const handleLogout = async () => {
 //     try {
-//       await axios.post("https://s3conference.ksrce.ac.in/api/admin/logout", {}, {
+//       await axios.post("https://admin-dashboard-seven-vert-54.vercel.app/api/admin/logout", {}, {
 //         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
 //       });
 //     } catch (err) {
@@ -174,7 +174,7 @@
 
 //   const handleLogout = async () => {
 //     try {
-//       await axios.post("https://s3conference.ksrce.ac.in/api/admin/logout", {}, {
+//       await axios.post("https://admin-dashboard-seven-vert-54.vercel.app/api/admin/logout", {}, {
 //         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
 //       });
 //     } catch (err) {
@@ -317,7 +317,7 @@ const SideNavbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
 
   const handleLogout = async () => {
     try {
-      await axios.post("https://s3conference.ksrce.ac.in/api/admin/logout", {}, {
+      await axios.post("https://admin-dashboard-seven-vert-54.vercel.app/api/admin/logout", {}, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
     } catch (err) {

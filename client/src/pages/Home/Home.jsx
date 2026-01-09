@@ -647,7 +647,7 @@ const MainDashboard = () => {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No token found");
 
-      const res = await fetch("https://s3conference.ksrce.ac.in/api/admin/users", {
+      const res = await fetch("https://admin-dashboard-seven-vert-54.vercel.app/api/admin/users", {
         headers: { Authorization: `Bearer ${token}` },
       });
 

@@ -147,7 +147,7 @@ const Inbox = () => {
   const [replyMessages, setReplyMessages] = useState({});
   const [activeTab, setActiveTab] = useState("unresolved"); // 'unresolved' or 'resolved'
 
-  const API_BASE = "https://s3Conference.ksrce.ac.in/api/enquiries";
+  const API_BASE = "https://admin-dashboard-seven-vert-54.vercel.app/api/enquiries";
 
   // --- Fetch enquiries from API ---
   const fetchEnquiries = useCallback(async () => {

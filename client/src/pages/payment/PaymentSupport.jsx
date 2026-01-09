@@ -1305,7 +1305,7 @@ const PaymentSupport = () => {
       cleanPath = cleanPath.substring(1);
     }
 
-    const BASE_URL = "https://s3conference.ksrce.ac.in";
+    const BASE_URL = "https://admin-dashboard-seven-vert-54.vercel.app";
     
     // For debugging - log the formatted URL
     console.log(`Original: ${url}, Formatted: ${BASE_URL}/${cleanPath}`);
@@ -1399,7 +1399,7 @@ const PaymentSupport = () => {
       
       // 1. Make the API Call
       const { data } = await axios.get(
-        "https://s3conference.ksrce.ac.in/api/admin/users",
+        "https://admin-dashboard-seven-vert-54.vercel.app/api/admin/users",
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -1556,51 +1556,71 @@ const PaymentSupport = () => {
   };
 
   // Verify Payment API Call
-  const handlePaymentVerify = async (mongoId, status, feedback = "") => {
-    if (!mongoId) {
-      alert("Error: No valid User ID provided");
+const handlePaymentVerify = async (mongoId, action, feedback = "") => {
+  if (!mongoId) {
+    alert("Error: No valid User ID provided");
+    return;
+  }
+
+  setActionLoading(true);
+
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("No authentication token found. Please log in again.");
       return;
     }
-    
-    setActionLoading(true);
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert("No authentication token found. Please log in again.");
+
+    let body = {};
+
+    // ✅ If admin clicks APPROVE → send ONLY paymentStatus
+    if (action === "paid") {
+      body = { paymentStatus: "paid" };
+    }
+
+    // ✅ If admin clicks MARK PENDING → send ONLY feedback
+    else if (action === "payment pending") {
+      if (!feedback.trim()) {
+        alert("Feedback is required to mark payment as pending");
+        setActionLoading(false);
         return;
       }
-      
-      const body = { 
-        paymentStatus: status.toLowerCase(), 
-        feedback: status === "paid" ? "" : feedback 
-      };
-      
-      const API_URL = `https://s3conference.ksrce.ac.in/api/admin/paymentprocess/verify/${mongoId}`;
-      
-      const response = await axios.put(API_URL, body, {
-        headers: { 
-          Authorization: `Bearer ${token}`, 
-          'Content-Type': 'application/json' 
-        },
-      });
-
-      if (response.data?.success) {
-        alert(`✅ Payment status updated to: ${status}`);
-        setVerifyModalData(null);
-        setFeedbackModalOpen(false);
-        setFeedbackText("");
-        setRefreshTrigger((prev) => !prev);
-      } else {
-        alert(response.data?.message || "Unexpected server response.");
-      }
-    } catch (err) {
-      console.error("❌ ERROR updating payment status:", err);
-      const errorMessage = err.response?.data?.message || err.message || "Failed to update status.";
-      alert(`Error: ${errorMessage}`);
-    } finally {
-      setActionLoading(false);
+      body = { feedback: feedback.trim() };
     }
-  };
+
+    else {
+      alert("Invalid admin action");
+      setActionLoading(false);
+      return;
+    }
+
+    const API_URL = `https://admin-dashboard-seven-vert-54.vercel.app/api/payments/paymentprocess/verify/${mongoId}`;
+
+    const response = await axios.put(API_URL, body, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.data?.success) {
+      alert("✅ Payment status updated successfully");
+      setVerifyModalData(null);
+      setFeedbackModalOpen(false);
+      setFeedbackText("");
+      setRefreshTrigger((prev) => !prev);
+    } else {
+      alert(response.data?.message || "Unexpected server response");
+    }
+
+  } catch (err) {
+    console.error("❌ ERROR updating payment status:", err);
+    alert(err.response?.data?.message || "Failed to update payment");
+  } finally {
+    setActionLoading(false);
+  }
+};
+
 
   const handleFeedbackSubmit = () => {
     if (!feedbackText.trim()) {

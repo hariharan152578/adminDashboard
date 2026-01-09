@@ -1822,11 +1822,11 @@ const AbstractSupport = () => {
     }
     
     if (url.startsWith('/uploads/')) {
-      return `https://s3conference.ksrce.ac.in${url}`;
+      return `https://admin-dashboard-seven-vert-54.vercel.app${url}`;
     }
     
     if (url.includes('proof_') && !url.includes('/')) {
-      return `https://s3conference.ksrce.ac.in/uploads/proofs/${url}`;
+      return `https://admin-dashboard-seven-vert-54.vercel.app/uploads/proofs/${url}`;
     }
     
     return url;
@@ -1875,7 +1875,7 @@ const AbstractSupport = () => {
       }
 
       const { data } = await axios.get(
-        "https://s3conference.ksrce.ac.in/api/admin/users",
+        "https://admin-dashboard-seven-vert-54.vercel.app/api/admin/users",
         { 
           headers: { 
             Authorization: `Bearer ${token}`,
@@ -2050,7 +2050,7 @@ const AbstractSupport = () => {
         payload.abstractrejectedReason = reason;
       }
 
-      const API_URL = `https://s3conference.ksrce.ac.in/api/admin/update/${abstractModalData.id}`;
+      const API_URL = `https://admin-dashboard-seven-vert-54.vercel.app/api/admin/update/${abstractModalData.id}`;
 
       const response = await axios.put(API_URL, payload, {
         headers: {

@@ -31,7 +31,7 @@ export default function SignInPage() {
 
     try {
       const response = await fetch(
-        "https://s3conference.ksrce.ac.in/api/admin/login",
+        "https://admin-dashboard-seven-vert-54.vercel.app/api/admin/login",
         {
           method: "POST",
           headers: {
