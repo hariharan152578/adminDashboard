@@ -1305,7 +1305,7 @@ const PaymentSupport = () => {
       cleanPath = cleanPath.substring(1);
     }
 
-    const BASE_URL = "https://admin-dashboard-seven-vert-54.vercel.app";
+    const BASE_URL = "https://s3conference.ksrce.ac.in/api";
     
     // For debugging - log the formatted URL
     console.log(`Original: ${url}, Formatted: ${BASE_URL}/${cleanPath}`);
@@ -1399,7 +1399,7 @@ const PaymentSupport = () => {
       
       // 1. Make the API Call
       const { data } = await axios.get(
-        "https://admin-dashboard-seven-vert-54.vercel.app/api/admin/users",
+        "https://s3conference.ksrce.ac.in/api/admin/users",
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -1594,7 +1594,7 @@ const handlePaymentVerify = async (mongoId, action, feedback = "") => {
       return;
     }
 
-    const API_URL = `https://admin-dashboard-seven-vert-54.vercel.app/api/payments/paymentprocess/verify/${mongoId}`;
+    const API_URL = `https://s3conference.ksrce.ac.in/api/payments/paymentprocess/verify/${mongoId}`;
 
     const response = await axios.put(API_URL, body, {
       headers: {
