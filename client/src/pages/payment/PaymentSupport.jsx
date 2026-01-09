@@ -758,7 +758,6 @@ const paymentSupportStyles = `
 
 /* Enhanced Image Styles */
 .proof-image-container {
-  position: relative;
   width: 100%;
   height: 300px;
   background: #f8fafc;
@@ -1154,44 +1153,20 @@ const PaymentTrendChart = ({ data }) => (
 
 /* ----------------------------- Enhanced Proof Image Component ----------------------------- */
 const ProofImage = ({ src, alt = "Payment Proof" }) => {
-  const [imageState, setImageState] = useState('loading'); // 'loading', 'loaded', 'error'
-  const [retryCount, setRetryCount] = useState(0);
+  const [state, setState] = useState("loading"); // loading | loaded | error
+  const [retry, setRetry] = useState(0);
 
-  const handleImageLoad = () => {
-    setImageState('loaded');
-  };
-
-  const handleImageError = () => {
-    console.error('Failed to load proof image:', src);
-    setImageState('error');
-  };
-
-  const handleRetry = () => {
-    setRetryCount(prev => prev + 1);
-    setImageState('loading');
-  };
-
-  const handleDirectView = () => {
-    if (src) {
-      window.open(src, '_blank', 'noopener,noreferrer');
-    }
-  };
-
-  // Reset state when src changes
   useEffect(() => {
-    setImageState('loading');
-    setRetryCount(0);
+    setState("loading");
+    setRetry(0);
   }, [src]);
 
   if (!src) {
     return (
       <div className="proof-image-container">
         <div className="proof-image-error">
-          <FileText className="w-16 h-16 text-gray-400" />
-          <div>
-            <p className="text-sm font-medium text-gray-900">No Proof Submitted</p>
-            <p className="text-xs text-gray-500 mt-1">User has not uploaded any payment proof</p>
-          </div>
+          <FileText className="w-12 h-12 text-gray-400" />
+          <p className="text-sm text-gray-600">No proof uploaded</p>
         </div>
       </div>
     );
@@ -1199,61 +1174,15 @@ const ProofImage = ({ src, alt = "Payment Proof" }) => {
 
   return (
     <div className="proof-image-container">
-      {imageState === 'loading' && (
-        <div className="proof-image-loading">
-          <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
-          <p className="text-sm text-gray-600">Loading proof image...</p>
-        </div>
-      )}
-
-      {imageState === 'error' && (
-        <div className="proof-image-error">
-          <FileText className="w-16 h-16 text-gray-400" />
-          <div>
-            <p className="text-sm font-medium text-gray-900">Failed to Load Image</p>
-            <p className="text-xs text-gray-500 mt-1">
-              {retryCount > 0 ? `Retry attempt ${retryCount}` : 'The image could not be loaded'}
-            </p>
-          </div>
-          <div className="flex gap-2 mt-3">
-            <button 
-              onClick={handleRetry}
-              className="btn btn-outline btn-sm"
-              disabled={retryCount >= 3}
-            >
-              {retryCount >= 3 ? 'Max Retries' : 'Retry Loading'}
-            </button>
-            <button 
-              onClick={handleDirectView}
-              className="btn btn-primary btn-sm"
-            >
-              Open Direct Link
-            </button>
-          </div>
-        </div>
-      )}
-
-      {imageState === 'loaded' && (
-        <img
-          src={`${src}${retryCount > 0 ? `?retry=${retryCount}` : ''}`}
-          alt={alt}
-          className="proof-image"
-          onLoad={handleImageLoad}
-          onError={handleImageError}
-        />
-      )}
-
-      {/* Hidden preloader */}
       <img
         src={src}
-        alt=""
-        style={{ display: 'none' }}
-        onLoad={handleImageLoad}
-        onError={handleImageError}
+        alt={alt}
+        className="proof-image"
       />
     </div>
   );
 };
+
 
 /* ----------------------------- Main PaymentSupport Component ----------------------------- */
 
@@ -1305,7 +1234,7 @@ const PaymentSupport = () => {
       cleanPath = cleanPath.substring(1);
     }
 
-    const BASE_URL = "https://s3conference.ksrce.ac.in/api";
+    const BASE_URL = "https://s3conference.ksrce.ac.in";
     
     // For debugging - log the formatted URL
     console.log(`Original: ${url}, Formatted: ${BASE_URL}/${cleanPath}`);
@@ -1881,7 +1810,7 @@ const handlePaymentVerify = async (mongoId, action, feedback = "") => {
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto max-h-[70vh] p-4 space-y-4">
+       <div className="flex-1 overflow-y-auto max-h-[70vh] p-4 space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="p-3 border rounded-lg space-y-3">
                 <h4 className="font-bold mb-2 text-sm text-gray-900">Payment Details</h4>
